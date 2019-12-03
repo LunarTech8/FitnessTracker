@@ -1,67 +1,40 @@
 package com.romanbrunner.apps.fitnesstracker;
 
+import androidx.room.ColumnInfo;
+import androidx.room.Entity;
+import androidx.room.Ignore;
+import androidx.room.PrimaryKey;
 
-class Exercise
+
+@Entity
+public class Exercise
 {
     // --------------------
     // Functional code
     // --------------------
 
-    private String name;
-    private String token;
-    private int repeats;
-    private float weight;
-    private boolean done;
-    private String remarks;
+    @PrimaryKey
+    public int uid;
 
-    /**
-     * @return the name
-     */
-    public String getName()
-    {
-        return name;
-    }
+    @ColumnInfo(name = "name")
+    public String name;
 
-    /**
-     * @return the token
-     */
-    public String getToken()
-    {
-        return token;
-    }
+    @ColumnInfo(name = "token")
+    public String token;
 
-    /**
-     * @return the repeats
-     */
-    public int getRepeats()
-    {
-        return repeats;
-    }
+    @ColumnInfo(name = "remarks")
+    public String remarks;
 
-    /**
-     * @return the weight
-     */
-    public float getWeight()
-    {
-        return weight;
-    }
+    @ColumnInfo(name = "repeats")
+    public int repeats;
 
-    /**
-     * @return the done
-     */
-    public boolean getDone()
-    {
-        return done;
-    }
+    @ColumnInfo(name = "weight")
+    public float weight;
 
-    /**
-     * @return the remarks
-     */
-    public String getRemarks()
-    {
-        return remarks;
-    }
+    @ColumnInfo(name = "done")
+    public boolean done;
 
+    @Ignore
     Exercise(String name, String token, int repeats, float weight)
     {
         this.name = name;

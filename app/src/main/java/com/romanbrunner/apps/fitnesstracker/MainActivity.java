@@ -3,6 +3,7 @@ package com.romanbrunner.apps.fitnesstracker;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import android.os.Bundle;
 
@@ -15,6 +16,8 @@ public class MainActivity extends AppCompatActivity
     // --------------------
     // Data code
     // --------------------
+
+    private final String DATABASE_NAME = "fitness-tracker-database";
 
     private List<Exercise> initializeData()
     {
@@ -52,5 +55,7 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(new RecyclerViewAdapter(initializeData()));
+
+        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, DATABASE_NAME).build();
     }
 }

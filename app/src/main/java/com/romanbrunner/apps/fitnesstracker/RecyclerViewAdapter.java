@@ -62,12 +62,12 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     @Override
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseId)
     {
-        exerciseViewHolder.exerciseName.setText(exercises.get(exerciseId).getName());
-        exerciseViewHolder.exerciseToken.setText(exercises.get(exerciseId).getToken());
-        exerciseViewHolder.exerciseRepeats.setText(String.valueOf(exercises.get(exerciseId).getRepeats()));
-        exerciseViewHolder.exerciseWeight.setText(String.valueOf(exercises.get(exerciseId).getWeight()));
-        exerciseViewHolder.exerciseDone.setChecked(exercises.get(exerciseId).getDone());
-        exerciseViewHolder.exerciseRemarks.setText(exercises.get(exerciseId).getRemarks());
+        exerciseViewHolder.exerciseName.setText(exercises.get(exerciseId).name);
+        exerciseViewHolder.exerciseToken.setText(exercises.get(exerciseId).token);
+        exerciseViewHolder.exerciseRepeats.setText(String.valueOf(exercises.get(exerciseId).repeats));
+        exerciseViewHolder.exerciseWeight.setText(String.valueOf(exercises.get(exerciseId).weight));
+        exerciseViewHolder.exerciseDone.setChecked(exercises.get(exerciseId).done);
+        exerciseViewHolder.exerciseRemarks.setText(exercises.get(exerciseId).remarks);
     }
 
     @Override

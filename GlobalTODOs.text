@@ -20,8 +20,8 @@ Work status:
 // Programming:
 // -------------
 
-!!!- Add a "Save Data" button at bottom that stores the data with current date into a json database file
-!!!- On startup load last stored data from json database file (without the done fields)
+!!!>>- Implement a Room database to save the current Exercise data
+!!!- Add a "Save Data" button at bottom that stores the current data with current date into a database
 !!- Add an "Add Exercise" button at bottom
 !- Add option to switch between colour themes
 
