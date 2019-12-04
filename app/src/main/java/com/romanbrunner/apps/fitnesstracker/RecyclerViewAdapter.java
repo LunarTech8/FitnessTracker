@@ -21,22 +21,22 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
-        EditText exerciseName;
-        EditText exerciseToken;
-        EditText exerciseRepeats;
-        EditText exerciseWeight;
-        CheckBox exerciseDone;
-        EditText exerciseRemarks;
+        EditText nameField;
+        EditText tokenField;
+        EditText repeatsField;
+        EditText weightField;
+        CheckBox doneField;
+        EditText remarksField;
 
         ExerciseViewHolder(View itemView)
         {
             super(itemView);
-            exerciseName = itemView.findViewById(R.id.exerciseName);
-            exerciseToken = itemView.findViewById(R.id.exerciseToken);
-            exerciseRepeats = itemView.findViewById(R.id.exerciseRepeats);
-            exerciseWeight = itemView.findViewById(R.id.exerciseWeight);
-            exerciseDone = itemView.findViewById(R.id.exerciseDone);
-            exerciseRemarks = itemView.findViewById(R.id.exerciseRemarks);
+            nameField = itemView.findViewById(R.id.exerciseName);
+            tokenField = itemView.findViewById(R.id.exerciseToken);
+            repeatsField = itemView.findViewById(R.id.exerciseRepeats);
+            weightField = itemView.findViewById(R.id.exerciseWeight);
+            doneField = itemView.findViewById(R.id.exerciseDone);
+            remarksField = itemView.findViewById(R.id.exerciseRemarks);
         }
     }
 
@@ -60,14 +60,14 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     }
 
     @Override
-    public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseId)
+    public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseNumber)
     {
-        exerciseViewHolder.exerciseName.setText(exercises.get(exerciseId).name);
-        exerciseViewHolder.exerciseToken.setText(exercises.get(exerciseId).token);
-        exerciseViewHolder.exerciseRepeats.setText(String.valueOf(exercises.get(exerciseId).repeats));
-        exerciseViewHolder.exerciseWeight.setText(String.valueOf(exercises.get(exerciseId).weight));
-        exerciseViewHolder.exerciseDone.setChecked(exercises.get(exerciseId).done);
-        exerciseViewHolder.exerciseRemarks.setText(exercises.get(exerciseId).remarks);
+        exerciseViewHolder.nameField.setText(exercises.get(exerciseNumber).name);
+        exerciseViewHolder.tokenField.setText(exercises.get(exerciseNumber).token);
+        exerciseViewHolder.repeatsField.setText(String.valueOf(exercises.get(exerciseNumber).repeats));
+        exerciseViewHolder.weightField.setText(String.valueOf(exercises.get(exerciseNumber).weight));
+        exerciseViewHolder.doneField.setChecked(exercises.get(exerciseNumber).done);
+        exerciseViewHolder.remarksField.setText(exercises.get(exerciseNumber).remarks);
     }
 
     @Override

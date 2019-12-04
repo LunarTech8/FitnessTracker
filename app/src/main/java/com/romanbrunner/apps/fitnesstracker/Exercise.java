@@ -14,7 +14,7 @@ public class Exercise
     // --------------------
 
     @PrimaryKey
-    public int uid;
+    public int id;
 
     @ColumnInfo(name = "name")
     public String name;

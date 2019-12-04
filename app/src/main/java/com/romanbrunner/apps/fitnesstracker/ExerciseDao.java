@@ -18,11 +18,11 @@ public interface ExerciseDao
     @Query("SELECT * FROM exercise")
     List<Exercise> getAll();
 
-    @Query("SELECT * FROM exercise WHERE uid IN (:exerciseIds)")
+    @Query("SELECT * FROM exercise WHERE id IN (:exerciseIds)")
     List<Exercise> loadAllByIds(int[] exerciseIds);
 
-    @Query("SELECT * FROM exercise WHERE name LIKE :first AND " + "token LIKE :last LIMIT 1")
-    Exercise findByName(String first, String last);
+    @Query("SELECT * FROM exercise WHERE name LIKE :searchName AND " + "token LIKE :searchToken LIMIT 1")
+    Exercise findByNameAndToken(String searchName, String searchToken);
 
     @Insert
     void insertAll(Exercise... exercises);

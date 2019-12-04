@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,11 +53,32 @@ public class MainActivity extends AppCompatActivity
         setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
         setContentView(R.layout.activity_main);
 
+        AppDatabase database = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, DATABASE_NAME).build();
+        List<Exercise> exercises = database.exerciseDao().getAll();
+        if (exercises.isEmpty())
+        {
+            exercises = initializeData();
+        }
+
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new RecyclerViewAdapter(initializeData()));
+        recyclerView.setAdapter(new RecyclerViewAdapter(exercises));
 
-        AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, DATABASE_NAME).build();
+        // TODO: find out how to implement listener
+//        Exercise exercise = database.exerciseDao().findByNameAndToken("", "");
+//        nameField.setText(exercise.name);
+//        nameField.addTextChangedListener(new TextWatcher()
+//        {
+//            // the user's changes are saved here
+//            public void onTextChanged(CharSequence c, int start, int before, int count)
+//            {
+//                exercise.name = c.toString();
+//            }
+//
+//            public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
+//
+//            public void afterTextChanged(Editable c) {}
+//        });
     }
 }
