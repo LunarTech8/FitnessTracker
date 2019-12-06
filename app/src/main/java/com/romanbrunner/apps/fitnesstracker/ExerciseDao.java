@@ -29,4 +29,6 @@ public interface ExerciseDao
 
     @Delete
     void delete(Exercise exercise);
+
+    void replaceById(int oldExerciseId, Exercise newExercise);  // TODO: implement function
 }
