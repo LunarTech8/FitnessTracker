@@ -1,7 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,43 +8,16 @@ import android.widget.EditText;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
 class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ExerciseViewHolder>
 {
     // --------------------
-    // Data code
-    // --------------------
-
-    private List<Exercise> initializeData()
-    {
-        List<Exercise> exercises = new ArrayList<>();
-        exercises.add(new Exercise("Cross-Walker", "-", 8, 0.F, "Repeats in Minuten"));
-        exercises.add(new Exercise("Negativ-Crunch", "-", 20, 0.F));
-        exercises.add(new Exercise("Klimmzug breit zur Brust", "-", 8, 0.F));
-        exercises.add(new Exercise("Klimmzug breit zur Brust", "-", 6, 0.F));
-        exercises.add(new Exercise("Klimmzug breit zur Brust", "-", 4, 0.F));
-        exercises.add(new Exercise("Beinstrecker", "-", 19, 35.F));
-        exercises.add(new Exercise("Beinbeuger", "-", 15, 40.F));
-        exercises.add(new Exercise("Butterfly", "-", 16, 35.F));
-        exercises.add(new Exercise("Wadenheben an der Beinpresse", "-", 16, 105.F, "5 Löcher vorne frei"));
-        exercises.add(new Exercise("Duale Schrägband-Drückmaschine", "-", 18, 30.F));
-        exercises.add(new Exercise("Bizepsmaschine", "-", 16, 35.F));
-        exercises.add(new Exercise("Pushdown am Kabelzug", "-", 16, 20.F));
-        exercises.add(new Exercise("Rückenstrecker", "-", 21, 0.F));
-        exercises.add(new Exercise("Beinheben liegend", "-", 22, 0.F));
-        return exercises;
-    }
-
-
-    // --------------------
     // Functional code
     // --------------------
 
     private List<Exercise> exercises;
-    private AppDatabase database;
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
@@ -70,20 +41,18 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         }
     }
 
-    RecyclerViewAdapter(AppDatabase database)
-    {
-        this.database = database;
-        // Load or initialise database:
-        exercises = this.database.exerciseDao().getAll();
-        if (exercises.isEmpty()) {
-            exercises = initializeData();
-        }
-    }
+    RecyclerViewAdapter() {}
 
     @Override
     public int getItemCount()
     {
-        return exercises.size();
+        return exercises.size();  // FIXME: exercises isn't initialized at startup
+    }
+
+    public void setExercises(final List<Exercise> exercises)
+    {
+        this.exercises = exercises;
+        // TODO: refresh view
     }
 
     @Override
@@ -98,30 +67,30 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseNumber)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        exerciseViewHolder.nameField.setText(exercises.get(exerciseNumber).name);
-        exerciseViewHolder.tokenField.setText(exercises.get(exerciseNumber).token);
-        exerciseViewHolder.repeatsField.setText(String.valueOf(exercises.get(exerciseNumber).repeats));
-        exerciseViewHolder.weightField.setText(String.valueOf(exercises.get(exerciseNumber).weight));
-        exerciseViewHolder.doneField.setChecked(exercises.get(exerciseNumber).done);
-        exerciseViewHolder.remarksField.setText(exercises.get(exerciseNumber).remarks);
+        final Exercise exercise = exercises.get(exerciseNumber);
+        exerciseViewHolder.nameField.setText(exercise.name);
+        exerciseViewHolder.tokenField.setText(exercise.token);
+        exerciseViewHolder.repeatsField.setText(String.valueOf(exercise.repeats));
+        exerciseViewHolder.weightField.setText(String.valueOf(exercise.weight));
+        exerciseViewHolder.doneField.setChecked(exercise.done);
+        exerciseViewHolder.remarksField.setText(exercise.remarks);
+        // TODO: make fields iterable
 
         // Add change listeners:
-        exerciseViewHolder.nameField.addTextChangedListener(new TextWatcher()
-        {
-            // The user's changes are saved here:
-            public void onTextChanged(CharSequence c, int start, int before, int count)
-            {
-                // TODO: find out how to implement listener
-                Exercise exercise = database.exerciseDao().findByNameAndToken("", "");
-                exercise.name = c.toString();  // Adjust value in database
-                // TODO: update database -> replaceById()
-                // TODO: refresh view
-            }
-
-            public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
-
-            public void afterTextChanged(Editable c) {}
-        });
+//        exerciseViewHolder.nameField.addTextChangedListener(new TextWatcher()  // TODO: find out how to implement listener -> check if this works
+//        {
+//            public void onTextChanged(CharSequence c, int start, int before, int count)
+//            {
+//                // Adjust value and update database
+//                exercise.name = c.toString();
+//                database.exerciseDao().update(exercise);
+//                // TODO: refresh view -> check if it is required
+//            }
+//
+//            public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
+//
+//            public void afterTextChanged(Editable c) {}
+//        });
         // TODO: make fields iterable
     }
 

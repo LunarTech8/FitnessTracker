@@ -6,14 +6,14 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 
-@Entity
+@Entity(tableName = "exercises")
 public class Exercise
 {
     // --------------------
     // Functional code
     // --------------------
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int id;
 
     @ColumnInfo(name = "name")
@@ -34,6 +34,7 @@ public class Exercise
     @ColumnInfo(name = "done")
     public boolean done;
 
+    Exercise() {}
     @Ignore
     Exercise(String name, String token, int repeats, float weight)
     {
@@ -43,6 +44,7 @@ public class Exercise
         this.weight = weight;
         done = false;
     }
+    @Ignore
     Exercise(String name, String token, int repeats, float weight, String remarks)
     {
         this(name, token, repeats, weight);
