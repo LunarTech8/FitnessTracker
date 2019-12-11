@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker;
+package com.romanbrunner.apps.fitnesstracker.UI;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,6 +6,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+
+import com.romanbrunner.apps.fitnesstracker.R;
 
 
 public class MainActivity extends AppCompatActivity
@@ -29,6 +31,9 @@ public class MainActivity extends AppCompatActivity
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             adapter = new RecyclerViewAdapter();
             recyclerView.setAdapter(adapter);
+
+//            final ExerciseListViewModel viewModel = new ViewModelProvider(this).get(ExerciseListViewModel.class);
+            // TODO: implement
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker;
+package com.romanbrunner.apps.fitnesstracker.Database;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey;
 
 
 @Entity(tableName = "exercises")
-public class Exercise
+public class ExerciseEntity
 {
     // --------------------
     // Functional code
@@ -34,9 +34,9 @@ public class Exercise
     @ColumnInfo(name = "done")
     public boolean done;
 
-    Exercise() {}
+    ExerciseEntity() {}
     @Ignore
-    Exercise(String name, String token, int repeats, float weight)
+    ExerciseEntity(String name, String token, int repeats, float weight)
     {
         this.name = name;
         this.token = token;
@@ -45,7 +45,7 @@ public class Exercise
         done = false;
     }
     @Ignore
-    Exercise(String name, String token, int repeats, float weight, String remarks)
+    ExerciseEntity(String name, String token, int repeats, float weight, String remarks)
     {
         this(name, token, repeats, weight);
         this.remarks = remarks;

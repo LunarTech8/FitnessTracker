@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker;
+package com.romanbrunner.apps.fitnesstracker.UI;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +7,9 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.R;
 
 import java.util.List;
 
@@ -17,7 +20,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     // Functional code
     // --------------------
 
-    private List<Exercise> exercises;
+    private List<ExerciseEntity> exerciseEntities;
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
@@ -46,13 +49,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     @Override
     public int getItemCount()
     {
-        return exercises.size();  // FIXME: exercises isn't initialized at startup
-    }
-
-    public void setExercises(final List<Exercise> exercises)
-    {
-        this.exercises = exercises;
-        // TODO: refresh view
+        return exerciseEntities.size();  // FIXME: exercises isn't initialized at startup yet
     }
 
     @Override
@@ -67,13 +64,13 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseNumber)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        final Exercise exercise = exercises.get(exerciseNumber);
-        exerciseViewHolder.nameField.setText(exercise.name);
-        exerciseViewHolder.tokenField.setText(exercise.token);
-        exerciseViewHolder.repeatsField.setText(String.valueOf(exercise.repeats));
-        exerciseViewHolder.weightField.setText(String.valueOf(exercise.weight));
-        exerciseViewHolder.doneField.setChecked(exercise.done);
-        exerciseViewHolder.remarksField.setText(exercise.remarks);
+        final ExerciseEntity exerciseEntity = exerciseEntities.get(exerciseNumber);
+        exerciseViewHolder.nameField.setText(exerciseEntity.name);
+        exerciseViewHolder.tokenField.setText(exerciseEntity.token);
+        exerciseViewHolder.repeatsField.setText(String.valueOf(exerciseEntity.repeats));
+        exerciseViewHolder.weightField.setText(String.valueOf(exerciseEntity.weight));
+        exerciseViewHolder.doneField.setChecked(exerciseEntity.done);
+        exerciseViewHolder.remarksField.setText(exerciseEntity.remarks);
         // TODO: make fields iterable
 
         // Add change listeners:
