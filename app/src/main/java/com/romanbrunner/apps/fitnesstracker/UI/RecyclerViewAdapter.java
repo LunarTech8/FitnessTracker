@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
@@ -20,7 +21,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     // Functional code
     // --------------------
 
-    private List<ExerciseEntity> exerciseEntities;
+    private List<ExerciseEntity> exercises;
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
@@ -41,6 +42,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
             weightField = itemView.findViewById(R.id.exerciseWeight);
             doneField = itemView.findViewById(R.id.exerciseDone);
             remarksField = itemView.findViewById(R.id.exerciseRemarks);
+            // TODO: maybe better store the itemView instead of the individual fields
         }
     }
 
@@ -49,28 +51,33 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     @Override
     public int getItemCount()
     {
-        return exerciseEntities.size();  // FIXME: exercises isn't initialized at startup yet
+        return exercises == null ? 0 : exercises.size();
     }
 
     @Override
-    public ExerciseViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
+    public long getItemId(int position)
+    {
+        return exercises.get(position).id;
+    }
+
+    @Override
+    public ExerciseViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
     {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item, viewGroup, false);
-        ExerciseViewHolder exerciseViewHolder = new ExerciseViewHolder(view);
-        return exerciseViewHolder;
+        return new ExerciseViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int exerciseNumber)
+    public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        final ExerciseEntity exerciseEntity = exerciseEntities.get(exerciseNumber);
-        exerciseViewHolder.nameField.setText(exerciseEntity.name);
-        exerciseViewHolder.tokenField.setText(exerciseEntity.token);
-        exerciseViewHolder.repeatsField.setText(String.valueOf(exerciseEntity.repeats));
-        exerciseViewHolder.weightField.setText(String.valueOf(exerciseEntity.weight));
-        exerciseViewHolder.doneField.setChecked(exerciseEntity.done);
-        exerciseViewHolder.remarksField.setText(exerciseEntity.remarks);
+        final ExerciseEntity exercise = exercises.get(position);
+        exerciseViewHolder.nameField.setText(exercise.name);
+        exerciseViewHolder.tokenField.setText(exercise.token);
+        exerciseViewHolder.repeatsField.setText(String.valueOf(exercise.repeats));
+        exerciseViewHolder.weightField.setText(String.valueOf(exercise.weight));
+        exerciseViewHolder.doneField.setChecked(exercise.done);
+        exerciseViewHolder.remarksField.setText(exercise.remarks);
         // TODO: make fields iterable
 
         // Add change listeners:
@@ -95,5 +102,45 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     public void onAttachedToRecyclerView(RecyclerView recyclerView)
     {
         super.onAttachedToRecyclerView(recyclerView);
+    }
+
+    public void setExercises(final List<ExerciseEntity> exercises)
+    {
+        if (this.exercises == null)
+        {
+            this.exercises = exercises;
+            notifyItemRangeInserted(0, exercises.size());
+        }
+        else
+        {
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
+            {
+                @Override
+                public int getOldListSize()
+                {
+                    return RecyclerViewAdapter.this.exercises.size();
+                }
+
+                @Override
+                public int getNewListSize()
+                {
+                    return exercises.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
+                {
+                    return RecyclerViewAdapter.this.exercises.get(oldItemPosition).id == exercises.get(newItemPosition).id;
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
+                {
+                    return ExerciseEntity.isContentTheSame(exercises.get(newItemPosition), RecyclerViewAdapter.this.exercises.get(oldItemPosition));
+                }
+            });
+            this.exercises = exercises;
+            result.dispatchUpdatesTo(this);
+        }
     }
 }

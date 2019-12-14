@@ -3,6 +3,8 @@ package com.romanbrunner.apps.fitnesstracker.Database;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -53,6 +55,8 @@ public abstract class AppDatabase extends RoomDatabase
 
     public abstract ExerciseDao exerciseDao();
 
+    private final MutableLiveData<Boolean> isDatabaseCreated = new MutableLiveData<>();
+
     public static AppDatabase getInstance(final Context context, final AppExecutors executors)  // TODO: this has to be called at least once somewhere
     {
         if (instance == null)
@@ -62,16 +66,15 @@ public abstract class AppDatabase extends RoomDatabase
                 if (instance == null)
                 {
                     instance = buildDatabase(context.getApplicationContext(), executors);
+                    instance.updateDatabaseCreated(context.getApplicationContext());
                 }
             }
         }
         return instance;
     }
 
-    /**
-     * Build the database. {@link Builder#build()} only sets up the database configuration and creates a new instance of the database.
-     * The SQLite database is only created when it's accessed for the first time.
-     */
+    /* Build the database. {@link Builder#build()} only sets up the database configuration and creates a new instance of the database.
+     * The SQLite database is only created when it's accessed for the first time. */
     private static AppDatabase buildDatabase(final Context appContext, final AppExecutors executors)
     {
         Callback callback = new Callback()
@@ -88,7 +91,7 @@ public abstract class AppDatabase extends RoomDatabase
 
                     // Load or initialise database:
                     AppDatabase database = AppDatabase.getInstance(appContext, executors);
-                    final List<ExerciseEntity> storedExercises = database.exerciseDao().getAll();
+                    final List<ExerciseEntity> storedExercises = database.exerciseDao().loadAll().getValue();
                     final List<ExerciseEntity> exercises;
                     if (storedExercises.isEmpty())
                     {
@@ -99,9 +102,30 @@ public abstract class AppDatabase extends RoomDatabase
                         exercises = storedExercises;
                     }
                     database.runInTransaction(() -> database.exerciseDao().insert(exercises));
+                    // Notify that the database was created and is ready to be used:
+                    database.setDatabaseCreated();
                 });
             }
         };
         return Room.databaseBuilder(appContext, AppDatabase.class, DATABASE_NAME).addCallback(callback).build();
+    }
+
+    /* Check whether the database already exists and expose it via {@link #getDatabaseCreated()}. */
+    private void updateDatabaseCreated(final Context context)
+    {
+        if (context.getDatabasePath(DATABASE_NAME).exists())
+        {
+            setDatabaseCreated();
+        }
+    }
+
+    public LiveData<Boolean> getDatabaseCreated()
+    {
+        return isDatabaseCreated;
+    }
+
+    private void setDatabaseCreated()
+    {
+        isDatabaseCreated.postValue(true);
     }
 }

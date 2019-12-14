@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import java.util.Objects;
+
 
 @Entity(tableName = "exercises")
 public class ExerciseEntity
@@ -49,5 +51,16 @@ public class ExerciseEntity
     {
         this(name, token, repeats, weight);
         this.remarks = remarks;
+    }
+
+    public static boolean isContentTheSame(ExerciseEntity exerciseA, ExerciseEntity exerciseB)
+    {
+        return exerciseA.id == exerciseB.id
+            && Objects.equals(exerciseA.name, exerciseB.name)
+            && Objects.equals(exerciseA.token, exerciseB.token)
+            && Objects.equals(exerciseA.remarks, exerciseB.remarks)
+            && exerciseA.repeats == exerciseB.repeats
+            && Float.compare(exerciseA.weight, exerciseB.weight) == 0
+            && exerciseA.done == exerciseB.done;
     }
 }
