@@ -26,7 +26,8 @@ public class DataRepository
 
         this.database = database;
         observableExercises = new MediatorLiveData<>();
-        // Add all exercises to the mediator list as soon as the database is loaded:
+
+        // Load and and add all exercises to the mediator list as soon as the database is ready:
         observableExercises.addSource(database.exerciseDao().loadAll(), exerciseEntities ->
         {
             if (database.getDatabaseCreated().getValue() != null)

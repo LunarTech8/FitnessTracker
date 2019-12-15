@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,7 +47,10 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         }
     }
 
-    RecyclerViewAdapter() {}
+    RecyclerViewAdapter()
+    {
+        exercises = null;
+    }
 
     @Override
     public int getItemCount()
@@ -61,7 +65,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     }
 
     @Override
-    public ExerciseViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item, viewGroup, false);
         return new ExerciseViewHolder(view);
@@ -99,7 +103,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView)
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView)
     {
         super.onAttachedToRecyclerView(recyclerView);
     }
@@ -108,11 +112,13 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     {
         if (this.exercises == null)
         {
+            // Add all entries:
             this.exercises = exercises;
             notifyItemRangeInserted(0, exercises.size());
         }
         else
         {
+            // Update changed entries:
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
             {
                 @Override

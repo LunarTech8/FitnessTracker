@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker.Viewmodel;
+package com.romanbrunner.apps.fitnesstracker.ViewModels;
 
 import android.app.Application;
 
@@ -13,7 +13,7 @@ import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
 import java.util.List;
 
 
-public class ExerciseListViewModel extends AndroidViewModel
+public class ExercisesViewModel extends AndroidViewModel
 {
     // --------------------
     // Functional code
@@ -22,11 +22,12 @@ public class ExerciseListViewModel extends AndroidViewModel
     private final DataRepository repository;
     private final MediatorLiveData<List<ExerciseEntity>> observableExercises;
 
-    public ExerciseListViewModel(Application application)
+    public ExercisesViewModel(Application application)
     {
         super(application);
         observableExercises = new MediatorLiveData<>();
         observableExercises.setValue(null);  // Set null by default until we get data from the database
+
         // Observe the changes of the exercises from the database and forward them:
         repository = ((BasicApp)application).getRepository();
         observableExercises.addSource(repository.getExercisesAll(), observableExercises::setValue);

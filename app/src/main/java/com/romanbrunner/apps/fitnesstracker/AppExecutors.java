@@ -20,23 +20,13 @@ public class AppExecutors
     // Functional code
     // --------------------
 
-    private final Executor mDiskIO;
-    private final Executor mNetworkIO;
-    private final Executor mMainThread;
+    private final Executor diskIO;
+    private final Executor networkIO;
+    private final Executor mainThread;
 
-    public Executor diskIO()  // TODO: rename to get...
+    public Executor getDiskIO()
     {
-        return mDiskIO;
-    }
-
-    public Executor networkIO()  // TODO: rename to get...
-    {
-        return mNetworkIO;
-    }
-
-    public Executor mainThread()  // TODO: rename to get...
-    {
-        return mMainThread;
+        return diskIO;
     }
 
     private static class MainThreadExecutor implements Executor
@@ -52,9 +42,9 @@ public class AppExecutors
 
     private AppExecutors(Executor diskIO, Executor networkIO, Executor mainThread)
     {
-        this.mDiskIO = diskIO;
-        this.mNetworkIO = networkIO;
-        this.mMainThread = mainThread;
+        this.diskIO = diskIO;
+        this.networkIO = networkIO;
+        this.mainThread = mainThread;
     }
     public AppExecutors()
     {

@@ -11,18 +11,18 @@ public class BasicApp extends Application
     // Functional code
     // --------------------
 
-    private AppExecutors mAppExecutors;
+    private AppExecutors appExecutors;
 
     @Override
     public void onCreate()
     {
         super.onCreate();
-        mAppExecutors = new AppExecutors();
+        appExecutors = new AppExecutors();
     }
 
     public AppDatabase getDatabase()
     {
-        return AppDatabase.getInstance(this, mAppExecutors);
+        return AppDatabase.getInstance(this, appExecutors);
     }
 
     public DataRepository getRepository()

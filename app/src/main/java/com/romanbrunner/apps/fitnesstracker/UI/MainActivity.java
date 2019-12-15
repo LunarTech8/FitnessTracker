@@ -11,7 +11,8 @@ import android.os.Bundle;
 
 import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.Viewmodel.ExerciseListViewModel;
+import com.romanbrunner.apps.fitnesstracker.ViewModels.ExercisesViewModel;
+import com.romanbrunner.apps.fitnesstracker.databinding.ActivityMainBinding;
 
 import java.util.List;
 
@@ -24,11 +25,15 @@ public class MainActivity extends AppCompatActivity
 
     public static RecyclerViewAdapter adapter;  // TODO: ugly/unclean public, find a better way
 
+    private ActivityMainBinding binding;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState)  // Is called every time the activity is recreated (eg. when rotating the screen)
+    {
         super.onCreate(savedInstanceState);
         setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
         setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
 
         if (savedInstanceState == null)
         {
@@ -40,8 +45,9 @@ public class MainActivity extends AppCompatActivity
         }
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
-        // Re-created activities receive the same ExerciseListViewModel instance created by the first activity.
-        final ExerciseListViewModel viewModel = new ViewModelProvider(this).get(ExerciseListViewModel.class);
+        // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
+        // "this" activity is the ViewModelStoreOwner of the view model, thus the recycling is linked between these two.
+        final ExercisesViewModel viewModel = new ViewModelProvider(this).get(ExercisesViewModel.class);
         subscribeUi(viewModel.getAllExercises());
     }
 
@@ -52,24 +58,15 @@ public class MainActivity extends AppCompatActivity
         {
             if (exercises != null)
             {
+                binding.setIsLoading(false);
                 adapter.setExercises(exercises);
             }
+            else
+            {
+                binding.setIsLoading(true);
+            }
+            // Espresso does not know how to wait for data binding's loop so we execute changes sync:
+            binding.executePendingBindings();
         });
     }
-    // TODO: test if this works or if the one below has to be used
-//    private void subscribeUi(LiveData<List<ExerciseEntity>> liveData)
-//    {
-//        // Update the list when the data changes:
-//        liveData.observe(this, new Observer<List<ExerciseEntity>>()
-//        {
-//            @Override
-//            public void onChanged(@Nullable List<ExerciseEntity> exercises)
-//            {
-//                if (exercises != null)
-//                {
-//                    adapter.setExercises(exercises);
-//                }
-//            }
-//        });
-//    }
 }

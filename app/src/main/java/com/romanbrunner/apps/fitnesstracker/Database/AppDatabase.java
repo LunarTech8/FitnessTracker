@@ -57,7 +57,7 @@ public abstract class AppDatabase extends RoomDatabase
 
     private final MutableLiveData<Boolean> isDatabaseCreated = new MutableLiveData<>();
 
-    public static AppDatabase getInstance(final Context context, final AppExecutors executors)  // TODO: this has to be called at least once somewhere
+    public static AppDatabase getInstance(final Context context, final AppExecutors executors)
     {
         if (instance == null)
         {
@@ -83,25 +83,18 @@ public abstract class AppDatabase extends RoomDatabase
             public void onCreate(@NonNull SupportSQLiteDatabase db)
             {
                 super.onCreate(db);
-                executors.diskIO().execute(() ->
+                executors.getDiskIO().execute(() ->
                 {
                     // Add a delay to simulate a long-running operation:
-                    try { Thread.sleep(4000); }  // TODO: only for test, remove later
+                    try
+                    {
+                        Thread.sleep(3000);  // TEST: only for test, remove later
+                    }
                     catch (InterruptedException ignored) {}
 
-                    // Load or initialise database:
+                    // Initialise database:
                     AppDatabase database = AppDatabase.getInstance(appContext, executors);
-                    final List<ExerciseEntity> storedExercises = database.exerciseDao().loadAll().getValue();
-                    final List<ExerciseEntity> exercises;
-                    if (storedExercises.isEmpty())
-                    {
-                        exercises = initializeData();
-                    }
-                    else
-                    {
-                        exercises = storedExercises;
-                    }
-                    database.runInTransaction(() -> database.exerciseDao().insert(exercises));
+                    database.runInTransaction(() -> database.exerciseDao().insert(initializeData()));
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();
                 });
