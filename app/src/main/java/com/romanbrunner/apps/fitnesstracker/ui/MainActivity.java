@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker.UI;
+package com.romanbrunner.apps.fitnesstracker.ui;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,10 +8,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.view.View;
 
-import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.ViewModels.ExercisesViewModel;
+import com.romanbrunner.apps.fitnesstracker.viewmodels.ExercisesViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.ActivityMainBinding;
 
 import java.util.List;
@@ -23,8 +24,7 @@ public class MainActivity extends AppCompatActivity
     // Functional code
     // --------------------
 
-    public static RecyclerViewAdapter adapter;  // TODO: ugly/unclean public, find a better way
-
+    private RecyclerViewAdapter adapter;
     private ActivityMainBinding binding;
 
     @Override
@@ -35,20 +35,19 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
 
-        if (savedInstanceState == null)
-        {
-            RecyclerView recyclerView = findViewById(R.id.recyclerView);
-            recyclerView.setHasFixedSize(true);
-            recyclerView.setLayoutManager(new LinearLayoutManager(this));
-            adapter = new RecyclerViewAdapter();
-            recyclerView.setAdapter(adapter);
-        }
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecyclerViewAdapter();
+        recyclerView.setAdapter(adapter);
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
         // "this" activity is the ViewModelStoreOwner of the view model, thus the recycling is linked between these two.
         final ExercisesViewModel viewModel = new ViewModelProvider(this).get(ExercisesViewModel.class);
-        subscribeUi(viewModel.getAllExercises());
+
+        binding.saveButton.setOnClickListener((View view) -> viewModel.saveExercises());  // FIXME: doesn't seem to work
+        subscribeUi(viewModel.getExercises());
     }
 
     private void subscribeUi(LiveData<List<ExerciseEntity>> liveData)

@@ -3,8 +3,8 @@ package com.romanbrunner.apps.fitnesstracker;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
-import com.romanbrunner.apps.fitnesstracker.Database.AppDatabase;
-import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 
 import java.util.List;
 
@@ -52,7 +52,7 @@ public class DataRepository
         return instance;
     }
 
-    public LiveData<List<ExerciseEntity>> getExercisesAll()
+    public LiveData<List<ExerciseEntity>> getExercises()
     {
         return observableExercises;
     }
@@ -62,4 +62,20 @@ public class DataRepository
         return database.exerciseDao().loadById(exerciseId);
     }
 
+    public void setExercise(final ExerciseEntity exercise)
+    {
+        if (database.exerciseDao().loadById(exercise.getId()) == null)  // TODO: maybe there is a contains function in exerciseDao that could be used instead
+        {
+            database.exerciseDao().insert(exercise);
+        }
+        else
+        {
+            database.exerciseDao().update(exercise);
+        }
+    }
+
+    public void saveExercises()
+    {
+        database.exerciseDao().update(observableExercises.getValue());
+    }
 }

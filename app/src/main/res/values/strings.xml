@@ -1,4 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Fitness Tracker</string>
-    <string name="loading_data">Loading data...</string>
+    <string name="l_app_name">Fitness Tracker</string>
+
+    <string name="t_saveButton">Save</string>
+    <string name="t_loadingTextView">Loading data...</string>
+
+    <string name="cd_exerciseName">Exercise Name</string>
+    <string name="cd_exerciseToken">ID</string>
+
+    <string name="t_exerciseRepeatsLabel">Repeats:</string>
+    <string name="t_exerciseWeightLabel">Weight:</string>
+    <string name="t_exerciseDone">Done</string>
+    <string name="t_exerciseRemarksLabel">Remarks:</string>
 </resources>

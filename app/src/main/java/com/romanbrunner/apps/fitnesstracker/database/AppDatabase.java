@@ -1,4 +1,4 @@
-package com.romanbrunner.apps.fitnesstracker.Database;
+package com.romanbrunner.apps.fitnesstracker.database;
 
 import android.content.Context;
 
@@ -88,7 +88,7 @@ public abstract class AppDatabase extends RoomDatabase
                     // Add a delay to simulate a long-running operation:
                     try
                     {
-                        Thread.sleep(3000);  // TEST: only for test, remove later
+                        Thread.sleep(5000);  // TEST: only for test, remove later
                     }
                     catch (InterruptedException ignored) {}
 

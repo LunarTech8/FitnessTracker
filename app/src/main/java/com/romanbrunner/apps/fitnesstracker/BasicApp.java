@@ -2,7 +2,7 @@ package com.romanbrunner.apps.fitnesstracker;
 
 import android.app.Application;
 
-import com.romanbrunner.apps.fitnesstracker.Database.AppDatabase;
+import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 
 
 public class BasicApp extends Application

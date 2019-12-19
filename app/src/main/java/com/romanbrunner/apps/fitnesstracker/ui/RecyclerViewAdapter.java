@@ -1,17 +1,17 @@
-package com.romanbrunner.apps.fitnesstracker.UI;
+package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.romanbrunner.apps.fitnesstracker.Database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.model.Exercise;
 import com.romanbrunner.apps.fitnesstracker.R;
+import com.romanbrunner.apps.fitnesstracker.databinding.ItemBinding;
 
 import java.util.List;
 
@@ -22,28 +22,16 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     // Functional code
     // --------------------
 
-    private List<ExerciseEntity> exercises;
+    private List<? extends Exercise> exercises;
 
     public static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
-        EditText nameField;
-        EditText tokenField;
-        EditText repeatsField;
-        EditText weightField;
-        CheckBox doneField;
-        EditText remarksField;
+        final ItemBinding binding;
 
-        ExerciseViewHolder(View itemView)
+        ExerciseViewHolder(ItemBinding binding)
         {
-            super(itemView);
-            // Get view fields by id:
-            nameField = itemView.findViewById(R.id.exerciseName);
-            tokenField = itemView.findViewById(R.id.exerciseToken);
-            repeatsField = itemView.findViewById(R.id.exerciseRepeats);
-            weightField = itemView.findViewById(R.id.exerciseWeight);
-            doneField = itemView.findViewById(R.id.exerciseDone);
-            remarksField = itemView.findViewById(R.id.exerciseRemarks);
-            // TODO: maybe better store the itemView instead of the individual fields
+            super(binding.getRoot());
+            this.binding = binding;
         }
     }
 
@@ -61,28 +49,22 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     @Override
     public long getItemId(int position)
     {
-        return exercises.get(position).id;
+        return exercises.get(position).getId();
     }
 
     @Override
-    public ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
+    public ExerciseViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
     {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item, viewGroup, false);
-        return new ExerciseViewHolder(view);
+        ItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.item, viewGroup, false);
+        return new ExerciseViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        final ExerciseEntity exercise = exercises.get(position);
-        exerciseViewHolder.nameField.setText(exercise.name);
-        exerciseViewHolder.tokenField.setText(exercise.token);
-        exerciseViewHolder.repeatsField.setText(String.valueOf(exercise.repeats));
-        exerciseViewHolder.weightField.setText(String.valueOf(exercise.weight));
-        exerciseViewHolder.doneField.setChecked(exercise.done);
-        exerciseViewHolder.remarksField.setText(exercise.remarks);
-        // TODO: make fields iterable
+        exerciseViewHolder.binding.setExercise(exercises.get(position));
+        exerciseViewHolder.binding.executePendingBindings();
 
         // Add change listeners:
 //        exerciseViewHolder.nameField.addTextChangedListener(new TextWatcher()  // TODO: find out how to implement listener -> check if this works
@@ -99,7 +81,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
 //
 //            public void afterTextChanged(Editable c) {}
 //        });
-        // TODO: make fields iterable
+//        // TODO: make fields iterable
     }
 
     @Override
@@ -108,7 +90,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public void setExercises(final List<ExerciseEntity> exercises)
+    public void setExercises(@NonNull final List<? extends Exercise> exercises)
     {
         if (this.exercises == null)
         {
@@ -136,7 +118,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
                 @Override
                 public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
                 {
-                    return RecyclerViewAdapter.this.exercises.get(oldItemPosition).id == exercises.get(newItemPosition).id;
+                    return RecyclerViewAdapter.this.exercises.get(oldItemPosition).getId() == exercises.get(newItemPosition).getId();
                 }
 
                 @Override
