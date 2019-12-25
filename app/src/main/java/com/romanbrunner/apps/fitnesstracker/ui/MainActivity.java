@@ -2,13 +2,17 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
@@ -32,21 +36,22 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
-        setContentView(R.layout.activity_main);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         adapter = new RecyclerViewAdapter();
-        recyclerView.setAdapter(adapter);
+        binding.recyclerView.setAdapter(adapter);
+//        binding.recyclerView.setHasFixedSize(true);
+//        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
         // "this" activity is the ViewModelStoreOwner of the view model, thus the recycling is linked between these two.
         final ExercisesViewModel viewModel = new ViewModelProvider(this).get(ExercisesViewModel.class);
 
-        binding.saveButton.setOnClickListener((View view) -> viewModel.saveExercises());  // FIXME: doesn't seem to work
+        binding.finishButton.setOnClickListener((View view) ->
+        {
+            viewModel.finishExercises();
+            adapter.notifyDataSetChanged();
+        });
         subscribeUi(viewModel.getExercises());
     }
 

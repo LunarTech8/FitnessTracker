@@ -16,7 +16,7 @@ public class BindingAdapters
     @BindingAdapter("visibleGone")
     public static void showHide(View view, boolean show)
     {
-        view.setVisibility(show ? View.VISIBLE : View.GONE);  // FIXME: doesn't seem to work (both always visible)
+        view.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @BindingAdapter("android:text")

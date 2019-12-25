@@ -43,8 +43,8 @@ public class ExercisesViewModel extends AndroidViewModel
         repository.setExercise(exercise);
     }
 
-    public void saveExercises()
+    public void finishExercises()
     {
-        repository.saveExercises();
+        repository.finishExercises();
     }
 }

@@ -10,6 +10,7 @@
     </data>
 
     <LinearLayout
+        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -19,21 +20,12 @@
         >
 
         <Button
-            android:id="@+id/saveButton"
+            android:id="@+id/finishButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/item_horizontal_margin"
             android:layout_marginEnd="@dimen/item_horizontal_margin"
-            android:text="@string/t_saveButton"
-            />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"
-            app:visibleGone="@{!isLoading}"
-            />
+            android:text="@string/t_saveButton" />
 
         <TextView
             android:id="@+id/loadingTextView"
@@ -43,6 +35,14 @@
             android:text="@string/t_loadingTextView"
             android:textAlignment="center"
             app:visibleGone="@{isLoading}"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="LinearLayoutManager"
+            app:visibleGone="@{!isLoading}"
             />
 
     </LinearLayout>
