@@ -31,6 +31,10 @@ public class ExerciseEntity implements Exercise
     private float weight;
     @ColumnInfo(name = "done")
     private boolean done;
+    @ColumnInfo(name = "date")
+    private Date date;
+    // https://stackoverflow.com/questions/7363112/best-way-to-work-with-dates-in-android-sqlite
+    // https://stackoverflow.com/questions/50313525/room-using-date-field
 
     @Override
     public int getId()
