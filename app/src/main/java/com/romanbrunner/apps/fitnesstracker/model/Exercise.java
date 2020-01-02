@@ -1,8 +1,11 @@
 package com.romanbrunner.apps.fitnesstracker.model;
 
+import java.util.Date;
+
 public interface Exercise
 {
     int getId();
+    int getWorkoutId();
     String getName();
     String getToken();
     String getRemarks();
@@ -11,6 +14,7 @@ public interface Exercise
     boolean isDone();
 
     void setId(int id);
+    void setWorkoutId(int workoutId);
     void setName(String name);
     void setToken(String token);
     void setRemarks(String remarks);

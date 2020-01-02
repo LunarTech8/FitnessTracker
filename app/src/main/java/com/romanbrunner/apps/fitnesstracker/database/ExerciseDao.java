@@ -25,8 +25,8 @@ public interface ExerciseDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM exercises")
-    LiveData<List<ExerciseEntity>> loadAll();
+    @Query("SELECT * FROM exercises WHERE workoutId = :searchWorkoutId")
+    LiveData<List<ExerciseEntity>> loadAll(int searchWorkoutId);
 
     @Query("SELECT * FROM exercises WHERE id LIKE :searchId LIMIT 1")
     LiveData<ExerciseEntity> loadById(int searchId);

@@ -5,7 +5,7 @@ import androidx.lifecycle.MediatorLiveData;
 
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
-import com.romanbrunner.apps.fitnesstracker.model.Exercise;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -22,21 +22,25 @@ public class DataRepository
     private static DataRepository instance;
 
     private final AppDatabase database;
+    private final MediatorLiveData<WorkoutEntity> observableWorkout;
     private final MediatorLiveData<List<ExerciseEntity>> observableExercises;
     private final Executor executor;
 
     private DataRepository(final AppDatabase database)
     {
         this.database = database;
+        observableWorkout = new MediatorLiveData<>();
         observableExercises = new MediatorLiveData<>();
         executor = Executors.newSingleThreadExecutor();
 
-        // Load and and add all exercises to the mediator list as soon as the database is ready:
-        observableExercises.addSource(database.exerciseDao().loadAll(), exerciseEntities ->
+        // Load and add data as mediators as soon as the database is ready:
+        observableWorkout.addSource(database.workoutDao().loadLatest(), workoutEntity ->
         {
             if (database.getDatabaseCreated().getValue() != null)
             {
-                observableExercises.postValue(exerciseEntities);
+                observableWorkout.postValue(workoutEntity);
+                observableWorkout.addSource(database.exerciseDao().loadAll(workoutEntity.getId()), exerciseEntity -> observableExercises.postValue(exerciseEntity));
+                // FIXME: doesn't load exercises
             }
         });
     }
@@ -56,14 +60,14 @@ public class DataRepository
         return instance;
     }
 
+    public LiveData<WorkoutEntity> getWorkout()
+    {
+        return observableWorkout;
+    }
+
     public LiveData<List<ExerciseEntity>> getExercises()
     {
         return observableExercises;
-    }
-
-    public LiveData<ExerciseEntity> getExercise(final int exerciseId)
-    {
-        return database.exerciseDao().loadById(exerciseId);
     }
 
     public void setExercise(final ExerciseEntity exercise)

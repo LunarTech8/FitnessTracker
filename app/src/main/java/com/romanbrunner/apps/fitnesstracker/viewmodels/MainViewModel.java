@@ -9,28 +9,39 @@ import androidx.lifecycle.MediatorLiveData;
 import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 
 import java.util.List;
 
 
-public class ExercisesViewModel extends AndroidViewModel
+public class MainViewModel extends AndroidViewModel
 {
     // --------------------
     // Functional code
     // --------------------
 
     private final DataRepository repository;
+    private final MediatorLiveData<WorkoutEntity> observableWorkout;
     private final MediatorLiveData<List<ExerciseEntity>> observableExercises;
 
-    public ExercisesViewModel(Application application)
+    public MainViewModel(Application application)
     {
         super(application);
-        observableExercises = new MediatorLiveData<>();
-        observableExercises.setValue(null);  // Set null by default until we get data from the database
-
-        // Observe the changes of the exercises from the database and forward them:
         repository = ((BasicApp)application).getRepository();
+        observableWorkout = new MediatorLiveData<>();
+        observableExercises = new MediatorLiveData<>();
+        // Set null by default until we get data from the database:
+        observableWorkout.setValue(null);
+        observableExercises.setValue(null);
+
+        // Observe the changes from the database and forward them:
+        observableWorkout.addSource(repository.getWorkout(), observableWorkout::setValue);
         observableExercises.addSource(repository.getExercises(), observableExercises::setValue);
+    }
+
+    public LiveData<WorkoutEntity> getWorkout()
+    {
+        return observableWorkout;
     }
 
     public LiveData<List<ExerciseEntity>> getExercises()

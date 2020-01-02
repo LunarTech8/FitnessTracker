@@ -8,15 +8,18 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.romanbrunner.apps.fitnesstracker.AppExecutors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
-@Database(entities = {ExerciseEntity.class}, version = 1)
+@Database(entities = {WorkoutEntity.class, ExerciseEntity.class}, version = 1)
+@TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
     // --------------------
@@ -25,24 +28,32 @@ public abstract class AppDatabase extends RoomDatabase
 
     private final static String DATABASE_NAME = "fitness-tracker-database";
 
-    private static List<ExerciseEntity> initializeData()
+    private static WorkoutEntity initializeWorkout()
+    {
+        return new WorkoutEntity("HIT full-body", "High intensity training full-body");  // "Default" workout plan
+    }
+
+    private static List<ExerciseEntity> initializeExercises(final WorkoutEntity workout)
     {
         List<ExerciseEntity> exercises = new ArrayList<>();
-        // "Default" exercise plan:
-        exercises.add(new ExerciseEntity("Cross-Walker", "-", 8, 0.F, "Laufwiderstand: 10; Repeats in Minuten"));
-        exercises.add(new ExerciseEntity("Negativ-Crunch", "-", 20, 0.F));
-        exercises.add(new ExerciseEntity("Klimmzug breit zur Brust", "-", 8, 0.F));
-        exercises.add(new ExerciseEntity("Klimmzug breit zur Brust", "-", 6, 0.F));
-        exercises.add(new ExerciseEntity("Klimmzug breit zur Brust", "-", 4, 0.F));
-        exercises.add(new ExerciseEntity("Beinstrecker", "-", 19, 35.F, "Fuß: 3; Beine: 11; Sitz: 1,5"));
-        exercises.add(new ExerciseEntity("Beinbeuger", "-", 15, 40.F, "Fuß: 6; Beine: 12"));
-        exercises.add(new ExerciseEntity("Butterfly", "-", 16, 35.F));
-        exercises.add(new ExerciseEntity("Wadenheben an der Beinpresse", "-", 16, 105.F, "Rücken: 2; Sitz: 5"));
-        exercises.add(new ExerciseEntity("Duale Schrägband-Drückmaschine", "-", 18, 30.F, "Sitz: 1"));
-        exercises.add(new ExerciseEntity("Bizepsmaschine", "-", 16, 35.F));
-        exercises.add(new ExerciseEntity("Pushdown am Kabelzug", "-", 16, 20.F));
-        exercises.add(new ExerciseEntity("Rückenstrecker", "-", 21, 0.F, "Beine: 4"));
-        exercises.add(new ExerciseEntity("Beinheben liegend", "-", 22, 0.F));
+        final int workoutId = workout.getId();
+        if (Objects.equals(workout.getName(), "HIT full-body"))
+        {
+            exercises.add(new ExerciseEntity(workoutId, "Cross-Walker", "-", 8, 0.F, "Laufwiderstand: 10; Repeats in Minuten"));
+            exercises.add(new ExerciseEntity(workoutId, "Negativ-Crunch", "-", 20, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 8, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 6, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 4, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Beinstrecker", "-", 19, 35.F, "Fuß: 3; Beine: 11; Sitz: 1,5"));
+            exercises.add(new ExerciseEntity(workoutId, "Beinbeuger", "-", 15, 40.F, "Fuß: 6; Beine: 12"));
+            exercises.add(new ExerciseEntity(workoutId, "Butterfly", "-", 16, 35.F));
+            exercises.add(new ExerciseEntity(workoutId, "Wadenheben an der Beinpresse", "-", 16, 105.F, "Rücken: 2; Sitz: 5"));
+            exercises.add(new ExerciseEntity(workoutId, "Duale Schrägband-Drückmaschine", "-", 18, 30.F, "Sitz: 1"));
+            exercises.add(new ExerciseEntity(workoutId, "Bizepsmaschine", "-", 16, 35.F));
+            exercises.add(new ExerciseEntity(workoutId, "Pushdown am Kabelzug", "-", 16, 20.F));
+            exercises.add(new ExerciseEntity(workoutId, "Rückenstrecker", "-", 21, 0.F, "Beine: 4"));
+            exercises.add(new ExerciseEntity(workoutId, "Beinheben liegend", "-", 22, 0.F));
+        }
         return exercises;
     }
 
@@ -54,6 +65,7 @@ public abstract class AppDatabase extends RoomDatabase
     private static AppDatabase instance;
 
     public abstract ExerciseDao exerciseDao();
+    public abstract WorkoutDao workoutDao();
 
     private final MutableLiveData<Boolean> isDatabaseCreated = new MutableLiveData<>();
 
@@ -94,7 +106,12 @@ public abstract class AppDatabase extends RoomDatabase
 
                     // Initialise database:
                     AppDatabase database = AppDatabase.getInstance(appContext, executors);
-                    database.runInTransaction(() -> database.exerciseDao().insert(initializeData()));
+                    database.runInTransaction(() ->
+                    {
+                        final WorkoutEntity workout = initializeWorkout();
+                        database.workoutDao().insert(workout);
+                        database.exerciseDao().insert(initializeExercises(workout));
+                    });
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();
                 });

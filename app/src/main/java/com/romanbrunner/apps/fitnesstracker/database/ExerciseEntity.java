@@ -19,6 +19,8 @@ public class ExerciseEntity implements Exercise
 
     @PrimaryKey(autoGenerate = true)
     private int id;
+    @ColumnInfo(name = "workoutId")
+    private int workoutId;
     @ColumnInfo(name = "name")
     private String name;
     @ColumnInfo(name = "token")
@@ -31,15 +33,17 @@ public class ExerciseEntity implements Exercise
     private float weight;
     @ColumnInfo(name = "done")
     private boolean done;
-    @ColumnInfo(name = "date")
-    private Date date;
-    // https://stackoverflow.com/questions/7363112/best-way-to-work-with-dates-in-android-sqlite
-    // https://stackoverflow.com/questions/50313525/room-using-date-field
 
     @Override
     public int getId()
     {
         return id;
+    }
+
+    @Override
+    public int getWorkoutId()
+    {
+        return workoutId;
     }
 
     @Override
@@ -85,6 +89,12 @@ public class ExerciseEntity implements Exercise
     }
 
     @Override
+    public void setWorkoutId(int workoutId)
+    {
+        if (this.workoutId != workoutId) this.workoutId = workoutId;
+    }
+
+    @Override
     public void setName(String name)
     {
         if (!Objects.equals(this.name, name)) this.name = name;
@@ -122,8 +132,9 @@ public class ExerciseEntity implements Exercise
 
     public ExerciseEntity() {}
     @Ignore
-    public ExerciseEntity(String name, String token, int repeats, float weight)
+    public ExerciseEntity(int workoutId, String name, String token, int repeats, float weight)
     {
+        this.workoutId = workoutId;
         this.name = name;
         this.token = token;
         this.repeats = repeats;
@@ -131,14 +142,15 @@ public class ExerciseEntity implements Exercise
         done = false;
     }
     @Ignore
-    public ExerciseEntity(String name, String token, int repeats, float weight, String remarks)
+    public ExerciseEntity(int workoutId, String name, String token, int repeats, float weight, String remarks)
     {
-        this(name, token, repeats, weight);
+        this(workoutId, name, token, repeats, weight);
         this.remarks = remarks;
     }
     public ExerciseEntity(Exercise exercise)
     {
         this.id = exercise.getId();
+        this.workoutId = exercise.getWorkoutId();
         this.name = exercise.getName();
         this.token = exercise.getToken();
         this.repeats = exercise.getRepeats();
@@ -149,6 +161,7 @@ public class ExerciseEntity implements Exercise
     public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
     {
         return exerciseA.getId() == exerciseB.getId()
+            && exerciseA.getWorkoutId() == exerciseB.getWorkoutId()
             && Objects.equals(exerciseA.getName(), exerciseB.getName())
             && Objects.equals(exerciseA.getToken(), exerciseB.getToken())
             && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())

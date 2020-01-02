@@ -2,7 +2,7 @@
 <resources>
     <string name="l_app_name">Fitness Tracker</string>
 
-    <string name="t_saveButton">Finish</string>
+    <string name="t_saveButton">Finish Workout</string>
     <string name="t_loadingTextView">Loading data...</string>
 
     <string name="cd_exerciseName">Exercise Name</string>

@@ -6,6 +6,10 @@ import android.widget.TextView;
 import androidx.databinding.BindingAdapter;
 import androidx.databinding.InverseBindingAdapter;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 
 public class BindingAdapters
 {
@@ -68,6 +72,36 @@ public class BindingAdapters
         catch (NumberFormatException e)
         {
             return 0;
+        }
+    }
+
+    @BindingAdapter("android:text")
+    public static void setDate(TextView view, Date value)
+    {
+        if (value == null)
+        {
+            return;
+        }
+//        view.setText(SimpleDateFormat.getDateInstance().format(value));
+        view.setText(SimpleDateFormat.getDateTimeInstance().format(value));  // DEBUG:
+    }
+
+    @InverseBindingAdapter(attribute = "android:text")
+    public static Date getDate(TextView view)
+    {
+        String dateString = view.getText().toString();
+        if(dateString.isEmpty())
+        {
+            return null;
+        }
+        try
+        {
+//            return SimpleDateFormat.getDateInstance().parse(dateString);
+            return SimpleDateFormat.getDateTimeInstance().parse(dateString);  // DEBUG:
+        }
+        catch (ParseException e)
+        {
+            return null;
         }
     }
 }

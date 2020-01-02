@@ -3,20 +3,15 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
-import android.text.Editable;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.viewmodels.ExercisesViewModel;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.ActivityMainBinding;
 
 import java.util.List;
@@ -39,38 +34,51 @@ public class MainActivity extends AppCompatActivity
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         adapter = new RecyclerViewAdapter();
         binding.recyclerView.setAdapter(adapter);
+        // TODO: check if needed
 //        binding.recyclerView.setHasFixedSize(true);
 //        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
         // "this" activity is the ViewModelStoreOwner of the view model, thus the recycling is linked between these two.
-        final ExercisesViewModel viewModel = new ViewModelProvider(this).get(ExercisesViewModel.class);
+        final MainViewModel viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         binding.finishButton.setOnClickListener((View view) ->
         {
             viewModel.finishExercises();
             adapter.notifyDataSetChanged();
         });
-        subscribeUi(viewModel.getExercises());
+        subscribeUi(viewModel);
     }
 
-    private void subscribeUi(LiveData<List<ExerciseEntity>> liveData)
+    private void subscribeUi(final MainViewModel viewModel)
     {
-        // Update the list when the data changes:
-        liveData.observe(this, (@Nullable List<ExerciseEntity> exercises) ->
+        // Update when the data changes:
+        viewModel.getWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
+        {
+            if (workout != null)
+            {
+                binding.setIsWorkoutLoading(false);
+                binding.setWorkout(workout);
+            }
+            else
+            {
+                binding.setIsWorkoutLoading(true);
+            }
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+        });
+        viewModel.getExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
         {
             if (exercises != null)
             {
-                binding.setIsLoading(false);
+                binding.setIsExercisesLoading(false);
                 adapter.setExercises(exercises);
             }
             else
             {
-                binding.setIsLoading(true);
+                binding.setIsExercisesLoading(true);
             }
-            // Espresso does not know how to wait for data binding's loop so we execute changes sync:
-            binding.executePendingBindings();
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
     }
 }
