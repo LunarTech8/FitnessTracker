@@ -49,12 +49,14 @@ public class MainActivity extends AppCompatActivity
             adapter.notifyDataSetChanged();
         });
         subscribeUi(viewModel);
+
+        binding.debugButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // DEBUG: Button only visible in debug build
     }
 
     private void subscribeUi(final MainViewModel viewModel)
     {
         // Update when the data changes:
-        viewModel.getWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
+        viewModel.getCurrentWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
         {
             if (workout != null)
             {
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
-        viewModel.getExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
+        viewModel.getCurrentExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
         {
             if (exercises != null)
             {

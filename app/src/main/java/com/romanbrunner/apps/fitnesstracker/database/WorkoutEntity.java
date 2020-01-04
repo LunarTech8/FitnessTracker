@@ -18,7 +18,7 @@ public class WorkoutEntity implements Workout
     // Functional code
     // --------------------
 
-    @PrimaryKey(autoGenerate = true)
+    @PrimaryKey
     private int id;
     @ColumnInfo(name = "date")
     private Date date;
@@ -79,16 +79,16 @@ public class WorkoutEntity implements Workout
     @Ignore
     public WorkoutEntity(String name, String description)
     {
+        id = 0;  // Default start Id
+        date = new Date();  // Current date
         this.name = name;
         this.description = description;
-        date = new Date();  // Current date
     }
+    @Ignore
     public WorkoutEntity(Workout workout)
     {
-        this.id = workout.getId();
-        this.date = workout.getDate();
-        this.name = workout.getName();
-        this.description = workout.getDescription();
+        this(workout.getName(), workout.getDescription());
+        id = workout.getId() + 1;  // Increment Id by one
     }
 
     public static boolean isContentTheSame(Workout workoutA, Workout workoutB)

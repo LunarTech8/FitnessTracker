@@ -77,6 +77,16 @@
             app:visibleGone="@{!isWorkoutLoading ? !isExercisesLoading : false}"
             />
 
+        <Button
+            android:id="@+id/debugButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/item_horizontal_margin"
+            android:layout_marginEnd="@dimen/item_horizontal_margin"
+            android:text="@string/t_debugButton"
+            android:visible="@bool/DEBUG"
+            />
+
         <TextView
             android:id="@+id/loadingExercisesTextView"
             android:layout_width="match_parent"

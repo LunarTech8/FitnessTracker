@@ -82,8 +82,7 @@ public class BindingAdapters
         {
             return;
         }
-//        view.setText(SimpleDateFormat.getDateInstance().format(value));
-        view.setText(SimpleDateFormat.getDateTimeInstance().format(value));  // DEBUG:
+        view.setText(SimpleDateFormat.getDateInstance().format(value));
     }
 
     @InverseBindingAdapter(attribute = "android:text")
@@ -96,8 +95,7 @@ public class BindingAdapters
         }
         try
         {
-//            return SimpleDateFormat.getDateInstance().parse(dateString);
-            return SimpleDateFormat.getDateTimeInstance().parse(dateString);  // DEBUG:
+            return SimpleDateFormat.getDateInstance().parse(dateString);
         }
         catch (ParseException e)
         {

@@ -28,7 +28,7 @@ public interface WorkoutDao
     @Query("SELECT * FROM workouts")
     LiveData<List<WorkoutEntity>> loadAll();
 
-    @Query("SELECT * FROM workouts ORDER BY date LIMIT 1")
+    @Query("SELECT * FROM workouts ORDER BY date DESC LIMIT 1")
     LiveData<WorkoutEntity> loadLatest();
 
     @Query("SELECT * FROM workouts WHERE id LIKE :searchId LIMIT 1")

@@ -2,7 +2,9 @@ package com.romanbrunner.apps.fitnesstracker.database;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.ForeignKey;
 import androidx.room.Ignore;
+import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.Exercise;
@@ -10,7 +12,9 @@ import com.romanbrunner.apps.fitnesstracker.model.Exercise;
 import java.util.Objects;
 
 
-@Entity(tableName = "exercises")
+@Entity(tableName = "exercises",
+        foreignKeys = { @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE) },
+        indices = { @Index(value = "workoutId") })
 public class ExerciseEntity implements Exercise
 {
     // --------------------
@@ -147,15 +151,10 @@ public class ExerciseEntity implements Exercise
         this(workoutId, name, token, repeats, weight);
         this.remarks = remarks;
     }
-    public ExerciseEntity(Exercise exercise)
+    @Ignore
+    public ExerciseEntity(Exercise exercise, int workoutId)
     {
-        this.id = exercise.getId();
-        this.workoutId = exercise.getWorkoutId();
-        this.name = exercise.getName();
-        this.token = exercise.getToken();
-        this.repeats = exercise.getRepeats();
-        this.weight = exercise.getWeight();
-        this.done = exercise.isDone();
+        this(workoutId, exercise.getName(), exercise.getToken(), exercise.getRepeats(), exercise.getWeight(), exercise.getRemarks());
     }
 
     public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
