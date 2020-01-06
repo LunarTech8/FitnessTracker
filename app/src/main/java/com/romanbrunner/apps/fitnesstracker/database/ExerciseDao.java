@@ -31,17 +31,11 @@ public interface ExerciseDao
     @Query("SELECT * FROM exercises WHERE workoutId = :searchWorkoutId")
     LiveData<List<ExerciseEntity>> loadByWorkoutId(int searchWorkoutId);
 
-    @Query("SELECT * FROM exercises WHERE id LIKE :searchId LIMIT 1")
-    LiveData<ExerciseEntity> loadById(int searchId);
-
     @Query("SELECT * FROM exercises WHERE id IN (:searchIds)")
     LiveData<List<ExerciseEntity>> loadByIds(int[] searchIds);
 
     @Query("SELECT * FROM exercises WHERE name LIKE :searchName AND " + "token LIKE :searchToken LIMIT 1")
     LiveData<ExerciseEntity> loadByNameAndToken(String searchName, String searchToken);
-
-    @Insert
-    void insert(ExerciseEntity... exercises);
 
     @Insert
     void insert(List<ExerciseEntity> exercises);
@@ -50,11 +44,5 @@ public interface ExerciseDao
     void insertOrReplace(ExerciseEntity... exercises);
 
     @Update
-    void update(ExerciseEntity... exercises);
-
-    @Update
     void update(List<ExerciseEntity> exercises);
-
-    @Delete
-    void delete(ExerciseEntity... exercises);
 }

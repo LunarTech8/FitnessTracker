@@ -11,7 +11,6 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
-import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -28,29 +27,20 @@ public interface WorkoutDao
     @Query("SELECT * FROM workouts")
     LiveData<List<WorkoutEntity>> loadAll();
 
-    @Query("SELECT * FROM workouts ORDER BY date DESC LIMIT 1")
-    LiveData<WorkoutEntity> loadLatest();
+    @Query("SELECT * FROM workouts ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutEntity> loadNewest();
+
+    @Query("SELECT * FROM workouts WHERE id < (SELECT MAX(id) FROM workouts) ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutEntity> loadSecondNewest();
 
     @Query("SELECT * FROM workouts WHERE id LIKE :searchId LIMIT 1")
     LiveData<WorkoutEntity> loadById(int searchId);
 
-    @Query("SELECT * FROM workouts WHERE id IN (:searchIds)")
-    LiveData<List<WorkoutEntity>> loadByIds(int[] searchIds);
-
     @Insert
     void insert(WorkoutEntity... workouts);
 
-    @Insert
-    void insert(List<WorkoutEntity> workouts);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertOrReplace(WorkoutEntity... workouts);
-
     @Update
     void update(WorkoutEntity... workouts);
-
-    @Update
-    void update(List<WorkoutEntity> workouts);
 
     @Delete
     void delete(WorkoutEntity... workouts);

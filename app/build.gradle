@@ -18,9 +18,9 @@ android {
     }
     buildTypes {
         release {
+            resValue "bool", "DEBUG", "false"
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            resValue "bool", "DEBUG", "false"
         }
         debug {
             resValue "bool", "DEBUG", "true"

@@ -13,14 +13,21 @@ import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
-import com.romanbrunner.apps.fitnesstracker.model.Workout;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 
 
 public class MainViewModel extends AndroidViewModel
 {
+    // --------------------
+    // Data code
+    // --------------------
+
+    private final boolean DEBUG_SHOW_ONLY_LAST = true;
+
+
     // --------------------
     // Functional code
     // --------------------
@@ -42,6 +49,48 @@ public class MainViewModel extends AndroidViewModel
         // Observe the changes from the database and forward them:
         observableWorkout.addSource(repository.getCurrentWorkout(), observableWorkout::setValue);
         observableExercises.addSource(repository.getCurrentExercises(), observableExercises::setValue);
+    }
+
+    private void printWorkoutData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutEntity> workouts)
+    {
+        if (workouts != null)
+        {
+            java.lang.System.out.println(headerMessage);
+            for (WorkoutEntity workout : workouts)
+            {
+                java.lang.System.out.print("Id: " + workout.getId() + ", ");
+                java.lang.System.out.print("Name: " + workout.getName() + ", ");
+                java.lang.System.out.print("Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
+                java.lang.System.out.print("Description: " + workout.getDescription() + "\n");
+            }
+        }
+        else if (nullMessage != null)
+        {
+            java.lang.System.out.println(nullMessage);
+        }
+    }
+
+    private void printExerciseData(@NonNull String headerMessage, @Nullable String nullMessage, List<ExerciseEntity> exercises)
+    {
+        if (exercises != null)
+        {
+            java.lang.System.out.println(headerMessage);
+            for (ExerciseEntity exercise : exercises)
+            {
+                java.lang.System.out.print("Id: " + exercise.getId() + ", ");
+                java.lang.System.out.print("WorkoutId: " + exercise.getWorkoutId() + ", ");
+                java.lang.System.out.print("Name: " + exercise.getName() + ", ");
+                java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
+                java.lang.System.out.print("Repeats: " + exercise.getRepeats() + ", ");
+                java.lang.System.out.print("Weight: " + exercise.getWeight() + ", ");
+                java.lang.System.out.print("Remarks: " + exercise.getRemarks() + ", ");
+                java.lang.System.out.print("Done: " + exercise.isDone() + "\n");
+            }
+        }
+        else if (nullMessage != null)
+        {
+            java.lang.System.out.println(nullMessage);
+        }
     }
 
     public LiveData<WorkoutEntity> getCurrentWorkout()
@@ -67,76 +116,24 @@ public class MainViewModel extends AndroidViewModel
     public void printDebugLog(@NonNull LifecycleOwner owner)
     {
         java.lang.System.out.println("--- DEBUG LOG ---");
-
-        java.lang.System.out.println("Observed workout:");
-        WorkoutEntity obsWorkout = repository.getCurrentWorkout().getValue();
-        if (obsWorkout != null)
-        {
-            java.lang.System.out.print("Id: " + obsWorkout.getId() + ", ");
-            java.lang.System.out.print("Name: " + obsWorkout.getName() + ", ");
-            java.lang.System.out.print("Date: " + SimpleDateFormat.getDateTimeInstance().format(obsWorkout.getDate()) + ", ");
-            java.lang.System.out.print("Description: " + obsWorkout.getDescription() + "\n");
-        }
-        else
-        {
-            java.lang.System.out.println("No workout observed");
-        }
-
-        java.lang.System.out.println("Observed exercises:");
-        List<ExerciseEntity> obsExercises = repository.getCurrentExercises().getValue();
-        if (obsExercises != null)
-        {
-            for (ExerciseEntity exercise : obsExercises)
-            {
-                java.lang.System.out.print("Id: " + exercise.getId() + ", ");
-                java.lang.System.out.print("WorkoutId: " + exercise.getWorkoutId() + ", ");
-                java.lang.System.out.print("Name: " + exercise.getName() + ", ");
-                java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
-                java.lang.System.out.print("Repeats: " + exercise.getRepeats() + ", ");
-                java.lang.System.out.print("Weight: " + exercise.getWeight() + ", ");
-                java.lang.System.out.print("Remarks: " + exercise.getRemarks() + ", ");
-                java.lang.System.out.print("Done: " + exercise.isDone() + "\n");
-            }
-        }
-        else
-        {
-            java.lang.System.out.println("No exercises observed");
-        }
-
+        printWorkoutData("Observed workout:", "No workout observed", Collections.singletonList(repository.getCurrentWorkout().getValue()));
+        printExerciseData("Observed exercises:", "No exercises observed", repository.getCurrentExercises().getValue());
         java.lang.System.out.println("---");
-
-        repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) ->
+        if (DEBUG_SHOW_ONLY_LAST)
         {
-            if (workouts != null)
+            repository.getSecondNewestWorkout().observe(owner, (@Nullable WorkoutEntity workout) ->
             {
-                java.lang.System.out.println("All workouts:");
-                for (WorkoutEntity workout : workouts)
+                if (workout != null)
                 {
-                    java.lang.System.out.print("Id: " + workout.getId() + ", ");
-                    java.lang.System.out.print("Name: " + workout.getName() + ", ");
-                    java.lang.System.out.print("Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
-                    java.lang.System.out.print("Description: " + workout.getDescription() + "\n");
+                    printWorkoutData("Last workout:", null, Collections.singletonList(workout));
+                    repository.getExercisesByWorkout(workout).observe(owner, (@Nullable List<ExerciseEntity> exercises) -> printExerciseData("Last exercises:", null, exercises));
                 }
-            }
-        });
-
-        repository.getAllExercises().observe(owner, (@Nullable List<ExerciseEntity> exercises) ->
+            });
+        }
+        else
         {
-            if (exercises != null)
-            {
-                java.lang.System.out.println("All exercises:");
-                for (ExerciseEntity exercise : exercises)
-                {
-                    java.lang.System.out.print("Id: " + exercise.getId() + ", ");
-                    java.lang.System.out.print("WorkoutId: " + exercise.getWorkoutId() + ", ");
-                    java.lang.System.out.print("Name: " + exercise.getName() + ", ");
-                    java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
-                    java.lang.System.out.print("Repeats: " + exercise.getRepeats() + ", ");
-                    java.lang.System.out.print("Weight: " + exercise.getWeight() + ", ");
-                    java.lang.System.out.print("Remarks: " + exercise.getRemarks() + ", ");
-                    java.lang.System.out.print("Done: " + exercise.isDone() + "\n");
-                }
-            }
-        });
+            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
+            repository.getAllExercises().observe(owner, (@Nullable List<ExerciseEntity> exercises) -> printExerciseData("All exercises:", null, exercises));
+        }
     }
 }
