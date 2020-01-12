@@ -1,6 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -20,11 +19,8 @@ public class WorkoutEntity implements Workout
 
     @PrimaryKey
     private int id;
-    @ColumnInfo(name = "date")
     private Date date;
-    @ColumnInfo(name = "name")
     private String name;
-    @ColumnInfo(name = "description")
     private String description;
 
     @Override
@@ -77,9 +73,9 @@ public class WorkoutEntity implements Workout
 
     public WorkoutEntity() {}
     @Ignore
-    public WorkoutEntity(String name, String description)
+    public WorkoutEntity(int id, String name, String description)
     {
-        id = 0;  // Default start Id
+        this.id = id;
         date = new Date();  // Current date
         this.name = name;
         this.description = description;
@@ -87,8 +83,7 @@ public class WorkoutEntity implements Workout
     @Ignore
     public WorkoutEntity(Workout workout)
     {
-        this(workout.getName(), workout.getDescription());
-        id = workout.getId() + 1;  // Increment Id by one
+        this(workout.getId() + 1, workout.getName(), workout.getDescription());  // Increment Id by one
     }
 
     public static boolean isContentTheSame(Workout workoutA, Workout workoutB)

@@ -24,7 +24,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
 
     private List<? extends Exercise> exercises;
 
-    public static class ExerciseViewHolder extends RecyclerView.ViewHolder
+    static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
         final ItemBinding binding;
 
@@ -53,35 +53,19 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     }
 
     @Override
-    public ExerciseViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    public @NonNull ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
         ItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.item, viewGroup, false);
         return new ExerciseViewHolder(binding);
     }
 
     @Override
+    /* Is called when an item is reloaded (that was previously not visible) */
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:
         exerciseViewHolder.binding.setExercise(exercises.get(position));
         exerciseViewHolder.binding.executePendingBindings();
-
-        // Add change listeners:
-//        exerciseViewHolder.nameField.addTextChangedListener(new TextWatcher()  // TODO: find out how to implement listener -> check if this works
-//        {
-//            public void onTextChanged(CharSequence c, int start, int before, int count)
-//            {
-//                // Adjust value and update database
-//                exercise.name = c.toString();
-//                database.exerciseDao().update(exercise);
-//                // TODO: refresh view -> check if it is required
-//            }
-//
-//            public void beforeTextChanged(CharSequence c, int start, int count, int after) {}
-//
-//            public void afterTextChanged(Editable c) {}
-//        });
-//        // TODO: make fields iterable
     }
 
     @Override

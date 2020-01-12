@@ -1,6 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Ignore;
@@ -23,19 +22,12 @@ public class ExerciseEntity implements Exercise
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-    @ColumnInfo(name = "workoutId")
     private int workoutId;
-    @ColumnInfo(name = "name")
     private String name;
-    @ColumnInfo(name = "token")
     private String token;
-    @ColumnInfo(name = "remarks")
     private String remarks;
-    @ColumnInfo(name = "repeats")
     private int repeats;
-    @ColumnInfo(name = "weight")
     private float weight;
-    @ColumnInfo(name = "done")
     private boolean done;
 
     @Override

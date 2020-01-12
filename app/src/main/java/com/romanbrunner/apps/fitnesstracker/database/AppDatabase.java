@@ -30,7 +30,7 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static WorkoutEntity initializeWorkout()
     {
-        return new WorkoutEntity("HIT full-body", "High intensity training full-body");  // "Default" workout plan
+        return new WorkoutEntity(0, "HIT full-body", "High intensity training full-body");  // "Default" workout plan
     }
 
     private static List<ExerciseEntity> initializeExercises(final WorkoutEntity workout)

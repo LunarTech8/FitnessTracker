@@ -97,6 +97,22 @@ public class DataRepository
         executor.execute(() -> database.exerciseDao().insertOrReplace(exercise));
     }
 
+    public void saveCurrentData()
+    {
+        // Update current workout:
+        WorkoutEntity currentWorkout = observableWorkout.getValue();
+        if (currentWorkout != null)
+        {
+            executor.execute(() -> database.workoutDao().update(currentWorkout));
+        }
+        // Update current exercises:
+        List<ExerciseEntity> currentExercises = observableExercises.getValue();
+        if (currentExercises != null)
+        {
+            executor.execute(() -> database.exerciseDao().update(currentExercises));
+        }
+    }
+
     public void finishExercises()
     {
         WorkoutEntity oldWorkout = observableWorkout.getValue();
@@ -114,16 +130,16 @@ public class DataRepository
             List<ExerciseEntity> oldExercises = observableExercises.getValue();
             if (oldExercises != null)
             {
-                // Update current entry:
+                // Update current entries:
                 executor.execute(() -> database.exerciseDao().update(oldExercises));
-                // Clone and insert new entry:
-                List<ExerciseEntity> newExercises = new ArrayList<>();
+                // Clone and insert new entries:
+                List<ExerciseEntity> newExercises = new ArrayList<>(oldExercises.size());
                 for (ExerciseEntity exercise : oldExercises)
                 {
                     newExercises.add(new ExerciseEntity(exercise, newWorkoutId));
                 }
                 executor.execute(() -> database.exerciseDao().insert(newExercises));
-                // Adjust current entry:
+                // Adjust current entries:
                 observableExercises.setValue(newExercises);
             }
         }

@@ -1,7 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker.model;
 
-import java.util.Date;
-
 public interface Exercise
 {
     int getId();

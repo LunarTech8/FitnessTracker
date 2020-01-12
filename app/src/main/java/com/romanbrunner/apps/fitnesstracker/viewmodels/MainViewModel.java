@@ -47,8 +47,8 @@ public class MainViewModel extends AndroidViewModel
         observableExercises.setValue(null);
 
         // Observe the changes from the database and forward them:
-        observableWorkout.addSource(repository.getCurrentWorkout(), observableWorkout::setValue);
-        observableExercises.addSource(repository.getCurrentExercises(), observableExercises::setValue);
+        observableWorkout.addSource(repository.getCurrentWorkout(), observableWorkout::postValue);
+        observableExercises.addSource(repository.getCurrentExercises(), observableExercises::postValue);
     }
 
     private void printWorkoutData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutEntity> workouts)
@@ -103,9 +103,14 @@ public class MainViewModel extends AndroidViewModel
         return observableExercises;
     }
 
-    public void setExercise(final ExerciseEntity exercise)
+    public void setExercise(final ExerciseEntity exercise)  // UNUSED:
     {
         repository.setExercise(exercise);
+    }
+
+    public void saveCurrentData()
+    {
+        repository.saveCurrentData();
     }
 
     public void finishExercises()
