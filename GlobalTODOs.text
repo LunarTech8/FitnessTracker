@@ -20,7 +20,6 @@ Work status:
 // Programming:
 // -------------
 
-!!>- Refactor main layout (put buttons into header layout, include workout description, make it foldable)
 !!- Add an "Add Exercise" button at bottom
 !- Add option to switch between colour themes
 

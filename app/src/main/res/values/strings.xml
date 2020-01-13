@@ -2,12 +2,14 @@
 <resources>
     <string name="l_app_name">Fitness Tracker</string>
 
+    <string name="t_descriptionTextView">Description: %s</string>
     <string name="t_saveButton">Finish Workout</string>
     <string name="t_debugButton">Print Debug Log</string>
     <string name="t_loadingTextView">Loading data...</string>
 
-    <string name="cd_exerciseName">Exercise Name</string>
-    <string name="cd_exerciseToken">ID</string>
+    <string name="h_emptyHint">-</string>
+    <string name="h_exerciseName">Exercise Name</string>
+    <string name="h_exerciseToken">ID</string>
 
     <string name="t_exerciseRepeatsLabel">Repeats:</string>
     <string name="t_exerciseWeightLabel">Weight:</string>

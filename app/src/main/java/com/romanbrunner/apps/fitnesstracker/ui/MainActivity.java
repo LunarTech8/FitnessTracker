@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.os.Bundle;
 import android.view.View;
@@ -27,24 +28,28 @@ public class MainActivity extends AppCompatActivity
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
 
+    /* Is called every time the activity is recreated (eg. when rotating the screen) */
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState)  // Is called every time the activity is recreated (eg. when rotating the screen)
+    protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        adapter = new RecyclerViewAdapter();
-        binding.recyclerView.setAdapter(adapter);
-        // TODO: check if needed
-//        binding.recyclerView.setHasFixedSize(true);
-//        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
         // "this" activity is the ViewModelStoreOwner of the view model, thus the recycling is linked between these two.
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        // Setup recycle view adapter:
+        adapter = new RecyclerViewAdapter();
+        binding.recyclerView.setAdapter(adapter);
+        binding.recyclerView.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items are added/removed
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // Setup layout data binding and add listeners and observers:
+        binding.setIsTopBoxMinimized(true);
+        binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {
             viewModel.finishExercises();
@@ -54,6 +59,7 @@ public class MainActivity extends AppCompatActivity
         subscribeUi(viewModel);
     }
 
+    /* Is called every time the activity is paused (eg. when moved to the background) */
     @Override
     protected void onPause()
     {

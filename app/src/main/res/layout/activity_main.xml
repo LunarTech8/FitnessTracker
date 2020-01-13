@@ -6,6 +6,7 @@
     >
 
     <data>
+        <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isExercisesLoading" type="boolean" />
         <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.Workout" />
@@ -22,70 +23,88 @@
         >
 
         <LinearLayout
-            android:id="@+id/headerLayout"
+            android:id="@+id/topBoxLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/item_horizontal_margin"
             android:layout_marginEnd="@dimen/item_horizontal_margin"
-            android:orientation="horizontal"
-            android:background="@drawable/border"
+            android:orientation="vertical"
+            android:background="@drawable/border_medium"
             >
 
-            <TextView
-                android:id="@+id/loadingWorkoutTextView"
+            <LinearLayout
+                android:id="@+id/headerLayout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical|center_horizontal"
-                android:text="@string/t_loadingTextView"
-                android:textAlignment="center"
-                app:visibleGone="@{isWorkoutLoading}"
-                />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <TextView
+                    android:id="@+id/loadingWorkoutTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:text="@string/t_loadingTextView"
+                    android:textAlignment="center"
+                    app:visibleGone="@{isWorkoutLoading}"
+                    />
+
+                <Button
+                    android:id="@+id/nameButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                    android:ems="11"
+                    android:text="@={workout.name}"
+                    android:textSize="@dimen/comment_text_size"
+                    android:textAllCaps="false"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    app:visibleGone="@{!isWorkoutLoading}" />
+
+                <EditText
+                    android:id="@+id/dateEditText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                    android:ems="5"
+                    android:inputType="date"
+                    android:text="@={workout.date}"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    android:autofillHints="date"
+                    android:hint="@string/h_emptyHint"
+                    />
+
+            </LinearLayout>
 
             <TextView
-                android:id="@+id/nameTextView"
-                android:layout_width="wrap_content"
+                android:id="@+id/descriptionTextView"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/comment_horizontal_margin"
-                android:ems="11"
-                android:text="@={workout.name}"
-                android:textSize="@dimen/comment_text_size"
-                android:textAlignment="center"
-                android:textStyle="bold"
-                app:visibleGone="@{!isWorkoutLoading}"
+                android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                android:text="@{@string/t_descriptionTextView(workout.description)}"
+                android:background="@drawable/border_small"
+                app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
                 />
 
-            <EditText
-                android:id="@+id/dateEditText"
-                android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/finishButton"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/comment_horizontal_margin"
-                android:ems="5"
-                android:inputType="date"
-                android:text="@={workout.date}"
-                app:visibleGone="@{!isWorkoutLoading}"
+                android:text="@string/t_saveButton"
+                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                />
+
+            <Button
+                android:id="@+id/debugButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_debugButton"
+                android:visible="@bool/DEBUG"
+                app:visibleGone="@{!isTopBoxMinimized}"
                 />
 
         </LinearLayout>
-
-        <Button
-            android:id="@+id/finishButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/item_horizontal_margin"
-            android:layout_marginEnd="@dimen/item_horizontal_margin"
-            android:text="@string/t_saveButton"
-            app:visibleGone="@{!isWorkoutLoading ? !isExercisesLoading : false}"
-            />
-
-        <Button
-            android:id="@+id/debugButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/item_horizontal_margin"
-            android:layout_marginEnd="@dimen/item_horizontal_margin"
-            android:text="@string/t_debugButton"
-            android:visible="@bool/DEBUG"
-            />
 
         <TextView
             android:id="@+id/loadingExercisesTextView"
