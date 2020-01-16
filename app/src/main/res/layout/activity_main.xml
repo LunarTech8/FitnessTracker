@@ -9,11 +9,12 @@
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isExercisesLoading" type="boolean" />
+        <variable name="averageInterval" type="String" />
+        <variable name="lastWorkoutDate" type="String" />
         <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.Workout" />
     </data>
 
     <LinearLayout
-        android:id="@+id/mainLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -23,7 +24,7 @@
         >
 
         <LinearLayout
-            android:id="@+id/topBoxLayout"
+            android:id="@+id/topBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/item_horizontal_margin"
@@ -33,18 +34,18 @@
             >
 
             <LinearLayout
-                android:id="@+id/headerLayout"
+                android:id="@+id/headerRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 >
 
                 <TextView
-                    android:id="@+id/loadingWorkoutTextView"
+                    android:id="@+id/workoutLoadingNotification"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="center_vertical|center_horizontal"
-                    android:text="@string/t_loadingTextView"
+                    android:text="@string/t_loadingText"
                     android:textAlignment="center"
                     app:visibleGone="@{isWorkoutLoading}"
                     />
@@ -62,7 +63,7 @@
                     app:visibleGone="@{!isWorkoutLoading}" />
 
                 <EditText
-                    android:id="@+id/dateEditText"
+                    android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin"
@@ -76,16 +77,64 @@
 
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/descriptionTextView"
+            <LinearLayout
+                android:id="@+id/infoBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                 android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                android:text="@{@string/t_descriptionTextView(workout.description)}"
+                android:orientation="vertical"
                 android:background="@drawable/border_small"
                 app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
-                />
+                >
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
+                    android:text="@{@string/t_descriptionText(workout.description)}"
+                    android:textSize="@dimen/comment_text_size"
+                    />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
+                    android:orientation="horizontal"
+                    >
+
+                    <TextView
+                        android:id="@+id/workoutCounter"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                        android:text="@{@string/t_workoutCounterText(workout.id)}"
+                        android:textSize="@dimen/comment_text_size"
+                        />
+
+                    <TextView
+                        android:id="@+id/averageInterval"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{@string/t_averageIntervalText(averageInterval)}"
+                        android:textSize="@dimen/comment_text_size"
+                        />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/lastWorkoutDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:text="@{@string/t_lastWorkoutDateText(lastWorkoutDate)}"
+                    android:textSize="@dimen/comment_text_size"
+                    />
+
+            </LinearLayout>
 
             <Button
                 android:id="@+id/finishButton"
@@ -107,17 +156,17 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/loadingExercisesTextView"
+            android:id="@+id/exercisesLoadingNotification"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_vertical|center_horizontal"
-            android:text="@string/t_loadingTextView"
+            android:text="@string/t_loadingText"
             android:textAlignment="center"
             app:visibleGone="@{isExercisesLoading}"
             />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerView"
+            android:id="@+id/exercises"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"

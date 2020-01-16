@@ -25,7 +25,7 @@ public class MainViewModel extends AndroidViewModel
     // Data code
     // --------------------
 
-    private final boolean DEBUG_SHOW_ONLY_LAST = true;
+    private final boolean DEBUG_SHOW_ONLY_LAST = false;
 
 
     // --------------------
@@ -98,6 +98,16 @@ public class MainViewModel extends AndroidViewModel
         return observableWorkout;
     }
 
+    public LiveData<WorkoutEntity> getLastWorkout()
+    {
+        return repository.getLastWorkout();
+    }
+
+    public LiveData<List<WorkoutEntity>> getAllWorkouts()
+    {
+        return repository.getAllWorkouts();
+    }
+
     public LiveData<List<ExerciseEntity>> getCurrentExercises()
     {
         return observableExercises;
@@ -126,7 +136,7 @@ public class MainViewModel extends AndroidViewModel
         java.lang.System.out.println("---");
         if (DEBUG_SHOW_ONLY_LAST)
         {
-            repository.getSecondNewestWorkout().observe(owner, (@Nullable WorkoutEntity workout) ->
+            repository.getLastWorkout().observe(owner, (@Nullable WorkoutEntity workout) ->
             {
                 if (workout != null)
                 {

@@ -72,9 +72,9 @@ public class DataRepository
         return database.workoutDao().loadAll();
     }
 
-    public LiveData<WorkoutEntity> getSecondNewestWorkout()
+    public LiveData<WorkoutEntity> getLastWorkout()
     {
-        return database.workoutDao().loadSecondNewest();
+        return database.workoutDao().loadLast();
     }
 
     public LiveData<List<ExerciseEntity>> getCurrentExercises()

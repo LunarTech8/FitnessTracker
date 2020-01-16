@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="l_app_name">Fitness Tracker</string>
+    <string name="t_loadingText">Loading data...</string>
 
-    <string name="t_descriptionTextView">Description: %s</string>
+    <string name="t_descriptionText">Description: %s</string>
+    <string name="t_workoutCounterText">Workouts (\u03A3): %s</string>
+    <string name="t_averageIntervalText">Interval (\u00D8): %s days</string>
+    <string name="t_lastWorkoutDateText">Last workout: %s</string>
     <string name="t_saveButton">Finish Workout</string>
     <string name="t_debugButton">Print Debug Log</string>
-    <string name="t_loadingTextView">Loading data...</string>
 
     <string name="h_emptyHint">-</string>
     <string name="h_exerciseName">Exercise Name</string>

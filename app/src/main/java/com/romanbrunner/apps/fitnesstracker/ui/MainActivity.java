@@ -15,7 +15,10 @@ import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.ActivityMainBinding;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity
@@ -43,9 +46,9 @@ public class MainActivity extends AppCompatActivity
 
         // Setup recycle view adapter:
         adapter = new RecyclerViewAdapter();
-        binding.recyclerView.setAdapter(adapter);
-        binding.recyclerView.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items are added/removed
-        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.exercises.setAdapter(adapter);
+        binding.exercises.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items are added/removed
+        binding.exercises.setLayoutManager(new LinearLayoutManager(this));
 
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
@@ -75,7 +78,7 @@ public class MainActivity extends AppCompatActivity
             if (workout != null)
             {
                 binding.setIsWorkoutLoading(false);
-                binding.setWorkout(workout);  // Update displayed data
+                binding.setWorkout(workout);
             }
             else
             {
@@ -83,12 +86,33 @@ public class MainActivity extends AppCompatActivity
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
+        viewModel.getLastWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
+        {
+            if (workout != null)
+            {
+                binding.setLastWorkoutDate(SimpleDateFormat.getDateInstance().format(workout.getDate()));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            }
+        });
+        viewModel.getAllWorkouts().observe(this, (@Nullable List<WorkoutEntity> workouts) ->
+        {
+            if (workouts != null)
+            {
+                float averageInterval = 0F;
+                for (int i = 1; i < workouts.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
+                {
+                    averageInterval += TimeUnit.DAYS.convert(workouts.get(i).getDate().getTime() - workouts.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
+                }
+                binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workouts.size() - 2)));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            }
+        });
         viewModel.getCurrentExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
         {
             if (exercises != null)
             {
                 binding.setIsExercisesLoading(false);
-                adapter.setExercises(exercises);  // Update displayed data
+                adapter.setExercises(exercises);
             }
             else
             {

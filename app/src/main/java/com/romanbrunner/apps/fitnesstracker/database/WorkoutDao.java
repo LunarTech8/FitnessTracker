@@ -31,7 +31,7 @@ public interface WorkoutDao
     LiveData<WorkoutEntity> loadNewest();
 
     @Query("SELECT * FROM workouts WHERE id < (SELECT MAX(id) FROM workouts) ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutEntity> loadSecondNewest();
+    LiveData<WorkoutEntity> loadLast();
 
     @Query("SELECT * FROM workouts WHERE id LIKE :searchId LIMIT 1")
     LiveData<WorkoutEntity> loadById(int searchId);
