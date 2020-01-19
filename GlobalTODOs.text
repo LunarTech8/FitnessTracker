@@ -20,10 +20,9 @@ Work status:
 // Programming:
 // -------------
 
-!!!- Find a way to have a separate dataset for debugging
-!!- Add a testMode
 !!- Add an "Add Exercise" button at bottom
 !- Add option to switch between colour themes
+!- Add a debug button to delete all (except first) debug workouts from database
 
 
 // -------------

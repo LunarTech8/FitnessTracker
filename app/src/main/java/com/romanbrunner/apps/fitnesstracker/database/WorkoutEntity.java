@@ -56,7 +56,7 @@ public class WorkoutEntity implements Workout
     @Override
     public void setDate(Date date)
     {
-        if (this.date == null || this.date.compareTo(date) != 0) this.date = date;
+        if (date != null && (this.date == null || this.date.compareTo(date) != 0)) this.date = date;
     }
 
     @Override

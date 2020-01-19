@@ -6,6 +6,7 @@ import androidx.lifecycle.MediatorLiveData;
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -36,7 +37,12 @@ public class DataRepository
         executor = Executors.newSingleThreadExecutor();
 
         // Load newest workout with associated exercises as mediators as soon as the database is ready:
-        observableWorkout.addSource(database.workoutDao().loadNewest(), workout ->
+        LiveData<WorkoutEntity> source = database.workoutDao().loadNewest();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            source = database.workoutDao().loadNewestDebug();
+        }
+        observableWorkout.addSource(source, workout ->
         {
             if (database.getDatabaseCreated().getValue() != null)
             {
@@ -47,7 +53,7 @@ public class DataRepository
         });
     }
 
-    public static DataRepository getInstance(final AppDatabase database)
+    static DataRepository getInstance(final AppDatabase database)
     {
         if (instance == null)
         {
@@ -69,12 +75,26 @@ public class DataRepository
 
     public LiveData<List<WorkoutEntity>> getAllWorkouts()
     {
-        return database.workoutDao().loadAll();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            return database.workoutDao().loadAllDebug();
+        }
+        else
+        {
+            return database.workoutDao().loadAll();
+        }
     }
 
     public LiveData<WorkoutEntity> getLastWorkout()
     {
-        return database.workoutDao().loadLast();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            return database.workoutDao().loadLastDebug();
+        }
+        else
+        {
+            return database.workoutDao().loadLast();
+        }
     }
 
     public LiveData<List<ExerciseEntity>> getCurrentExercises()

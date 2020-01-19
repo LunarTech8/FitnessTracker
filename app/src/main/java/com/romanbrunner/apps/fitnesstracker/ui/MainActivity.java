@@ -24,6 +24,15 @@ import java.util.concurrent.TimeUnit;
 public class MainActivity extends AppCompatActivity
 {
     // --------------------
+    // Data code
+    // --------------------
+
+    public static final boolean TEST_MODE_ACTIVE = true;
+    public static final int DEBUG_WORKOUT_MIN_ID = 10000;
+    public static final int DEBUG_LOG_MODE = 2;  // 0="All workouts and all exercises", 1="Last workout and last exercises", 2="All workouts"
+
+
+    // --------------------
     // Functional code
     // --------------------
 
@@ -58,7 +67,7 @@ public class MainActivity extends AppCompatActivity
             viewModel.finishExercises();
             adapter.notifyDataSetChanged();
         });
-        binding.debugButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // DEBUG: Button only visible in debug build
+        binding.debugButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debug build
         subscribeUi(viewModel);
     }
 

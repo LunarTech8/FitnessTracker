@@ -12,6 +12,7 @@ import androidx.room.TypeConverters;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.romanbrunner.apps.fitnesstracker.AppExecutors;
+import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +112,13 @@ public abstract class AppDatabase extends RoomDatabase
                         final WorkoutEntity workout = initializeWorkout();
                         database.workoutDao().insert(workout);
                         database.exerciseDao().insert(initializeExercises(workout));
+
+                        // Debug workout:
+                        final WorkoutEntity workoutDebug = initializeWorkout();
+                        workoutDebug.setId(MainActivity.DEBUG_WORKOUT_MIN_ID);
+                        database.workoutDao().insert(workoutDebug);
+                        database.exerciseDao().insert(initializeExercises(workoutDebug));
+
                     });
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();

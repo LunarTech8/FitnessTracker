@@ -34,7 +34,7 @@ public interface ExerciseDao
     @Query("SELECT * FROM exercises WHERE id IN (:searchIds)")
     LiveData<List<ExerciseEntity>> loadByIds(int[] searchIds);
 
-    @Query("SELECT * FROM exercises WHERE name LIKE :searchName AND " + "token LIKE :searchToken LIMIT 1")
+    @Query("SELECT * FROM exercises WHERE name LIKE :searchName AND token LIKE :searchToken LIMIT 1")
     LiveData<ExerciseEntity> loadByNameAndToken(String searchName, String searchToken);
 
     @Insert

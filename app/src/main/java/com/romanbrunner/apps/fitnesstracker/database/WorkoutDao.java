@@ -14,6 +14,8 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
+import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
+
 import java.util.List;
 
 
@@ -24,17 +26,23 @@ public interface WorkoutDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM workouts")
+    @Query("SELECT * FROM workouts WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
     LiveData<List<WorkoutEntity>> loadAll();
 
-    @Query("SELECT * FROM workouts ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM workouts WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
+    LiveData<List<WorkoutEntity>> loadAllDebug();
+
+    @Query("SELECT * FROM workouts WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutEntity> loadNewest();
 
-    @Query("SELECT * FROM workouts WHERE id < (SELECT MAX(id) FROM workouts) ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM workouts WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutEntity> loadNewestDebug();
+
+    @Query("SELECT * FROM workouts WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM workouts) ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutEntity> loadLast();
 
-    @Query("SELECT * FROM workouts WHERE id LIKE :searchId LIMIT 1")
-    LiveData<WorkoutEntity> loadById(int searchId);
+    @Query("SELECT * FROM workouts WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM workouts) ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutEntity> loadLastDebug();
 
     @Insert
     void insert(WorkoutEntity... workouts);

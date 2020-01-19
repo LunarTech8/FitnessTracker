@@ -13,6 +13,7 @@ import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -21,13 +22,6 @@ import java.util.List;
 
 public class MainViewModel extends AndroidViewModel
 {
-    // --------------------
-    // Data code
-    // --------------------
-
-    private final boolean DEBUG_SHOW_ONLY_LAST = false;
-
-
     // --------------------
     // Functional code
     // --------------------
@@ -134,7 +128,12 @@ public class MainViewModel extends AndroidViewModel
         printWorkoutData("Observed workout:", "No workout observed", Collections.singletonList(repository.getCurrentWorkout().getValue()));
         printExerciseData("Observed exercises:", "No exercises observed", repository.getCurrentExercises().getValue());
         java.lang.System.out.println("---");
-        if (DEBUG_SHOW_ONLY_LAST)
+        if (MainActivity.DEBUG_LOG_MODE == 0)  // All workouts and all exercises
+        {
+            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
+            repository.getAllExercises().observe(owner, (@Nullable List<ExerciseEntity> exercises) -> printExerciseData("All exercises (normal and debug):", null, exercises));
+        }
+        else if (MainActivity.DEBUG_LOG_MODE == 1)  // Last workout and last exercises
         {
             repository.getLastWorkout().observe(owner, (@Nullable WorkoutEntity workout) ->
             {
@@ -145,10 +144,9 @@ public class MainViewModel extends AndroidViewModel
                 }
             });
         }
-        else
+        else if (MainActivity.DEBUG_LOG_MODE == 2)  // All workouts
         {
             repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
-            repository.getAllExercises().observe(owner, (@Nullable List<ExerciseEntity> exercises) -> printExerciseData("All exercises:", null, exercises));
         }
     }
 }

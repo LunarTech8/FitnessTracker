@@ -152,12 +152,12 @@ public class ExerciseEntity implements Exercise
     public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
     {
         return exerciseA.getId() == exerciseB.getId()
-            && exerciseA.getWorkoutId() == exerciseB.getWorkoutId()
-            && Objects.equals(exerciseA.getName(), exerciseB.getName())
-            && Objects.equals(exerciseA.getToken(), exerciseB.getToken())
-            && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())
-            && exerciseA.getRepeats() == exerciseB.getRepeats()
-            && Float.compare(exerciseA.getWeight(), exerciseB.getWeight()) == 0
-            && exerciseA.isDone() == exerciseB.isDone();
+                && exerciseA.isDone() == exerciseB.isDone()
+                && exerciseA.getRepeats() == exerciseB.getRepeats()
+                && Float.compare(exerciseA.getWeight(), exerciseB.getWeight()) == 0
+                && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())
+                && Objects.equals(exerciseA.getName(), exerciseB.getName())
+                && Objects.equals(exerciseA.getToken(), exerciseB.getToken())
+                && exerciseA.getWorkoutId() == exerciseB.getWorkoutId();
     }
 }
