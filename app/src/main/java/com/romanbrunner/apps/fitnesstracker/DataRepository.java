@@ -117,6 +117,11 @@ public class DataRepository
         executor.execute(() -> database.exerciseDao().insertOrReplace(exercise));
     }
 
+    public void deleteWorkouts(List<WorkoutEntity> workouts)
+    {
+        database.workoutDao().delete(workouts);
+    }
+
     public void saveCurrentData()
     {
         // Update current workout:

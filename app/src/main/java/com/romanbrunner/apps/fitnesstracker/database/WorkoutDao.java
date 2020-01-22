@@ -51,5 +51,5 @@ public interface WorkoutDao
     void update(WorkoutEntity... workouts);
 
     @Delete
-    void delete(WorkoutEntity... workouts);
+    void delete(List<WorkoutEntity> workouts);
 }

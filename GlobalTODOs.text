@@ -20,9 +20,9 @@ Work status:
 // Programming:
 // -------------
 
+!!!!>- Fix bug that exercise changes after saveCurrentData is called before scrolling down and up again are overwritten
 !!- Add an "Add Exercise" button at bottom
 !- Add option to switch between colour themes
-!- Add a debug button to delete all (except first) debug workouts from database
 
 
 // -------------

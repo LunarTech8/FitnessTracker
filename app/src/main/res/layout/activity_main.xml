@@ -140,15 +140,32 @@
                 android:id="@+id/finishButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/t_finishButton"
+                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                />
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/t_saveButton"
                 app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
                 />
 
             <Button
-                android:id="@+id/debugButton"
+                android:id="@+id/debugLogButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/t_debugButton"
+                android:text="@string/t_debugLogButton"
+                android:visible="@bool/DEBUG"
+                app:visibleGone="@{!isTopBoxMinimized}"
+                />
+
+            <Button
+                android:id="@+id/debugResetButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_debugResetButton"
                 android:visible="@bool/DEBUG"
                 app:visibleGone="@{!isTopBoxMinimized}"
                 />

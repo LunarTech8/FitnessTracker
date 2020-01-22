@@ -149,4 +149,19 @@ public class MainViewModel extends AndroidViewModel
             repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
         }
     }
+
+    public void removeDebugWorkouts(@NonNull LifecycleOwner owner)
+    {
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) ->
+            {
+                if (workouts != null && workouts.size() > 1)
+                {
+                    workouts.remove(0);
+                    repository.deleteWorkouts(workouts);
+                }
+            });
+        }
+    }
 }

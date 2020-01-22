@@ -67,7 +67,9 @@ public class MainActivity extends AppCompatActivity
             viewModel.finishExercises();
             adapter.notifyDataSetChanged();
         });
-        binding.debugButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debug build
+        binding.saveButton.setOnClickListener((View view) -> viewModel.saveCurrentData());  // DEBUG: temporary solution
+        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debug build
+        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkouts(this));  // Button only visible in debug build
         subscribeUi(viewModel);
     }
 
@@ -75,7 +77,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause()
     {
-        viewModel.saveCurrentData();
+        // DEBUG: causes exercise changes after this was called to be discarded until they are first recreated once with onBindViewHolder
+        // -> maybe after saving the recycler view adapter entries have to be reconnected or something similar
+//        viewModel.saveCurrentData();
         super.onPause();
     }
 
