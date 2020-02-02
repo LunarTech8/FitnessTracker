@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity
 
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
+        binding.setIsTestModeActive(TEST_MODE_ACTIVE);
         binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {

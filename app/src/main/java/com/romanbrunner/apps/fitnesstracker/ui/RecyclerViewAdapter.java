@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -19,6 +20,15 @@ import java.util.List;
 class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ExerciseViewHolder>
 {
     // --------------------
+    // Data code
+    // --------------------
+
+    private static final int WEIGHTED_EXERCISE_REPEATS_MIN = 15;
+    private static final int WEIGHTED_EXERCISE_REPEATS_MAX = 20;
+    private static final float WEIGHTED_EXERCISE_WEIGHT_INCREMENT = 5F;
+
+
+    // --------------------
     // Functional code
     // --------------------
 
@@ -31,6 +41,18 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         ExerciseViewHolder(ItemBinding binding)
         {
             super(binding.getRoot());
+            binding.exerciseIncrement.setOnClickListener((View view) ->
+            {
+                binding.exerciseDone.setChecked(true);
+                int repeats = Integer.parseInt(binding.exerciseRepeats.getText().toString()) + 1;
+                float weight = Float.parseFloat(binding.exerciseWeight.getText().toString());
+                if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
+                {
+                    repeats = WEIGHTED_EXERCISE_REPEATS_MIN;
+                    binding.exerciseWeight.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
+                }
+                binding.exerciseRepeats.setText(String.valueOf(repeats));
+            });
             this.binding = binding;
         }
     }

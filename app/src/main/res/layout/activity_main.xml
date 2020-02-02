@@ -6,6 +6,7 @@
     >
 
     <data>
+        <variable name="isTestModeActive" type="boolean" />
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isExercisesLoading" type="boolean" />
@@ -54,7 +55,7 @@
                     android:id="@+id/nameButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:ems="11"
                     android:text="@={workout.name}"
                     android:textSize="@dimen/comment_text_size"
@@ -66,7 +67,7 @@
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:ems="5"
                     android:inputType="date"
                     android:text="@={workout.date}"
@@ -110,7 +111,7 @@
                         android:id="@+id/workoutCounter"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/comment_horizontal_margin"
+                        android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                         android:text="@{@string/t_workoutCounterText(workout.id)}"
                         android:textSize="@dimen/comment_text_size"
                         />
@@ -158,7 +159,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugLogButton"
                 android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized}"
+                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
                 />
 
             <Button
@@ -167,7 +168,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugResetButton"
                 android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized}"
+                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
                 />
 
         </LinearLayout>
