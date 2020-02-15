@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     >
 
     <data>
@@ -9,19 +8,17 @@
     </data>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/item_horizontal_margin"
         android:layout_marginEnd="@dimen/item_horizontal_margin"
-        card_view:cardBackgroundColor="#00000000"
-        card_view:cardCornerRadius="@dimen/item_corner_radius"
         >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/border_medium_rounded"
             android:padding="@dimen/comment_padding"
             >
 
@@ -33,7 +30,7 @@
                 >
 
                 <EditText
-                    android:id="@+id/exerciseName"
+                    android:id="@+id/exerciseNameField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
@@ -45,7 +42,7 @@
                     />
 
                 <EditText
-                    android:id="@+id/exerciseToken"
+                    android:id="@+id/exerciseTokenField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
@@ -54,74 +51,6 @@
                     android:text="@={exercise.token}"
                     android:importantForAutofill="no"
                     android:hint="@string/h_exerciseToken"
-                    />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/dataRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-
-                <TextView
-                    android:id="@+id/exerciseRepeatsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_exerciseRepeatsLabel"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <EditText
-                    android:id="@+id/exerciseRepeats"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:inputType="number"
-                    android:text="@={exercise.repeats}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
-
-                <TextView
-                    android:id="@+id/exerciseWeightLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_exerciseWeightLabel"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <EditText
-                    android:id="@+id/exerciseWeight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:inputType="numberDecimal"
-                    android:text="@={exercise.weight}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
-
-                <CheckBox
-                    android:id="@+id/exerciseDone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:checked="@={exercise.done}"
-                    android:text="@string/t_exerciseDone"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <Button
-                    android:id="@+id/exerciseIncrement"
-                    android:layout_width="@dimen/increment_button_size"
-                    android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@string/t_exerciseIncrement"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
                     />
 
             </LinearLayout>
@@ -143,7 +72,7 @@
                     />
 
                 <EditText
-                    android:id="@+id/exerciseRemarks"
+                    android:id="@+id/exerciseRemarksField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
@@ -152,6 +81,74 @@
                     android:text="@={exercise.remarks}"
                     android:autofillHints="text"
                     android:hint="@string/h_emptyHint"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/dataRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <TextView
+                    android:id="@+id/exerciseWeightLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:text="@string/t_exerciseWeightLabel"
+                    android:textSize="@dimen/comment_text_size"
+                    />
+
+                <EditText
+                    android:id="@+id/exerciseWeightField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:inputType="numberDecimal"
+                    android:text="@={exercise.weight}"
+                    android:importantForAutofill="no"
+                    android:hint="@string/h_emptyHint"
+                    />
+
+                <TextView
+                    android:id="@+id/exerciseRepeatsLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:text="@string/t_exerciseRepeatsLabel"
+                    android:textSize="@dimen/comment_text_size"
+                    />
+
+                <EditText
+                    android:id="@+id/exerciseRepeatsField"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:inputType="number"
+                    android:text="@={exercise.repeats}"
+                    android:importantForAutofill="no"
+                    android:hint="@string/h_emptyHint"
+                    />
+
+                <CheckBox
+                    android:id="@+id/exerciseDoneCheckbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:checked="@={exercise.done}"
+                    android:text="@string/t_exerciseDone"
+                    android:textSize="@dimen/comment_text_size"
+                    />
+
+                <Button
+                    android:id="@+id/exerciseIncrementButton"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_exerciseIncrement"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
                     />
 
             </LinearLayout>

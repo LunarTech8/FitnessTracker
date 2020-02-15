@@ -13,7 +13,7 @@ import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
-import com.romanbrunner.apps.fitnesstracker.databinding.ActivityMainBinding;
+import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
     // --------------------
 
     private RecyclerViewAdapter adapter;
-    private ActivityMainBinding binding;
+    private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
 
     /* Is called every time the activity is recreated (eg. when rotating the screen) */
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        binding = DataBindingUtil.setContentView(this, R.layout.workout_screen);
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
         // Recreated activities receive the same ExerciseListViewModel instance created by the first activity.
@@ -55,9 +55,9 @@ public class MainActivity extends AppCompatActivity
 
         // Setup recycle view adapter:
         adapter = new RecyclerViewAdapter();
-        binding.exercises.setAdapter(adapter);
-        binding.exercises.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items are added/removed
-        binding.exercises.setLayoutManager(new LinearLayoutManager(this));
+        binding.exercisesBoard.setAdapter(adapter);
+        binding.exercisesBoard.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items aren't added/removed
+        binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
@@ -68,20 +68,9 @@ public class MainActivity extends AppCompatActivity
             viewModel.finishExercises();
             adapter.notifyDataSetChanged();
         });
-        binding.saveButton.setOnClickListener((View view) -> viewModel.saveCurrentData());  // DEBUG: temporary solution
-        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debug build
-        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkouts(this));  // Button only visible in debug build
+        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
+        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkouts(this));  // Button only visible in debugging build
         subscribeUi(viewModel);
-    }
-
-    /* Is called every time the activity is paused (eg. when moved to the background) */
-    @Override
-    protected void onPause()
-    {
-        // DEBUG: causes exercise changes after this was called to be discarded until they are first recreated once with onBindViewHolder
-        // -> maybe after saving the recycler view adapter entries have to be reconnected or something similar
-//        viewModel.saveCurrentData();
-        super.onPause();
     }
 
     private void subscribeUi(final MainViewModel viewModel)

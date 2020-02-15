@@ -20,8 +20,8 @@ Work status:
 // Programming:
 // -------------
 
-!!!!>- Fix bug that exercise changes after saveCurrentData is called before scrolling down and up again are overwritten
-!!- Add an "Add Exercise" button at bottom
+!!- Implement an "Add Set" and a "Remove Set" button at bottom of exercise card
+!!- Implement an "Add Exercise" button at bottom
 !- Add option to switch between colour themes
 
 
@@ -29,6 +29,7 @@ Work status:
 // Application design:
 // -------------
 
-!!- Make dark colour theme work
-!!- Add different exercise types (one for cardio, one for multiple sets)
 !!- Create app icons
+!!- Find a way to remove exercises
+!- Make dark colour theme work
+!- Add different exercise types (one for cardio, etc.)

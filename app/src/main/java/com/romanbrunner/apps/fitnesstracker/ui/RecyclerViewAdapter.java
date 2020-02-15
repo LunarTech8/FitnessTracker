@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.model.Exercise;
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.databinding.ItemBinding;
+import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.List;
 
@@ -36,22 +36,22 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
 
     static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
-        final ItemBinding binding;
+        final ExerciseCardBinding binding;
 
-        ExerciseViewHolder(ItemBinding binding)
+        ExerciseViewHolder(ExerciseCardBinding binding)
         {
             super(binding.getRoot());
-            binding.exerciseIncrement.setOnClickListener((View view) ->
+            binding.exerciseIncrementButton.setOnClickListener((View view) ->
             {
-                binding.exerciseDone.setChecked(true);
-                int repeats = Integer.parseInt(binding.exerciseRepeats.getText().toString()) + 1;
-                float weight = Float.parseFloat(binding.exerciseWeight.getText().toString());
+                binding.exerciseDoneCheckbox.setChecked(true);
+                int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
+                float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
                 if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
                 {
                     repeats = WEIGHTED_EXERCISE_REPEATS_MIN;
-                    binding.exerciseWeight.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
+                    binding.exerciseWeightField.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
                 }
-                binding.exerciseRepeats.setText(String.valueOf(repeats));
+                binding.exerciseRepeatsField.setText(String.valueOf(repeats));
             });
             this.binding = binding;
         }
@@ -77,12 +77,12 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     @Override
     public @NonNull ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
-        ItemBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.item, viewGroup, false);
+        ExerciseCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_card, viewGroup, false);
         return new ExerciseViewHolder(binding);
     }
 
     @Override
-    /* Is called when an item is reloaded (that was previously not visible) */
+    /* Is called when an exercise_card is reloaded (that was previously not visible) */
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:

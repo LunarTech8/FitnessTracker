@@ -98,13 +98,6 @@ public abstract class AppDatabase extends RoomDatabase
                 super.onCreate(db);
                 executors.getDiskIO().execute(() ->
                 {
-                    // Add a delay to simulate a long-running operation:
-                    try
-                    {
-                        Thread.sleep(5000);  // TEST: only for test, remove later
-                    }
-                    catch (InterruptedException ignored) {}
-
                     // Initialise database:
                     AppDatabase database = AppDatabase.getInstance(appContext, executors);
                     database.runInTransaction(() ->
@@ -113,7 +106,7 @@ public abstract class AppDatabase extends RoomDatabase
                         database.workoutDao().insert(workout);
                         database.exerciseDao().insert(initializeExercises(workout));
 
-                        // Debug workout:
+                        // Debugging workout:
                         final WorkoutEntity workoutDebug = initializeWorkout();
                         workoutDebug.setId(MainActivity.DEBUG_WORKOUT_MIN_ID);
                         database.workoutDao().insert(workoutDebug);

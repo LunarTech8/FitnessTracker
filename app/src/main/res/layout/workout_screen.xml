@@ -31,7 +31,7 @@
             android:layout_marginStart="@dimen/item_horizontal_margin"
             android:layout_marginEnd="@dimen/item_horizontal_margin"
             android:orientation="vertical"
-            android:background="@drawable/border_medium"
+            android:background="@drawable/border_medium_angular"
             >
 
             <LinearLayout
@@ -64,7 +64,7 @@
                     app:visibleGone="@{!isWorkoutLoading}" />
 
                 <EditText
-                    android:id="@+id/date"
+                    android:id="@+id/dateField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
@@ -85,12 +85,12 @@
                 android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                 android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
                 android:orientation="vertical"
-                android:background="@drawable/border_small"
+                android:background="@drawable/border_small_angular"
                 app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
                 >
 
                 <TextView
-                    android:id="@+id/description"
+                    android:id="@+id/descriptionText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
@@ -108,7 +108,7 @@
                     >
 
                     <TextView
-                        android:id="@+id/workoutCounter"
+                        android:id="@+id/workoutCounterText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
@@ -117,7 +117,7 @@
                         />
 
                     <TextView
-                        android:id="@+id/averageInterval"
+                        android:id="@+id/averageIntervalText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{@string/t_averageIntervalText(averageInterval)}"
@@ -127,7 +127,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/lastWorkoutDate"
+                    android:id="@+id/lastWorkoutDateText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
@@ -142,14 +142,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_finishButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
-                />
-
-            <Button
-                android:id="@+id/saveButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_saveButton"
                 app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
                 />
 
@@ -184,7 +176,7 @@
             />
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/exercises"
+            android:id="@+id/exercisesBoard"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"

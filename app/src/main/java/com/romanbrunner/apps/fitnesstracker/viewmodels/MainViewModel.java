@@ -112,7 +112,7 @@ public class MainViewModel extends AndroidViewModel
         repository.setExercise(exercise);
     }
 
-    public void saveCurrentData()
+    public void saveCurrentData()  // UNUSED:
     {
         repository.saveCurrentData();
     }
