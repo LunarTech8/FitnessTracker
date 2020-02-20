@@ -8,8 +8,10 @@
     <string name="t_averageIntervalText">Interval (\u00D8): %s days</string>
     <string name="t_lastWorkoutDateText">Last workout: %s</string>
     <string name="t_finishButton">Finish workout</string>
+    <string name="t_editModeButton">Switch edit mode</string>
     <string name="t_debugLogButton">Print debug log</string>
     <string name="t_debugResetButton">Remove debug entries</string>
+    <string name="t_addExerciseButton">Add new exercise</string>
 
     <string name="h_emptyHint">-</string>
     <string name="h_exerciseName">Exercise Name</string>
@@ -20,4 +22,5 @@
     <string name="t_exerciseDone">Done</string>
     <string name="t_exerciseIncrement">+</string>
     <string name="t_exerciseRemarksLabel">Remarks:</string>
+    <string name="t_exerciseAddSetButton">Add new set</string>
 </resources>

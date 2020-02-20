@@ -41,6 +41,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         ExerciseViewHolder(ExerciseCardBinding binding)
         {
             super(binding.getRoot());
+            binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.exerciseIncrementButton.setOnClickListener((View view) ->
             {
                 binding.exerciseDoneCheckbox.setChecked(true);

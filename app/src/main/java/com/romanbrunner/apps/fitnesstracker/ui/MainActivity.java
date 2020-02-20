@@ -36,6 +36,8 @@ public class MainActivity extends AppCompatActivity
     // Functional code
     // --------------------
 
+    public static boolean isEditModeActive = false;
+
     private RecyclerViewAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
@@ -61,12 +63,19 @@ public class MainActivity extends AppCompatActivity
 
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
+        binding.setIsEditModeActive(isEditModeActive);
         binding.setIsTestModeActive(TEST_MODE_ACTIVE);
         binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {
             viewModel.finishExercises();
             adapter.notifyDataSetChanged();
+        });
+        binding.editModeButton.setOnClickListener((View view) ->
+        {
+            isEditModeActive = !isEditModeActive;
+            binding.setIsEditModeActive(isEditModeActive);
+            // TODO: reload adapter
         });
         binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
         binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkouts(this));  // Button only visible in debugging build

@@ -10,6 +10,7 @@
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isExercisesLoading" type="boolean" />
+        <variable name="isEditModeActive" type="boolean" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
         <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.Workout" />
@@ -146,6 +147,14 @@
                 />
 
             <Button
+                android:id="@+id/editModeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_editModeButton"
+                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                />
+
+            <Button
                 android:id="@+id/debugLogButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -165,23 +174,40 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/exercisesLoadingNotification"
+        <LinearLayout
+            android:id="@+id/dataList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:gravity="center_vertical|center_horizontal"
-            android:text="@string/t_loadingText"
-            android:textAlignment="center"
-            app:visibleGone="@{isExercisesLoading}"
-            />
+            android:orientation="vertical"
+            >
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/exercisesBoard"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"
-            app:visibleGone="@{!isExercisesLoading}"
-            />
+            <TextView
+                android:id="@+id/exercisesLoadingNotification"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical|center_horizontal"
+                android:text="@string/t_loadingText"
+                android:textAlignment="center"
+                app:visibleGone="@{isExercisesLoading}"
+                />
+
+            <Button
+                android:id="@+id/addExerciseButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_addExerciseButton"
+                app:visibleGone="@{!isExercisesLoading ? !isEditModeActive : false}"
+                />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/exercisesBoard"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="LinearLayoutManager"
+                app:visibleGone="@{!isExercisesLoading}"
+                />
+
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -22,6 +22,7 @@ Work status:
 
 !!- Implement an "Add Set" and a "Remove Set" button at bottom of exercise card
 !!- Implement an "Add Exercise" button at bottom
+!!- Rework data structure to be able to store exercise types and (multiple) exercise sets separately
 !- Add option to switch between colour themes
 
 
