@@ -12,8 +12,16 @@ import java.util.Objects;
 
 
 @Entity(tableName = "exercises",
-        foreignKeys = { @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE) },
-        indices = { @Index(value = "workoutId") })
+        foreignKeys =
+        {
+            @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
+            @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "id", childColumns = "exerciseInfoId", onDelete = ForeignKey.RESTRICT)
+        },
+        indices =
+        {
+            @Index(value = "workoutId"),
+            @Index(value = "exerciseInfoId")
+        })
 public class ExerciseEntity implements Exercise
 {
     // --------------------
@@ -23,6 +31,7 @@ public class ExerciseEntity implements Exercise
     @PrimaryKey(autoGenerate = true)
     private int id;
     private int workoutId;
+    private int exerciseInfoId;
     private String name;
     private String token;
     private String remarks;
@@ -40,6 +49,12 @@ public class ExerciseEntity implements Exercise
     public int getWorkoutId()
     {
         return workoutId;
+    }
+
+    @Override
+    public int getExerciseInfoId()
+    {
+        return exerciseInfoId;
     }
 
     @Override
@@ -91,6 +106,12 @@ public class ExerciseEntity implements Exercise
     }
 
     @Override
+    public void setExerciseInfoId(int exerciseInfoId)
+    {
+        if (this.exerciseInfoId != exerciseInfoId) this.exerciseInfoId = exerciseInfoId;
+    }
+
+    @Override
     public void setName(String name)
     {
         if (!Objects.equals(this.name, name)) this.name = name;
@@ -128,9 +149,10 @@ public class ExerciseEntity implements Exercise
 
     public ExerciseEntity() {}
     @Ignore
-    public ExerciseEntity(int workoutId, String name, String token, int repeats, float weight)
+    public ExerciseEntity(int workoutId, int exerciseInfoId, String name, String token, int repeats, float weight)
     {
         this.workoutId = workoutId;
+        this.exerciseInfoId = exerciseInfoId;
         this.name = name;
         this.token = token;
         this.repeats = repeats;
@@ -138,15 +160,15 @@ public class ExerciseEntity implements Exercise
         done = false;
     }
     @Ignore
-    public ExerciseEntity(int workoutId, String name, String token, int repeats, float weight, String remarks)
+    public ExerciseEntity(int workoutId, int exerciseInfoId, String name, String token, int repeats, float weight, String remarks)
     {
-        this(workoutId, name, token, repeats, weight);
+        this(workoutId, exerciseInfoId, name, token, repeats, weight);
         this.remarks = remarks;
     }
     @Ignore
     public ExerciseEntity(Exercise exercise, int workoutId)
     {
-        this(workoutId, exercise.getName(), exercise.getToken(), exercise.getRepeats(), exercise.getWeight(), exercise.getRemarks());
+        this(workoutId, exercise.getExerciseInfoId(), exercise.getName(), exercise.getToken(), exercise.getRepeats(), exercise.getWeight(), exercise.getRemarks());
     }
 
     public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
@@ -158,6 +180,7 @@ public class ExerciseEntity implements Exercise
                 && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())
                 && Objects.equals(exerciseA.getName(), exerciseB.getName())
                 && Objects.equals(exerciseA.getToken(), exerciseB.getToken())
-                && exerciseA.getWorkoutId() == exerciseB.getWorkoutId();
+                && exerciseA.getWorkoutId() == exerciseB.getWorkoutId()
+                && exerciseA.getExerciseInfoId() == exerciseB.getExerciseInfoId();
     }
 }

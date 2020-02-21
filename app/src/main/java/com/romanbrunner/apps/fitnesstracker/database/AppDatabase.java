@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-@Database(entities = {WorkoutEntity.class, ExerciseEntity.class}, version = 1)
+@Database(entities = {WorkoutEntity.class, ExerciseEntity.class, ExerciseInfoEntity.class}, version = 1)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -36,10 +36,12 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static List<ExerciseEntity> initializeExercises(final WorkoutEntity workout)
     {
+        List<ExerciseInfoEntity> exerciseInfos = new ArrayList<>();
         List<ExerciseEntity> exercises = new ArrayList<>();
         final int workoutId = workout.getId();
         if (Objects.equals(workout.getName(), "HIT full-body"))
         {
+            // TODO: fix
             exercises.add(new ExerciseEntity(workoutId, "Cross-Walker", "-", 8, 0.F, "Laufwiderstand: 10; Repeats in Minuten"));
             exercises.add(new ExerciseEntity(workoutId, "Negativ-Crunch", "-", 20, 0.F));
             exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 8, 0.F));

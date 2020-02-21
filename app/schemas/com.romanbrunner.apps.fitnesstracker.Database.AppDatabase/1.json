@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "4a20b6b2588e8e55334342b003786fef",
+    "identityHash": "fb4975069c75ec8d8c4dcfa1a2a64bce",
     "entities": [
       {
         "tableName": "workouts",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "exercises",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutId` INTEGER NOT NULL, `name` TEXT, `token` TEXT, `remarks` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutId` INTEGER NOT NULL, `exerciseInfoId` INTEGER NOT NULL, `name` TEXT, `token` TEXT, `remarks` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exerciseInfoId`) REFERENCES `exerciseInfos`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
           {
             "fieldPath": "id",
@@ -55,6 +55,12 @@
           {
             "fieldPath": "workoutId",
             "columnName": "workoutId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "exerciseInfoId",
+            "columnName": "exerciseInfoId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -109,6 +115,14 @@
               "workoutId"
             ],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_exercises_workoutId` ON `${TABLE_NAME}` (`workoutId`)"
+          },
+          {
+            "name": "index_exercises_exerciseInfoId",
+            "unique": false,
+            "columnNames": [
+              "exerciseInfoId"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_exercises_exerciseInfoId` ON `${TABLE_NAME}` (`exerciseInfoId`)"
           }
         ],
         "foreignKeys": [
@@ -122,6 +136,17 @@
             "referencedColumns": [
               "id"
             ]
+          },
+          {
+            "table": "exerciseInfos",
+            "onDelete": "RESTRICT",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "exerciseInfoId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
           }
         ]
       }
@@ -129,7 +154,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a20b6b2588e8e55334342b003786fef')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb4975069c75ec8d8c4dcfa1a2a64bce')"
     ]
   }
 }

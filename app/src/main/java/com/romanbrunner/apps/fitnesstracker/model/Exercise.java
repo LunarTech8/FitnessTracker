@@ -4,6 +4,7 @@ public interface Exercise
 {
     int getId();
     int getWorkoutId();
+    int getExerciseInfoId();
     String getName();
     String getToken();
     String getRemarks();
@@ -13,6 +14,7 @@ public interface Exercise
 
     void setId(int id);
     void setWorkoutId(int workoutId);
+    void setExerciseInfoId(int exerciseInfoId);
     void setName(String name);
     void setToken(String token);
     void setRemarks(String remarks);
