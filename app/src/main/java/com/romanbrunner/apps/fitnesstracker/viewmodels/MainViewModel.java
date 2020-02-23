@@ -12,6 +12,7 @@ import androidx.lifecycle.MediatorLiveData;
 import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
@@ -27,6 +28,7 @@ public class MainViewModel extends AndroidViewModel
     // --------------------
 
     private final DataRepository repository;
+    private final MediatorLiveData<List<ExerciseInfoEntity>> observableExerciseInfo;
     private final MediatorLiveData<WorkoutEntity> observableWorkout;
     private final MediatorLiveData<List<ExerciseEntity>> observableExercises;
 
@@ -34,6 +36,7 @@ public class MainViewModel extends AndroidViewModel
     {
         super(application);
         repository = ((BasicApp)application).getRepository();
+        observableExerciseInfo = new MediatorLiveData<>();
         observableWorkout = new MediatorLiveData<>();
         observableExercises = new MediatorLiveData<>();
         // Set null by default until we get data from the database:
@@ -41,8 +44,28 @@ public class MainViewModel extends AndroidViewModel
         observableExercises.setValue(null);
 
         // Observe the changes from the database and forward them:
+        observableExerciseInfo.addSource(repository.getAllExerciseInfo(), observableExerciseInfo::postValue);
         observableWorkout.addSource(repository.getCurrentWorkout(), observableWorkout::postValue);
         observableExercises.addSource(repository.getCurrentExercises(), observableExercises::postValue);
+    }
+
+    private void printExerciseInfoData(@NonNull String headerMessage, @Nullable String nullMessage, List<ExerciseInfoEntity> exerciseInfoList)  // TODO: use in printDebugLog
+    {
+        if (exerciseInfoList != null)
+        {
+            java.lang.System.out.println(headerMessage);
+            for (ExerciseInfoEntity exercise : exerciseInfoList)
+            {
+
+                java.lang.System.out.print("Name: " + exercise.getName() + ", ");
+                java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
+                java.lang.System.out.print("Remarks: " + exercise.getRemarks() + ", ");
+            }
+        }
+        else if (nullMessage != null)
+        {
+            java.lang.System.out.println(nullMessage);
+        }
     }
 
     private void printWorkoutData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutEntity> workouts)
@@ -71,13 +94,12 @@ public class MainViewModel extends AndroidViewModel
             java.lang.System.out.println(headerMessage);
             for (ExerciseEntity exercise : exercises)
             {
+
                 java.lang.System.out.print("Id: " + exercise.getId() + ", ");
                 java.lang.System.out.print("WorkoutId: " + exercise.getWorkoutId() + ", ");
-                java.lang.System.out.print("Name: " + exercise.getName() + ", ");
-                java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
+                java.lang.System.out.print("ExerciseInfoName: " + exercise.getExerciseInfoName() + ", ");
                 java.lang.System.out.print("Repeats: " + exercise.getRepeats() + ", ");
                 java.lang.System.out.print("Weight: " + exercise.getWeight() + ", ");
-                java.lang.System.out.print("Remarks: " + exercise.getRemarks() + ", ");
                 java.lang.System.out.print("Done: " + exercise.isDone() + "\n");
             }
         }
@@ -85,6 +107,11 @@ public class MainViewModel extends AndroidViewModel
         {
             java.lang.System.out.println(nullMessage);
         }
+    }
+
+    public LiveData<List<ExerciseInfoEntity>> getAllExerciseInfo()
+    {
+        return observableExerciseInfo;
     }
 
     public LiveData<WorkoutEntity> getCurrentWorkout()
@@ -105,6 +132,11 @@ public class MainViewModel extends AndroidViewModel
     public LiveData<List<ExerciseEntity>> getCurrentExercises()
     {
         return observableExercises;
+    }
+
+    public void setExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
+    {
+        repository.setExerciseInfo(exerciseInfoList);
     }
 
     public void setExercise(final ExerciseEntity exercise)  // UNUSED:

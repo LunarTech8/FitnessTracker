@@ -15,12 +15,12 @@ import java.util.Objects;
         foreignKeys =
         {
             @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
-            @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "id", childColumns = "exerciseInfoId", onDelete = ForeignKey.RESTRICT)
+            @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "name", childColumns = "exerciseInfoName", onDelete = ForeignKey.RESTRICT)
         },
         indices =
         {
             @Index(value = "workoutId"),
-            @Index(value = "exerciseInfoId")
+            @Index(value = "exerciseInfoName")
         })
 public class ExerciseEntity implements Exercise
 {
@@ -31,10 +31,7 @@ public class ExerciseEntity implements Exercise
     @PrimaryKey(autoGenerate = true)
     private int id;
     private int workoutId;
-    private int exerciseInfoId;
-    private String name;
-    private String token;
-    private String remarks;
+    private String exerciseInfoName;
     private int repeats;
     private float weight;
     private boolean done;
@@ -52,27 +49,9 @@ public class ExerciseEntity implements Exercise
     }
 
     @Override
-    public int getExerciseInfoId()
+    public String getExerciseInfoName()
     {
-        return exerciseInfoId;
-    }
-
-    @Override
-    public String getName()
-    {
-        return name;
-    }
-
-    @Override
-    public String getToken()
-    {
-        return token;
-    }
-
-    @Override
-    public String getRemarks()
-    {
-        return remarks;
+        return exerciseInfoName;
     }
 
     @Override
@@ -106,27 +85,9 @@ public class ExerciseEntity implements Exercise
     }
 
     @Override
-    public void setExerciseInfoId(int exerciseInfoId)
+    public void setExerciseInfoName(String exerciseInfoName)
     {
-        if (this.exerciseInfoId != exerciseInfoId) this.exerciseInfoId = exerciseInfoId;
-    }
-
-    @Override
-    public void setName(String name)
-    {
-        if (!Objects.equals(this.name, name)) this.name = name;
-    }
-
-    @Override
-    public void setToken(String token)
-    {
-        if (!Objects.equals(this.token, token)) this.token = token;
-    }
-
-    @Override
-    public void setRemarks(String remarks)
-    {
-        if (!Objects.equals(this.remarks, remarks)) this.remarks = remarks;
+        if (!Objects.equals(this.exerciseInfoName, exerciseInfoName)) this.exerciseInfoName = exerciseInfoName;
     }
 
     @Override
@@ -149,26 +110,18 @@ public class ExerciseEntity implements Exercise
 
     public ExerciseEntity() {}
     @Ignore
-    public ExerciseEntity(int workoutId, int exerciseInfoId, String name, String token, int repeats, float weight)
+    public ExerciseEntity(int workoutId, String exerciseInfoName, int repeats, float weight)
     {
         this.workoutId = workoutId;
-        this.exerciseInfoId = exerciseInfoId;
-        this.name = name;
-        this.token = token;
+        this.exerciseInfoName = exerciseInfoName;
         this.repeats = repeats;
         this.weight = weight;
         done = false;
     }
     @Ignore
-    public ExerciseEntity(int workoutId, int exerciseInfoId, String name, String token, int repeats, float weight, String remarks)
-    {
-        this(workoutId, exerciseInfoId, name, token, repeats, weight);
-        this.remarks = remarks;
-    }
-    @Ignore
     public ExerciseEntity(Exercise exercise, int workoutId)
     {
-        this(workoutId, exercise.getExerciseInfoId(), exercise.getName(), exercise.getToken(), exercise.getRepeats(), exercise.getWeight(), exercise.getRemarks());
+        this(workoutId, exercise.getExerciseInfoName(), exercise.getRepeats(), exercise.getWeight());
     }
 
     public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
@@ -177,10 +130,7 @@ public class ExerciseEntity implements Exercise
                 && exerciseA.isDone() == exerciseB.isDone()
                 && exerciseA.getRepeats() == exerciseB.getRepeats()
                 && Float.compare(exerciseA.getWeight(), exerciseB.getWeight()) == 0
-                && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())
-                && Objects.equals(exerciseA.getName(), exerciseB.getName())
-                && Objects.equals(exerciseA.getToken(), exerciseB.getToken())
                 && exerciseA.getWorkoutId() == exerciseB.getWorkoutId()
-                && exerciseA.getExerciseInfoId() == exerciseB.getExerciseInfoId();
+                && Objects.equals(exerciseA.getExerciseInfoName(), exerciseB.getExerciseInfoName());
     }
 }

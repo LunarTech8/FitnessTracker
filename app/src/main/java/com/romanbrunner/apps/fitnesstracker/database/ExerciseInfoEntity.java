@@ -1,5 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
@@ -9,27 +10,20 @@ import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
 import java.util.Objects;
 
 
-@Entity(tableName = "exerciseInfos")
+@Entity(tableName = "exerciseInfo")
 public class ExerciseInfoEntity implements ExerciseInfo
 {
     // --------------------
     // Functional code
     // --------------------
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
-    private String name;
+    @PrimaryKey @NonNull
+    private String name = "InitNonNullName";
     private String token;
     private String remarks;
 
     @Override
-    public int getId()
-    {
-        return id;
-    }
-
-    @Override
-    public String getName()
+    public @NonNull String getName()
     {
         return name;
     }
@@ -44,12 +38,6 @@ public class ExerciseInfoEntity implements ExerciseInfo
     public String getRemarks()
     {
         return remarks;
-    }
-
-    @Override
-    public void setId(int id)
-    {
-        if (this.id != id) this.id = id;
     }
 
     @Override
@@ -72,28 +60,22 @@ public class ExerciseInfoEntity implements ExerciseInfo
 
     public ExerciseInfoEntity() {}
     @Ignore
-    public ExerciseInfoEntity(String name, String token)
+    public ExerciseInfoEntity(@NonNull String name, String token)
     {
         this.name = name;
         this.token = token;
     }
     @Ignore
-    public ExerciseInfoEntity(String name, String token, String remarks)
+    public ExerciseInfoEntity(@NonNull String name, String token, String remarks)
     {
         this(name, token);
         this.remarks = remarks;
     }
-    @Ignore
-    public ExerciseInfoEntity(ExerciseInfo exercise, int workoutId)
-    {
-        this(exercise.getName(), exercise.getToken(), exercise.getRemarks());
-    }
 
-    public static boolean isContentTheSame(ExerciseInfo exerciseA, ExerciseInfo exerciseB)
+    public static boolean isContentTheSame(ExerciseInfo exerciseInfoA, ExerciseInfo exerciseInfoB)
     {
-        return exerciseA.getId() == exerciseB.getId()
-                && Objects.equals(exerciseA.getRemarks(), exerciseB.getRemarks())
-                && Objects.equals(exerciseA.getName(), exerciseB.getName())
-                && Objects.equals(exerciseA.getToken(), exerciseB.getToken());
+        return Objects.equals(exerciseInfoA.getName(), exerciseInfoB.getName())
+                && Objects.equals(exerciseInfoA.getToken(), exerciseInfoB.getToken())
+                && Objects.equals(exerciseInfoA.getRemarks(), exerciseInfoB.getRemarks());
     }
 }

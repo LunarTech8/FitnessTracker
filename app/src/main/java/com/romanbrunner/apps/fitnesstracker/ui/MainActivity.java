@@ -11,6 +11,7 @@ import android.view.View;
 
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
@@ -73,6 +74,8 @@ public class MainActivity extends AppCompatActivity
         });
         binding.editModeButton.setOnClickListener((View view) ->
         {
+            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
+
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);
             // TODO: reload adapter
@@ -119,12 +122,23 @@ public class MainActivity extends AppCompatActivity
                 binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
         });
+        viewModel.getAllExerciseInfo().observe(this, (@Nullable List<ExerciseInfoEntity> exerciseInfoList) ->
+        {
+            if (exerciseInfoList != null)
+            {
+                binding.setIsExercisesLoading(!adapter.setExerciseInfo(exerciseInfoList));
+            }
+            else
+            {
+                binding.setIsExercisesLoading(true);
+            }
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+        });
         viewModel.getCurrentExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
         {
             if (exercises != null)
             {
-                binding.setIsExercisesLoading(false);
-                adapter.setExercises(exercises);
+                binding.setIsExercisesLoading(!adapter.setExercises(exercises));
             }
             else
             {

@@ -9,7 +9,6 @@ package com.romanbrunner.apps.fitnesstracker.database;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
@@ -19,27 +18,21 @@ import java.util.List;
 
 
 @Dao
-public interface ExerciseDao
+public interface ExerciseInfoDao
 {
     // --------------------
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM exercises")
-    LiveData<List<ExerciseEntity>> loadAll();
+    @Query("SELECT * FROM exerciseInfo")
+    LiveData<List<ExerciseInfoEntity>> loadAll();
 
-    @Query("SELECT * FROM exercises WHERE workoutId = :searchWorkoutId")
-    LiveData<List<ExerciseEntity>> loadByWorkoutId(int searchWorkoutId);
-
-    @Query("SELECT * FROM exercises WHERE id IN (:searchIds)")
-    LiveData<List<ExerciseEntity>> loadByIds(int[] searchIds);
+    @Query("SELECT * FROM exerciseInfo WHERE name LIKE :searchName AND token LIKE :searchToken LIMIT 1")
+    LiveData<ExerciseInfoEntity> loadByNameAndToken(String searchName, String searchToken);
 
     @Insert
-    void insert(List<ExerciseEntity> exercises);
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertOrReplace(ExerciseEntity... exercises);
+    void insert(List<ExerciseInfoEntity> exerciseInfoList);
 
     @Update
-    void update(List<ExerciseEntity> exercises);
+    void update(List<ExerciseInfoEntity> exerciseInfoList);
 }

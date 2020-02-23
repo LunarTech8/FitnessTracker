@@ -34,28 +34,46 @@ public abstract class AppDatabase extends RoomDatabase
         return new WorkoutEntity(0, "HIT full-body", "High intensity training full-body");  // "Default" workout plan
     }
 
+    private static List<ExerciseInfoEntity> initializeExerciseInfo()
+    {
+        List<ExerciseInfoEntity> exerciseInfo = new ArrayList<>(12);
+
+        exerciseInfo.add(new ExerciseInfoEntity("Cross-Walker", "-", "Laufwiderstand: 10; Repeats in Minuten"));
+        exerciseInfo.add(new ExerciseInfoEntity("Negativ-Crunch", "-"));
+        exerciseInfo.add(new ExerciseInfoEntity("Klimmzug breit zur Brust", "-"));
+        exerciseInfo.add(new ExerciseInfoEntity("Beinstrecker", "E04", "Fuß: 3; Beine: 11; Sitz: 1,5"));
+        exerciseInfo.add(new ExerciseInfoEntity("Beinbeuger", "E05", "Fuß: 6; Beine: 12"));
+        exerciseInfo.add(new ExerciseInfoEntity("Butterfly", "A02"));
+        exerciseInfo.add(new ExerciseInfoEntity("Wadenheben an der Beinpresse", "E01", "Rücken: 2; Sitz: 5"));
+        exerciseInfo.add(new ExerciseInfoEntity("Duale Schrägband-Drückmaschine", "C02", "Sitz: 1"));
+        exerciseInfo.add(new ExerciseInfoEntity("Bizepsmaschine", "D01"));
+        exerciseInfo.add(new ExerciseInfoEntity("Pushdown am Kabelzug", "B06"));
+        exerciseInfo.add(new ExerciseInfoEntity("Rückenstrecker", "B03", "Beine: 4"));
+        exerciseInfo.add(new ExerciseInfoEntity("Crunch Bauchbank", "F01", "Beine: 3"));
+
+        return exerciseInfo;
+    }
+
     private static List<ExerciseEntity> initializeExercises(final WorkoutEntity workout)
     {
-        List<ExerciseInfoEntity> exerciseInfos = new ArrayList<>();
-        List<ExerciseEntity> exercises = new ArrayList<>();
+        List<ExerciseEntity> exercises = new ArrayList<>(14);
         final int workoutId = workout.getId();
         if (Objects.equals(workout.getName(), "HIT full-body"))
         {
-            // TODO: fix
-            exercises.add(new ExerciseEntity(workoutId, "Cross-Walker", "-", 8, 0.F, "Laufwiderstand: 10; Repeats in Minuten"));
-            exercises.add(new ExerciseEntity(workoutId, "Negativ-Crunch", "-", 20, 0.F));
-            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 8, 0.F));
-            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 6, 0.F));
-            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", "-", 4, 0.F));
-            exercises.add(new ExerciseEntity(workoutId, "Beinstrecker", "-", 19, 35.F, "Fuß: 3; Beine: 11; Sitz: 1,5"));
-            exercises.add(new ExerciseEntity(workoutId, "Beinbeuger", "-", 15, 40.F, "Fuß: 6; Beine: 12"));
-            exercises.add(new ExerciseEntity(workoutId, "Butterfly", "-", 16, 35.F));
-            exercises.add(new ExerciseEntity(workoutId, "Wadenheben an der Beinpresse", "-", 16, 105.F, "Rücken: 2; Sitz: 5"));
-            exercises.add(new ExerciseEntity(workoutId, "Duale Schrägband-Drückmaschine", "-", 18, 30.F, "Sitz: 1"));
-            exercises.add(new ExerciseEntity(workoutId, "Bizepsmaschine", "-", 16, 35.F));
-            exercises.add(new ExerciseEntity(workoutId, "Pushdown am Kabelzug", "-", 16, 20.F));
-            exercises.add(new ExerciseEntity(workoutId, "Rückenstrecker", "-", 21, 0.F, "Beine: 4"));
-            exercises.add(new ExerciseEntity(workoutId, "Beinheben liegend", "-", 22, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Cross-Walker", 8, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Negativ-Crunch", 20, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", 8, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", 6, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Klimmzug breit zur Brust", 4, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Beinstrecker", 15, 40.F));
+            exercises.add(new ExerciseEntity(workoutId, "Beinbeuger", 16, 40.F));
+            exercises.add(new ExerciseEntity(workoutId, "Butterfly", 17, 35.F));
+            exercises.add(new ExerciseEntity(workoutId, "Wadenheben an der Beinpresse", 18, 110.F));
+            exercises.add(new ExerciseEntity(workoutId, "Duale Schrägband-Drückmaschine", 17, 30.F));
+            exercises.add(new ExerciseEntity(workoutId, "Bizepsmaschine", 17, 35.F));
+            exercises.add(new ExerciseEntity(workoutId, "Pushdown am Kabelzug", 17, 20.F));
+            exercises.add(new ExerciseEntity(workoutId, "Rückenstrecker", 21, 0.F));
+            exercises.add(new ExerciseEntity(workoutId, "Crunch Bauchbank", 19, 0.F));
         }
         return exercises;
     }
@@ -67,6 +85,7 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static AppDatabase instance;
 
+    public abstract ExerciseInfoDao exerciseInfoDao();
     public abstract ExerciseDao exerciseDao();
     public abstract WorkoutDao workoutDao();
 
@@ -106,6 +125,7 @@ public abstract class AppDatabase extends RoomDatabase
                     {
                         final WorkoutEntity workout = initializeWorkout();
                         database.workoutDao().insert(workout);
+                        database.exerciseInfoDao().insert(initializeExerciseInfo());
                         database.exerciseDao().insert(initializeExercises(workout));
 
                         // Debugging workout:

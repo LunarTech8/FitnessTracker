@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "fb4975069c75ec8d8c4dcfa1a2a64bce",
+    "identityHash": "1fc9d328d3370ebb4b31c53cfcf8ca3d",
     "entities": [
       {
         "tableName": "workouts",
@@ -44,7 +44,7 @@
       },
       {
         "tableName": "exercises",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutId` INTEGER NOT NULL, `exerciseInfoId` INTEGER NOT NULL, `name` TEXT, `token` TEXT, `remarks` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exerciseInfoId`) REFERENCES `exerciseInfos`(`id`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutId` INTEGER NOT NULL, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
           {
             "fieldPath": "id",
@@ -59,26 +59,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "exerciseInfoId",
-            "columnName": "exerciseInfoId",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "token",
-            "columnName": "token",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "remarks",
-            "columnName": "remarks",
+            "fieldPath": "exerciseInfoName",
+            "columnName": "exerciseInfoName",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -117,12 +99,12 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_exercises_workoutId` ON `${TABLE_NAME}` (`workoutId`)"
           },
           {
-            "name": "index_exercises_exerciseInfoId",
+            "name": "index_exercises_exerciseInfoName",
             "unique": false,
             "columnNames": [
-              "exerciseInfoId"
+              "exerciseInfoName"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_exercises_exerciseInfoId` ON `${TABLE_NAME}` (`exerciseInfoId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_exercises_exerciseInfoName` ON `${TABLE_NAME}` (`exerciseInfoName`)"
           }
         ],
         "foreignKeys": [
@@ -138,23 +120,55 @@
             ]
           },
           {
-            "table": "exerciseInfos",
+            "table": "exerciseInfo",
             "onDelete": "RESTRICT",
             "onUpdate": "NO ACTION",
             "columns": [
-              "exerciseInfoId"
+              "exerciseInfoName"
             ],
             "referencedColumns": [
-              "id"
+              "name"
             ]
           }
         ]
+      },
+      {
+        "tableName": "exerciseInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "token",
+            "columnName": "token",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "remarks",
+            "columnName": "remarks",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "name"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fb4975069c75ec8d8c4dcfa1a2a64bce')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1fc9d328d3370ebb4b31c53cfcf8ca3d')"
     ]
   }
 }
