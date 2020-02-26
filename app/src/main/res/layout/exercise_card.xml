@@ -7,7 +7,6 @@
     <data>
         <variable name="isEditModeActive" type="boolean" />
         <variable name="exerciseInfo" type="com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo" />
-        <variable name="exercise" type="com.romanbrunner.apps.fitnesstracker.model.Exercise" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -88,73 +87,12 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/dataRow"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/setsBoard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
-
-                <TextView
-                    android:id="@+id/exerciseWeightLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_exerciseWeightLabel"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <EditText
-                    android:id="@+id/exerciseWeightField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:inputType="numberDecimal"
-                    android:text="@={exercise.weight}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
-
-                <TextView
-                    android:id="@+id/exerciseRepeatsLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_exerciseRepeatsLabel"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <EditText
-                    android:id="@+id/exerciseRepeatsField"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:inputType="number"
-                    android:text="@={exercise.repeats}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
-
-                <CheckBox
-                    android:id="@+id/exerciseDoneCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:checked="@={exercise.done}"
-                    android:text="@string/t_exerciseDone"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <Button
-                    android:id="@+id/exerciseIncrementButton"
-                    android:layout_width="@dimen/increment_button_size"
-                    android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@string/t_exerciseIncrement"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
-                    />
-
-            </LinearLayout>
+                app:layoutManager="LinearLayoutManager"
+                />
 
             <Button
                 android:id="@+id/addSetButton"
