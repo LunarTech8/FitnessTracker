@@ -1,6 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.model;
 
-public interface Exercise
+public interface ExerciseSet
 {
     int getId();
     int getWorkoutId();

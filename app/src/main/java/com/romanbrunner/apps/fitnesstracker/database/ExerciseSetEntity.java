@@ -6,12 +6,12 @@ import androidx.room.Ignore;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-import com.romanbrunner.apps.fitnesstracker.model.Exercise;
+import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 
 import java.util.Objects;
 
 
-@Entity(tableName = "exercises",
+@Entity(tableName = "exerciseSets",
         foreignKeys =
         {
             @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
@@ -22,7 +22,7 @@ import java.util.Objects;
             @Index(value = "workoutId"),
             @Index(value = "exerciseInfoName")
         })
-public class ExerciseEntity implements Exercise
+public class ExerciseSetEntity implements ExerciseSet
 {
     // --------------------
     // Functional code
@@ -108,9 +108,9 @@ public class ExerciseEntity implements Exercise
         if (this.done != done) this.done = done;
     }
 
-    public ExerciseEntity() {}
+    public ExerciseSetEntity() {}
     @Ignore
-    public ExerciseEntity(int workoutId, String exerciseInfoName, int repeats, float weight)
+    public ExerciseSetEntity(int workoutId, String exerciseInfoName, int repeats, float weight)
     {
         this.workoutId = workoutId;
         this.exerciseInfoName = exerciseInfoName;
@@ -119,18 +119,18 @@ public class ExerciseEntity implements Exercise
         done = false;
     }
     @Ignore
-    public ExerciseEntity(Exercise exercise, int workoutId)
+    public ExerciseSetEntity(ExerciseSet exerciseSet, int workoutId)
     {
-        this(workoutId, exercise.getExerciseInfoName(), exercise.getRepeats(), exercise.getWeight());
+        this(workoutId, exerciseSet.getExerciseInfoName(), exerciseSet.getRepeats(), exerciseSet.getWeight());
     }
 
-    public static boolean isContentTheSame(Exercise exerciseA, Exercise exerciseB)
+    public static boolean isContentTheSame(ExerciseSet exerciseSetA, ExerciseSet exerciseSetB)
     {
-        return exerciseA.getId() == exerciseB.getId()
-                && exerciseA.isDone() == exerciseB.isDone()
-                && exerciseA.getRepeats() == exerciseB.getRepeats()
-                && Float.compare(exerciseA.getWeight(), exerciseB.getWeight()) == 0
-                && exerciseA.getWorkoutId() == exerciseB.getWorkoutId()
-                && Objects.equals(exerciseA.getExerciseInfoName(), exerciseB.getExerciseInfoName());
+        return exerciseSetA.getId() == exerciseSetB.getId()
+                && exerciseSetA.isDone() == exerciseSetB.isDone()
+                && exerciseSetA.getRepeats() == exerciseSetB.getRepeats()
+                && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
+                && exerciseSetA.getWorkoutId() == exerciseSetB.getWorkoutId()
+                && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
     }
 }

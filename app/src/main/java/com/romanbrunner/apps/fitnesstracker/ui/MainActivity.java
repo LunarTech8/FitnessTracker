@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.os.Bundle;
 import android.view.View;
 
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity
 
     public static boolean isEditModeActive = false;
 
-    private RecyclerViewAdapter adapter;
+    private ExerciseAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
 
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup recycle view adapter:
-        adapter = new RecyclerViewAdapter();
+        adapter = new ExerciseAdapter();
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items aren't added/removed
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity
                 binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
         });
-        viewModel.getAllExerciseInfo().observe(this, (@Nullable List<ExerciseInfoEntity> exerciseInfoList) ->
+        viewModel.getCurrentExerciseInfo().observe(this, (@Nullable List<ExerciseInfoEntity> exerciseInfoList) ->
         {
             if (exerciseInfoList != null)
             {
@@ -134,11 +134,11 @@ public class MainActivity extends AppCompatActivity
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
-        viewModel.getCurrentExercises().observe(this, (@Nullable List<ExerciseEntity> exercises) ->
+        viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSets) ->
         {
-            if (exercises != null)
+            if (exerciseSets != null)
             {
-                binding.setIsExercisesLoading(!adapter.setExercises(exercises));
+                binding.setIsExercisesLoading(!adapter.setExerciseSets(exerciseSets));
             }
             else
             {

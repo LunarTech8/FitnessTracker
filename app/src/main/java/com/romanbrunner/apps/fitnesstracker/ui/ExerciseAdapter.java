@@ -1,8 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
-import android.util.ArrayMap;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -10,23 +8,23 @@ import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
-import com.romanbrunner.apps.fitnesstracker.model.Exercise;
+import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
+import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 
-class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ExerciseViewHolder>
+class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
 {
     // --------------------
     // Data code
@@ -42,7 +40,8 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     // --------------------
 
     private static Map<String, ExerciseInfoEntity> exerciseInfoMap = null;
-    private List<? extends Exercise> exercises;
+    private List<? extends ExerciseInfo> exerciseInfo;
+    private List<? extends ExerciseSet> exerciseSets;
 
     static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
@@ -52,38 +51,40 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         {
             super(binding.getRoot());
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
-            binding.exerciseIncrementButton.setOnClickListener((View view) ->
-            {
-                binding.exerciseDoneCheckbox.setChecked(true);
-                int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
-                float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
-                if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
-                {
-                    repeats = WEIGHTED_EXERCISE_REPEATS_MIN;
-                    binding.exerciseWeightField.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
-                }
-                binding.exerciseRepeatsField.setText(String.valueOf(repeats));
-            });
+            // TODO: reimplement in sub-adapter
+//            binding.exerciseIncrementButton.setOnClickListener((View view) ->
+//            {
+//                binding.exerciseDoneCheckbox.setChecked(true);
+//                int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
+//                float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
+//                if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
+//                {
+//                    repeats = WEIGHTED_EXERCISE_REPEATS_MIN;
+//                    binding.exerciseWeightField.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
+//                }
+//                binding.exerciseRepeatsField.setText(String.valueOf(repeats));
+//            });
             this.binding = binding;
         }
     }
 
-    RecyclerViewAdapter()
+    ExerciseAdapter()
     {
-        exercises = null;
+        exerciseInfo = null;
+        exerciseSets = null;
     }
 
     @Override
     public int getItemCount()
     {
-        return (exercises == null || exerciseInfoMap == null) ? 0 : exercises.size();
+        return exerciseInfo == null ? 0 : exerciseInfo.size();
     }
 
     @Override
     public long getItemId(int position)
     {
-        return exercises.get(position).getId();
-    }
+        return exerciseInfo.get(position).getName().hashCode();
+    }  // TODO: find out how to correctly convert of entity with string as primary key
 
     @Override
     public @NonNull ExerciseViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
@@ -97,9 +98,9 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
     public void onBindViewHolder(ExerciseViewHolder exerciseViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        Exercise exercise = exercises.get(position);
-        exerciseViewHolder.binding.setExerciseInfo(exerciseInfoMap.get(exercise.getExerciseInfoName()));
-        exerciseViewHolder.binding.setExercise(exercise);
+        exerciseViewHolder.binding.setExerciseInfo(exerciseInfo.get(position));
+        // TODO: reimplement in sub-adapter
+//        exerciseViewHolder.binding.setExerciseSet(exerciseSets.get(position));
         exerciseViewHolder.binding.executePendingBindings();
     }
 
@@ -109,7 +110,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public List<ExerciseInfoEntity> getUpdatedExerciseInfo()
+    public List<ExerciseInfoEntity> getUpdatedExerciseInfo()  // TODO: refactor
     {
         // Find changed names and update map:
         Map<String, String> changedKeyMap = new LinkedHashMap<>();
@@ -132,28 +133,28 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
             @Override
             public int getOldListSize()
             {
-                return RecyclerViewAdapter.this.exercises.size();
+                return ExerciseAdapter.this.exerciseSets.size();
             }
 
             @Override
             public int getNewListSize()
             {
-                return exercises.size();
+                return exerciseSets.size();
             }
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
             {
-                return exercises.get(oldItemPosition).getId() == exercises.get(newItemPosition).getId();
+                return exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
             {
-                Exercise exercise = exercises.get(newItemPosition);
-                if (changedKeys.contains(exercise.getExerciseInfoName()))
+                ExerciseSet exerciseSet = exerciseSets.get(newItemPosition);
+                if (changedKeys.contains(exerciseSet.getExerciseInfoName()))
                 {
-                    exercise.setExerciseInfoName(changedKeyMap.get(exercise.getExerciseInfoName()));
+                    exerciseSet.setExerciseInfoName(changedKeyMap.get(exerciseSet.getExerciseInfoName()));
                     return false;
                 }
                 return true;
@@ -164,7 +165,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         return new ArrayList<>(exerciseInfoMap.values());
     }
 
-    public boolean setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfoList)
+    public boolean setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfoList)  // TODO: refactor
     {
         if (exerciseInfoMap == null)
         {
@@ -173,9 +174,9 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
             {
                 exerciseInfoMap.put(exerciseInfo.getName(), exerciseInfo);
             }
-            if (exercises != null)
+            if (exerciseSets != null)
             {
-                notifyItemRangeInserted(0, exercises.size());
+                notifyItemRangeInserted(0, exerciseSets.size());
                 return true;
             }
         }
@@ -186,7 +187,7 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
             {
                 exerciseInfoMap.put(exerciseInfo.getName(), exerciseInfo);
             }
-            if (exercises != null)
+            if (exerciseSets != null)
             {
                 // Update changed entries:
                 DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
@@ -194,26 +195,26 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
                     @Override
                     public int getOldListSize()
                     {
-                        return exercises.size();
+                        return exerciseSets.size();
                     }
 
                     @Override
                     public int getNewListSize()
                     {
-                        return exercises.size();
+                        return exerciseSets.size();
                     }
 
                     @Override
                     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
                     {
-                        return exercises.get(oldItemPosition).getId() == exercises.get(newItemPosition).getId();
+                        return exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
                     }
 
                     @Override
                     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
                     {
-                        ExerciseInfoEntity exerciseInfoA = exerciseInfoMap.get(exercises.get(newItemPosition).getExerciseInfoName());
-                        ExerciseInfoEntity exerciseInfoB = exerciseInfoMap.get(exercises.get(oldItemPosition).getExerciseInfoName());
+                        ExerciseInfoEntity exerciseInfoA = exerciseInfoMap.get(exerciseSets.get(newItemPosition).getExerciseInfoName());
+                        ExerciseInfoEntity exerciseInfoB = exerciseInfoMap.get(exerciseSets.get(oldItemPosition).getExerciseInfoName());
                         if (exerciseInfoA != null && exerciseInfoB != null)
                         {
                             return ExerciseInfoEntity.isContentTheSame(exerciseInfoA, exerciseInfoB);
@@ -231,15 +232,15 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
         return false;
     }
 
-    public boolean setExercises(@NonNull final List<? extends Exercise> exercises)
+    public boolean setExerciseSets(@NonNull final List<? extends ExerciseSet> exerciseSets)  // TODO: refactor
     {
-        if (this.exercises == null)
+        if (this.exerciseSets == null)
         {
             // Add all entries:
-            this.exercises = exercises;
+            this.exerciseSets = exerciseSets;
             if (exerciseInfoMap != null)
             {
-                notifyItemRangeInserted(0, exercises.size());
+                notifyItemRangeInserted(0, exerciseSets.size());
                 return true;
             }
         }
@@ -251,28 +252,28 @@ class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.Exerc
                 @Override
                 public int getOldListSize()
                 {
-                    return RecyclerViewAdapter.this.exercises.size();
+                    return ExerciseAdapter.this.exerciseSets.size();
                 }
 
                 @Override
                 public int getNewListSize()
                 {
-                    return exercises.size();
+                    return exerciseSets.size();
                 }
 
                 @Override
                 public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
                 {
-                    return RecyclerViewAdapter.this.exercises.get(oldItemPosition).getId() == exercises.get(newItemPosition).getId();
+                    return ExerciseAdapter.this.exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
                 }
 
                 @Override
                 public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
                 {
-                    return ExerciseEntity.isContentTheSame(exercises.get(newItemPosition), RecyclerViewAdapter.this.exercises.get(oldItemPosition));
+                    return ExerciseSetEntity.isContentTheSame(exerciseSets.get(newItemPosition), ExerciseAdapter.this.exerciseSets.get(oldItemPosition));
                 }
             });
-            this.exercises = exercises;
+            this.exerciseSets = exerciseSets;
             if (exerciseInfoMap != null)
             {
                 result.dispatchUpdatesTo(this);
