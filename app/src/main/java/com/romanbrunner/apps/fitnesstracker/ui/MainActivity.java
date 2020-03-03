@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity
         // Setup recycle view adapter:
         adapter = new ExerciseAdapter();
         binding.exercisesBoard.setAdapter(adapter);
-        binding.exercisesBoard.setHasFixedSize(true);  // True because recyclerView size shouldn't change because items aren't added/removed
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
         // Setup layout data binding and add listeners and observers:
@@ -74,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         });
         binding.editModeButton.setOnClickListener((View view) ->
         {
-            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
+//            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
 
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);

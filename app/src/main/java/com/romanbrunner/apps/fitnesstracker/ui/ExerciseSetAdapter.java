@@ -83,7 +83,7 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
     }
 
     @Override
-    /* Is called when an exercise_card is reloaded (that was previously not visible) */
+    /* Is called when an exercise_set_card is reloaded (that was previously not visible) */
     public void onBindViewHolder(ExerciseSetViewHolder exerciseSetViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:

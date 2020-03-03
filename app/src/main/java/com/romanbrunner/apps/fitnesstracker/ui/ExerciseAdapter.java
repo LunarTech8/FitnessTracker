@@ -6,6 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
@@ -27,21 +28,14 @@ import java.util.Set;
 class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewHolder>
 {
     // --------------------
-    // Data code
-    // --------------------
-
-    private static final int WEIGHTED_EXERCISE_REPEATS_MIN = 15;
-    private static final int WEIGHTED_EXERCISE_REPEATS_MAX = 20;
-    private static final float WEIGHTED_EXERCISE_WEIGHT_INCREMENT = 5F;
-
-
-    // --------------------
     // Functional code
     // --------------------
 
-    private static Map<String, ExerciseInfoEntity> exerciseInfoMap = null;
+    private static Map<String, ExerciseInfoEntity> exerciseInfoMap = null;  // TODO: remove
+    private static Map<ExerciseInfoEntity, List<ExerciseSetEntity>> exerciseSetsMap = null;  // TODO: implement
     private List<? extends ExerciseInfo> exerciseInfo;
-    private List<? extends ExerciseSet> exerciseSets;
+    private List<? extends ExerciseSet> exerciseSets;  // TODO: remove in this class
+    private ExerciseSetAdapter adapter;
 
     static class ExerciseViewHolder extends RecyclerView.ViewHolder
     {
@@ -51,19 +45,7 @@ class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewH
         {
             super(binding.getRoot());
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
-            // TODO: reimplement in sub-adapter
-//            binding.exerciseIncrementButton.setOnClickListener((View view) ->
-//            {
-//                binding.exerciseDoneCheckbox.setChecked(true);
-//                int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
-//                float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
-//                if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
-//                {
-//                    repeats = WEIGHTED_EXERCISE_REPEATS_MIN;
-//                    binding.exerciseWeightField.setText(String.valueOf(weight + WEIGHTED_EXERCISE_WEIGHT_INCREMENT));
-//                }
-//                binding.exerciseRepeatsField.setText(String.valueOf(repeats));
-//            });
+            binding.setsBoard.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
             this.binding = binding;
         }
     }
@@ -102,6 +84,9 @@ class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewH
         // TODO: reimplement in sub-adapter
 //        exerciseViewHolder.binding.setExerciseSet(exerciseSets.get(position));
         exerciseViewHolder.binding.executePendingBindings();
+
+        adapter = new ExerciseSetAdapter();
+        exerciseViewHolder.binding.setsBoard.setAdapter(adapter);
     }
 
     @Override
@@ -110,60 +95,60 @@ class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewH
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public List<ExerciseInfoEntity> getUpdatedExerciseInfo()  // TODO: refactor
-    {
-        // Find changed names and update map:
-        Map<String, String> changedKeyMap = new LinkedHashMap<>();
-        final Set<String> keys = exerciseInfoMap.keySet();
-        for (String oldKey: keys)  // DEBUG: fix ConcurrentModificationException
-        {
-            ExerciseInfoEntity exerciseInfo = exerciseInfoMap.get(oldKey);
-            if (exerciseInfo != null && !Objects.equals(exerciseInfo.getName(), oldKey))
-            {
-                String newKey = exerciseInfo.getName();
-                changedKeyMap.put(oldKey, newKey);
-                exerciseInfoMap.remove(oldKey);
-                exerciseInfoMap.put(newKey, exerciseInfo);
-            }
-        }
-        // Update changed entries:
-        final Set<String> changedKeys = changedKeyMap.keySet();
-        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
-        {
-            @Override
-            public int getOldListSize()
-            {
-                return ExerciseAdapter.this.exerciseSets.size();
-            }
-
-            @Override
-            public int getNewListSize()
-            {
-                return exerciseSets.size();
-            }
-
-            @Override
-            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
-            {
-                return exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
-            }
-
-            @Override
-            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
-            {
-                ExerciseSet exerciseSet = exerciseSets.get(newItemPosition);
-                if (changedKeys.contains(exerciseSet.getExerciseInfoName()))
-                {
-                    exerciseSet.setExerciseInfoName(changedKeyMap.get(exerciseSet.getExerciseInfoName()));
-                    return false;
-                }
-                return true;
-            }
-        });
-        result.dispatchUpdatesTo(this);
-        // Return updated exercise info list:
-        return new ArrayList<>(exerciseInfoMap.values());
-    }
+//    public List<ExerciseInfoEntity> getUpdatedExerciseInfo()  // TODO: refactor
+//    {
+//        // Find changed names and update map:
+//        Map<String, String> changedKeyMap = new LinkedHashMap<>();
+//        final Set<String> keys = exerciseInfoMap.keySet();
+//        for (String oldKey: keys)  // DEBUG: fix ConcurrentModificationException
+//        {
+//            ExerciseInfoEntity exerciseInfo = exerciseInfoMap.get(oldKey);
+//            if (exerciseInfo != null && !Objects.equals(exerciseInfo.getName(), oldKey))
+//            {
+//                String newKey = exerciseInfo.getName();
+//                changedKeyMap.put(oldKey, newKey);
+//                exerciseInfoMap.remove(oldKey);
+//                exerciseInfoMap.put(newKey, exerciseInfo);
+//            }
+//        }
+//        // Update changed entries:
+//        final Set<String> changedKeys = changedKeyMap.keySet();
+//        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
+//        {
+//            @Override
+//            public int getOldListSize()
+//            {
+//                return ExerciseAdapter.this.exerciseSets.size();
+//            }
+//
+//            @Override
+//            public int getNewListSize()
+//            {
+//                return exerciseSets.size();
+//            }
+//
+//            @Override
+//            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
+//            {
+//                return exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
+//            }
+//
+//            @Override
+//            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
+//            {
+//                ExerciseSet exerciseSet = exerciseSets.get(newItemPosition);
+//                if (changedKeys.contains(exerciseSet.getExerciseInfoName()))
+//                {
+//                    exerciseSet.setExerciseInfoName(changedKeyMap.get(exerciseSet.getExerciseInfoName()));
+//                    return false;
+//                }
+//                return true;
+//            }
+//        });
+//        result.dispatchUpdatesTo(this);
+//        // Return updated exercise info list:
+//        return new ArrayList<>(exerciseInfoMap.values());
+//    }
 
     public boolean setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfoList)  // TODO: refactor
     {
@@ -234,6 +219,11 @@ class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.ExerciseViewH
 
     public boolean setExerciseSets(@NonNull final List<? extends ExerciseSet> exerciseSets)  // TODO: refactor
     {
+        exerciseSetsMap = new HashMap<>();
+        // TODO: implement
+        adapter.setExerciseSets(exerciseSets);
+
+        // TODO: remove following
         if (this.exerciseSets == null)
         {
             // Add all entries:
