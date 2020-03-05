@@ -13,7 +13,7 @@
         <variable name="isEditModeActive" type="boolean" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
-        <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.Workout" />
+        <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo" />
     </data>
 
     <LinearLayout

@@ -14,7 +14,7 @@ import java.util.Objects;
 @Entity(tableName = "exerciseSets",
         foreignKeys =
         {
-            @ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
+            @ForeignKey(entity = WorkoutUnitEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
             @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "name", childColumns = "exerciseInfoName", onDelete = ForeignKey.RESTRICT)
         },
         indices =
@@ -127,10 +127,10 @@ public class ExerciseSetEntity implements ExerciseSet
     public static boolean isContentTheSame(ExerciseSet exerciseSetA, ExerciseSet exerciseSetB)
     {
         return exerciseSetA.getId() == exerciseSetB.getId()
-                && exerciseSetA.isDone() == exerciseSetB.isDone()
-                && exerciseSetA.getRepeats() == exerciseSetB.getRepeats()
-                && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
-                && exerciseSetA.getWorkoutId() == exerciseSetB.getWorkoutId()
-                && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
+            && exerciseSetA.isDone() == exerciseSetB.isDone()
+            && exerciseSetA.getRepeats() == exerciseSetB.getRepeats()
+            && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
+            && exerciseSetA.getWorkoutId() == exerciseSetB.getWorkoutId()
+            && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
     }
 }

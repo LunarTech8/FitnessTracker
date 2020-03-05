@@ -13,7 +13,7 @@ import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
-import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +28,7 @@ public class MainViewModel extends AndroidViewModel
     // --------------------
 
     private final DataRepository repository;
-    private final MediatorLiveData<WorkoutEntity> observableWorkout;
+    private final MediatorLiveData<WorkoutInfoEntity> observableWorkoutInfo;
     private final MediatorLiveData<List<ExerciseInfoEntity>> observableExerciseInfo;
     private final MediatorLiveData<List<ExerciseSetEntity>> observableExerciseSets;
 
@@ -36,16 +36,16 @@ public class MainViewModel extends AndroidViewModel
     {
         super(application);
         repository = ((BasicApp)application).getRepository();
-        observableWorkout = new MediatorLiveData<>();
+        observableWorkoutInfo = new MediatorLiveData<>();
         observableExerciseInfo = new MediatorLiveData<>();
         observableExerciseSets = new MediatorLiveData<>();
         // Set null by default until we get data from the database:
-        observableWorkout.setValue(null);
+        observableWorkoutInfo.setValue(null);
         observableExerciseInfo.setValue(null);
         observableExerciseSets.setValue(null);
 
         // Observe the changes from the database and forward them:
-        observableWorkout.addSource(repository.getCurrentWorkout(), observableWorkout::postValue);
+        observableWorkoutInfo.addSource(repository.getCurrentWorkoutInfo(), observableWorkoutInfo::postValue);
         observableExerciseInfo.addSource(repository.getCurrentExerciseInfo(), observableExerciseInfo::postValue);
         observableExerciseSets.addSource(repository.getCurrentExerciseSets(), observableExerciseSets::postValue);
     }
@@ -69,12 +69,12 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    private void printWorkoutData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutEntity> workouts)
+    private void printWorkoutData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutInfoEntity> workouts)
     {
         if (workouts != null)
         {
             java.lang.System.out.println(headerMessage);
-            for (WorkoutEntity workout : workouts)
+            for (WorkoutInfoEntity workout : workouts)
             {
                 java.lang.System.out.print("Id: " + workout.getId() + ", ");
                 java.lang.System.out.print("Name: " + workout.getName() + ", ");
@@ -110,19 +110,19 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public LiveData<WorkoutEntity> getCurrentWorkout()
+    public LiveData<WorkoutInfoEntity> getCurrentWorkoutInfo()
     {
-        return observableWorkout;
+        return observableWorkoutInfo;
     }
 
-    public LiveData<WorkoutEntity> getLastWorkout()
+    public LiveData<WorkoutInfoEntity> getLastWorkoutInfo()
     {
-        return repository.getLastWorkout();
+        return repository.getLastWorkoutInfo();
     }
 
-    public LiveData<List<WorkoutEntity>> getAllWorkouts()
+    public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
     {
-        return repository.getAllWorkouts();
+        return repository.getAllWorkoutInfo();
     }
 
     public LiveData<List<ExerciseInfoEntity>> getCurrentExerciseInfo()
@@ -158,17 +158,17 @@ public class MainViewModel extends AndroidViewModel
     public void printDebugLog(@NonNull LifecycleOwner owner)
     {
         java.lang.System.out.println("--- DEBUG LOG ---");
-        printWorkoutData("Observed workout:", "No workout observed", Collections.singletonList(repository.getCurrentWorkout().getValue()));
+        printWorkoutData("Observed workout:", "No workout observed", Collections.singletonList(repository.getCurrentWorkoutInfo().getValue()));
         printExerciseData("Observed exercises:", "No exercises observed", repository.getCurrentExerciseSets().getValue());
         java.lang.System.out.println("---");
         if (MainActivity.DEBUG_LOG_MODE == 0)  // All workouts and all exercises
         {
-            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
+            repository.getAllWorkoutInfo().observe(owner, (@Nullable List<WorkoutInfoEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
             repository.getAllExerciseSets().observe(owner, (@Nullable List<ExerciseSetEntity> exercises) -> printExerciseData("All exercises (normal and debug):", null, exercises));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 1)  // Last workout and last exercises
         {
-            repository.getLastWorkout().observe(owner, (@Nullable WorkoutEntity workout) ->
+            repository.getLastWorkoutInfo().observe(owner, (@Nullable WorkoutInfoEntity workout) ->
             {
                 if (workout != null)
                 {
@@ -179,7 +179,7 @@ public class MainViewModel extends AndroidViewModel
         }
         else if (MainActivity.DEBUG_LOG_MODE == 2)  // All workouts
         {
-            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
+            repository.getAllWorkoutInfo().observe(owner, (@Nullable List<WorkoutInfoEntity> workouts) -> printWorkoutData("All workouts:", null, workouts));
         }
     }
 
@@ -187,7 +187,7 @@ public class MainViewModel extends AndroidViewModel
     {
         if (MainActivity.TEST_MODE_ACTIVE)
         {
-            repository.getAllWorkouts().observe(owner, (@Nullable List<WorkoutEntity> workouts) ->
+            repository.getAllWorkoutInfo().observe(owner, (@Nullable List<WorkoutInfoEntity> workouts) ->
             {
                 if (workouts != null && workouts.size() > 1)
                 {

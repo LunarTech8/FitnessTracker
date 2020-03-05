@@ -26,8 +26,8 @@ public interface ExerciseInfoDao
     @Query("SELECT * FROM exerciseInfo")
     LiveData<List<ExerciseInfoEntity>> loadAll();
 
-    @Query("SELECT * FROM exerciseInfo WHERE workoutId = :searchWorkoutId")
-    LiveData<List<ExerciseInfoEntity>> loadByWorkoutId(int searchWorkoutId);
+    @Query("SELECT * FROM exerciseInfo WHERE workoutInfoName = :searchWorkoutInfoId")
+    LiveData<List<ExerciseInfoEntity>> loadByWorkoutId(int searchWorkoutInfoId);
 
     @Query("SELECT * FROM exerciseInfo WHERE name LIKE :searchName AND token LIKE :searchToken LIMIT 1")
     LiveData<ExerciseInfoEntity> loadByNameAndToken(String searchName, String searchToken);

@@ -6,7 +6,8 @@ import androidx.lifecycle.MediatorLiveData;
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
-import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
@@ -26,33 +27,50 @@ public class DataRepository
     private static DataRepository instance;
 
     private final AppDatabase database;
-    private final MediatorLiveData<WorkoutEntity> observableWorkout;
+    private final MediatorLiveData<List<WorkoutInfoEntity>> observableWorkoutInfo;
     private final MediatorLiveData<List<ExerciseInfoEntity>> observableExerciseInfo;
+    private final MediatorLiveData<WorkoutUnitEntity> observableWorkoutUnit;
     private final MediatorLiveData<List<ExerciseSetEntity>> observableExerciseSets;
     private final Executor executor;
 
     private DataRepository(final AppDatabase database)
     {
         this.database = database;
-        observableWorkout = new MediatorLiveData<>();
+        observableWorkoutInfo = new MediatorLiveData<>();
         observableExerciseInfo = new MediatorLiveData<>();
+        observableWorkoutUnit = new MediatorLiveData<>();
         observableExerciseSets = new MediatorLiveData<>();
         executor = Executors.newSingleThreadExecutor();
 
-        // Load newest workout with associated exercises as mediators as soon as the database is ready:
-        LiveData<WorkoutEntity> source = database.workoutDao().loadNewest();
-        if (MainActivity.TEST_MODE_ACTIVE)
-        {
-            source = database.workoutDao().loadNewestDebug();
-        }
-        observableWorkout.addSource(source, workout ->
+        // Load all workout info and exercise info as mediators as soon as the database is ready:
+        observableWorkoutInfo.addSource(database.workoutInfoDao().loadAll(), workoutInfo ->
         {
             if (database.getDatabaseCreated().getValue() != null)
             {
-                workout.setDate(new Date());  // Set to current date
-                observableWorkout.postValue(workout);
-                observableExerciseInfo.addSource(database.exerciseInfoDao().loadByWorkoutId(workout.getId()), observableExerciseInfo::postValue);
-                observableExerciseSets.addSource(database.exerciseSetDao().loadByWorkoutId(workout.getId()), observableExerciseSets::postValue);
+                observableWorkoutInfo.postValue(workoutInfo);
+            }
+        });
+        observableExerciseInfo.addSource(database.exerciseInfoDao().loadAll(), exerciseInfo ->
+        {
+            if (database.getDatabaseCreated().getValue() != null)
+            {
+                observableExerciseInfo.postValue(exerciseInfo);
+            }
+        });
+
+        // Load newest workout unit with associated exercise sets as mediators as soon as the database is ready:
+        LiveData<WorkoutUnitEntity> source = database.workoutUnitDao().loadNewest();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            source = database.workoutUnitDao().loadNewestDebug();
+        }
+        observableWorkoutUnit.addSource(source, workoutUnit ->
+        {
+            if (database.getDatabaseCreated().getValue() != null)
+            {
+                workoutUnit.setDate(new Date());  // Set to current date
+                observableWorkoutUnit.postValue(workoutUnit);
+                observableExerciseSets.addSource(database.exerciseSetDao().loadByWorkoutId(workoutUnit.getId()), observableExerciseSets::postValue);
             }
         });
     }
@@ -72,32 +90,25 @@ public class DataRepository
         return instance;
     }
 
-    public LiveData<WorkoutEntity> getCurrentWorkout()
+    public LiveData<WorkoutInfoEntity> getCurrentWorkoutInfo()
     {
-        return observableWorkout;
+        return observableWorkoutInfo;
     }
 
-    public LiveData<List<WorkoutEntity>> getAllWorkouts()
+    public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
+    {
+        return database.workoutInfoDao().loadAll();
+    }
+
+    public LiveData<WorkoutInfoEntity> getLastWorkoutInfo()
     {
         if (MainActivity.TEST_MODE_ACTIVE)
         {
-            return database.workoutDao().loadAllDebug();
+            return database.workoutInfoDao().loadLastDebug();
         }
         else
         {
-            return database.workoutDao().loadAll();
-        }
-    }
-
-    public LiveData<WorkoutEntity> getLastWorkout()
-    {
-        if (MainActivity.TEST_MODE_ACTIVE)
-        {
-            return database.workoutDao().loadLastDebug();
-        }
-        else
-        {
-            return database.workoutDao().loadLast();
+            return database.workoutInfoDao().loadLast();
         }
     }
 
@@ -116,7 +127,7 @@ public class DataRepository
         return database.exerciseSetDao().loadAll();
     }
 
-    public LiveData<List<ExerciseSetEntity>> getExerciseSetsByWorkout(WorkoutEntity workout)
+    public LiveData<List<ExerciseSetEntity>> getExerciseSetsByWorkout(WorkoutInfoEntity workout)
     {
         return database.exerciseSetDao().loadByWorkoutId(workout.getId());
     }
@@ -142,9 +153,9 @@ public class DataRepository
         }
     }
 
-    public void deleteWorkouts(List<WorkoutEntity> workouts)
+    public void deleteWorkouts(List<WorkoutInfoEntity> workouts)
     {
-        database.workoutDao().delete(workouts);
+        database.workoutInfoDao().delete(workouts);
     }
 
     public void saveCurrentData()
@@ -156,10 +167,10 @@ public class DataRepository
             executor.execute(() -> database.exerciseInfoDao().update(exerciseInfoList));
         }
         // Update current workout:
-        WorkoutEntity currentWorkout = observableWorkout.getValue();
+        WorkoutInfoEntity currentWorkout = observableWorkoutInfo.getValue();
         if (currentWorkout != null)
         {
-            executor.execute(() -> database.workoutDao().update(currentWorkout));
+            executor.execute(() -> database.workoutInfoDao().update(currentWorkout));
         }
         // Update current exercises:
         List<ExerciseSetEntity> currentExercises = observableExerciseSets.getValue();
@@ -178,17 +189,17 @@ public class DataRepository
             executor.execute(() -> database.exerciseInfoDao().update(exerciseInfoList));
         }
 
-        WorkoutEntity oldWorkout = observableWorkout.getValue();
+        WorkoutInfoEntity oldWorkout = observableWorkoutInfo.getValue();
         if (oldWorkout != null)
         {
             // Update current entry:
-            executor.execute(() -> database.workoutDao().update(oldWorkout));
+            executor.execute(() -> database.workoutInfoDao().update(oldWorkout));
             // Clone and insert new entry:
-            WorkoutEntity newWorkout = new WorkoutEntity(oldWorkout);
+            WorkoutInfoEntity newWorkout = new WorkoutInfoEntity(oldWorkout);
             final int newWorkoutId = newWorkout.getId();
-            executor.execute(() -> database.workoutDao().insert(newWorkout));
+            executor.execute(() -> database.workoutInfoDao().insert(newWorkout));
             // Adjust current entry:
-            observableWorkout.setValue(newWorkout);
+            observableWorkoutInfo.setValue(newWorkout);
 
             List<ExerciseSetEntity> oldExercises = observableExerciseSets.getValue();
             if (oldExercises != null)

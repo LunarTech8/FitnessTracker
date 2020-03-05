@@ -13,8 +13,8 @@ import java.util.Objects;
 
 
 @Entity(tableName = "exerciseInfo",
-        foreignKeys = {@ForeignKey(entity = WorkoutEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE)},
-        indices = {@Index(value = "workoutId")}
+        foreignKeys = {@ForeignKey(entity = WorkoutInfoEntity.class, parentColumns = "name", childColumns = "workoutInfoName", onDelete = ForeignKey.CASCADE)},
+        indices = {@Index(value = "workoutInfoName")}
         )
 public class ExerciseInfoEntity implements ExerciseInfo
 {
@@ -24,7 +24,7 @@ public class ExerciseInfoEntity implements ExerciseInfo
 
     @PrimaryKey @NonNull
     private String name = "InitNonNullName";
-    private int workoutId;
+    private String workoutInfoName;
     private String token;
     private String remarks;
 
@@ -35,9 +35,9 @@ public class ExerciseInfoEntity implements ExerciseInfo
     }
 
     @Override
-    public int getWorkoutId()
+    public String getWorkoutInfoName()
     {
-        return workoutId;
+        return workoutInfoName;
     }
 
     @Override
@@ -59,9 +59,9 @@ public class ExerciseInfoEntity implements ExerciseInfo
     }
 
     @Override
-    public void setWorkoutId(int workoutId)
+    public void setWorkoutInfoName(String workoutInfoName)
     {
-        if (this.workoutId != workoutId) this.workoutId = workoutId;
+        if (!Objects.equals(this.workoutInfoName, workoutInfoName)) this.workoutInfoName = workoutInfoName;
     }
 
     @Override
@@ -78,23 +78,24 @@ public class ExerciseInfoEntity implements ExerciseInfo
 
     public ExerciseInfoEntity() {}
     @Ignore
-    public ExerciseInfoEntity(@NonNull String name, int workoutId, String token)
+    public ExerciseInfoEntity(@NonNull String name, String workoutInfoName, String token)
     {
         this.name = name;
+        this.workoutInfoName = workoutInfoName;
         this.token = token;
     }
     @Ignore
-    public ExerciseInfoEntity(@NonNull String name, int workoutId, String token, String remarks)
+    public ExerciseInfoEntity(@NonNull String name, String workoutInfoName, String token, String remarks)
     {
-        this(name, workoutId, token);
+        this(name, workoutInfoName, token);
         this.remarks = remarks;
     }
 
     public static boolean isContentTheSame(ExerciseInfo exerciseInfoA, ExerciseInfo exerciseInfoB)
     {
         return Objects.equals(exerciseInfoA.getName(), exerciseInfoB.getName())
-                && exerciseInfoA.getWorkoutId() == exerciseInfoB.getWorkoutId()
-                && Objects.equals(exerciseInfoA.getToken(), exerciseInfoB.getToken())
-                && Objects.equals(exerciseInfoA.getRemarks(), exerciseInfoB.getRemarks());
+            && Objects.equals(exerciseInfoA.getWorkoutInfoName(), exerciseInfoB.getWorkoutInfoName())
+            && Objects.equals(exerciseInfoA.getToken(), exerciseInfoB.getToken())
+            && Objects.equals(exerciseInfoA.getRemarks(), exerciseInfoB.getRemarks());
     }
 }

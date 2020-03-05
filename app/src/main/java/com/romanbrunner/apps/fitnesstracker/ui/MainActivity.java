@@ -12,7 +12,7 @@ import android.view.View;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
-import com.romanbrunner.apps.fitnesstracker.database.WorkoutEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity
 
     public static boolean isEditModeActive = false;
 
-    private ExerciseAdapter adapter;
+    private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
 
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup recycle view adapter:
-        adapter = new ExerciseAdapter();
+        adapter = new ExerciseInfoAdapter();
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
     private void subscribeUi(final MainViewModel viewModel)
     {
         // Update the layout binding when the data in the view model changes:
-        viewModel.getCurrentWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
+        viewModel.getCurrentWorkoutInfo().observe(this, (@Nullable WorkoutInfoEntity workout) ->
         {
             if (workout != null)
             {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
-        viewModel.getLastWorkout().observe(this, (@Nullable WorkoutEntity workout) ->
+        viewModel.getLastWorkoutInfo().observe(this, (@Nullable WorkoutInfoEntity workout) ->
         {
             if (workout != null)
             {
@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity
                 binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
         });
-        viewModel.getAllWorkouts().observe(this, (@Nullable List<WorkoutEntity> workouts) ->
+        viewModel.getAllWorkoutInfo().observe(this, (@Nullable List<WorkoutInfoEntity> workouts) ->
         {
             if (workouts != null)
             {
@@ -133,11 +133,11 @@ public class MainActivity extends AppCompatActivity
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
-        viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSets) ->
+        viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSetList) ->
         {
-            if (exerciseSets != null)
+            if (exerciseSetList != null)
             {
-                binding.setIsExercisesLoading(!adapter.setExerciseSets(exerciseSets));
+                binding.setIsExercisesLoading(!adapter.setExerciseSets(exerciseSetList));
             }
             else
             {
