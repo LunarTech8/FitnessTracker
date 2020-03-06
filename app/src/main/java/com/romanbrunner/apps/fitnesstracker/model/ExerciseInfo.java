@@ -1,5 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.model;
 
+
 public interface ExerciseInfo
 {
     String getName();

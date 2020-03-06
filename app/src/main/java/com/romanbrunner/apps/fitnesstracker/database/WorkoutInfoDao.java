@@ -33,6 +33,9 @@ public interface WorkoutInfoDao
     @Update
     void update(WorkoutInfoEntity... workoutInfo);
 
+    @Update
+    void update(List<WorkoutInfoEntity> workoutInfo);
+
     @Delete
     void delete(List<WorkoutInfoEntity> workoutInfo);
 }

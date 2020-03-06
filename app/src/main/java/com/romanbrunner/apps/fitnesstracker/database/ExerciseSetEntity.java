@@ -14,12 +14,12 @@ import java.util.Objects;
 @Entity(tableName = "exerciseSets",
         foreignKeys =
         {
-            @ForeignKey(entity = WorkoutUnitEntity.class, parentColumns = "id", childColumns = "workoutId", onDelete = ForeignKey.CASCADE),
+            @ForeignKey(entity = WorkoutUnitEntity.class, parentColumns = "id", childColumns = "workoutUnitId", onDelete = ForeignKey.CASCADE),
             @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "name", childColumns = "exerciseInfoName", onDelete = ForeignKey.RESTRICT)
         },
         indices =
         {
-            @Index(value = "workoutId"),
+            @Index(value = "workoutUnitId"),
             @Index(value = "exerciseInfoName")
         })
 public class ExerciseSetEntity implements ExerciseSet
@@ -30,7 +30,7 @@ public class ExerciseSetEntity implements ExerciseSet
 
     @PrimaryKey(autoGenerate = true)
     private int id;
-    private int workoutId;
+    private int workoutUnitId;
     private String exerciseInfoName;
     private int repeats;
     private float weight;
@@ -43,9 +43,9 @@ public class ExerciseSetEntity implements ExerciseSet
     }
 
     @Override
-    public int getWorkoutId()
+    public int getWorkoutUnitId()
     {
-        return workoutId;
+        return workoutUnitId;
     }
 
     @Override
@@ -79,9 +79,9 @@ public class ExerciseSetEntity implements ExerciseSet
     }
 
     @Override
-    public void setWorkoutId(int workoutId)
+    public void setWorkoutUnitId(int workoutUnitId)
     {
-        if (this.workoutId != workoutId) this.workoutId = workoutId;
+        if (this.workoutUnitId != workoutUnitId) this.workoutUnitId = workoutUnitId;
     }
 
     @Override
@@ -110,18 +110,18 @@ public class ExerciseSetEntity implements ExerciseSet
 
     public ExerciseSetEntity() {}
     @Ignore
-    public ExerciseSetEntity(int workoutId, String exerciseInfoName, int repeats, float weight)
+    public ExerciseSetEntity(int workoutUnitId, String exerciseInfoName, int repeats, float weight)
     {
-        this.workoutId = workoutId;
+        this.workoutUnitId = workoutUnitId;
         this.exerciseInfoName = exerciseInfoName;
         this.repeats = repeats;
         this.weight = weight;
         done = false;
     }
     @Ignore
-    public ExerciseSetEntity(ExerciseSet exerciseSet, int workoutId)
+    public ExerciseSetEntity(ExerciseSet exerciseSet, int workoutUnitId)
     {
-        this(workoutId, exerciseSet.getExerciseInfoName(), exerciseSet.getRepeats(), exerciseSet.getWeight());
+        this(workoutUnitId, exerciseSet.getExerciseInfoName(), exerciseSet.getRepeats(), exerciseSet.getWeight());
     }
 
     public static boolean isContentTheSame(ExerciseSet exerciseSetA, ExerciseSet exerciseSetB)
@@ -130,7 +130,7 @@ public class ExerciseSetEntity implements ExerciseSet
             && exerciseSetA.isDone() == exerciseSetB.isDone()
             && exerciseSetA.getRepeats() == exerciseSetB.getRepeats()
             && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
-            && exerciseSetA.getWorkoutId() == exerciseSetB.getWorkoutId()
+            && exerciseSetA.getWorkoutUnitId() == exerciseSetB.getWorkoutUnitId()
             && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
     }
 }

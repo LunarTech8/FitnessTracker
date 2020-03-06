@@ -6,7 +6,6 @@ import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo;
 
-import java.util.Date;
 import java.util.Objects;
 
 

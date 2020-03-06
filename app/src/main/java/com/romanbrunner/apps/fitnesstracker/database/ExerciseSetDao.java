@@ -27,8 +27,8 @@ public interface ExerciseSetDao
     @Query("SELECT * FROM exerciseSets")
     LiveData<List<ExerciseSetEntity>> loadAll();
 
-    @Query("SELECT * FROM exerciseSets WHERE workoutId = :searchWorkoutId")
-    LiveData<List<ExerciseSetEntity>> loadByWorkoutId(int searchWorkoutId);
+    @Query("SELECT * FROM exerciseSets WHERE workoutUnitId = :searchWorkoutUnitId")
+    LiveData<List<ExerciseSetEntity>> loadByWorkoutUnitId(int searchWorkoutUnitId);
 
     @Query("SELECT * FROM exerciseSets WHERE id IN (:searchIds)")
     LiveData<List<ExerciseSetEntity>> loadByIds(int[] searchIds);
