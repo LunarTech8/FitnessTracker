@@ -83,6 +83,7 @@ public class MainViewModel extends AndroidViewModel
             {
                 java.lang.System.out.print("Id: " + workout.getId() + ", ");
                 java.lang.System.out.print("WorkoutInfoName: " + workout.getWorkoutInfoName() + ", ");
+                java.lang.System.out.print("WorkoutInfoVersion: " + workout.getWorkoutInfoVersion() + ", ");
                 java.lang.System.out.print("Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
             }
         }
@@ -116,7 +117,7 @@ public class MainViewModel extends AndroidViewModel
 
     public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo()
     {
-        return repository.getWorkoutInfo();
+        return observableWorkoutInfo;
     }
 
     public LiveData<List<ExerciseInfoEntity>> getExerciseInfo()
@@ -132,6 +133,11 @@ public class MainViewModel extends AndroidViewModel
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
     {
         return observableWorkoutUnit;
+    }
+
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
+    {
+        return repository.getAllWorkoutUnits();
     }
 
     public LiveData<WorkoutUnitEntity> getLastWorkoutUnit()
@@ -159,7 +165,7 @@ public class MainViewModel extends AndroidViewModel
         repository.finishExercises();
     }
 
-    public void printDebugLog(@NonNull LifecycleOwner owner)
+    public void printDebugLog(@NonNull LifecycleOwner owner)  // TODO: refactor
     {
         java.lang.System.out.println("--- DEBUG LOG ---");
         printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(repository.getCurrentWorkoutUnit().getValue()));
@@ -187,18 +193,16 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public void removeDebugWorkoutUnits(@NonNull LifecycleOwner owner)
+    public void removeDebugWorkoutUnits()
     {
         if (MainActivity.TEST_MODE_ACTIVE)
         {
-            repository.getAllWorkoutUnits().observe(owner, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
+            List<WorkoutUnitEntity> workoutUnits = repository.getAllWorkoutUnits().getValue();
+            if (workoutUnits != null && workoutUnits.size() > 1)
             {
-                if (workoutUnits != null && workoutUnits.size() > 1)
-                {
-                    workoutUnits.remove(0);
-                    repository.deleteWorkoutUnits(workoutUnits);
-                }
-            });
+                workoutUnits.remove(0);
+                repository.deleteWorkoutUnits(workoutUnits);
+            }
         }
     }
 }

@@ -135,7 +135,14 @@ public class DataRepository
 
     public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
     {
-        return database.workoutUnitDao().loadAll();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            return database.workoutUnitDao().loadAllDebug();
+        }
+        else
+        {
+            return database.workoutUnitDao().loadAll();
+        }
     }
 
     public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)

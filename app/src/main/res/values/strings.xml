@@ -3,6 +3,7 @@
     <string name="l_appName">Fitness Tracker</string>
     <string name="t_loadingText">Loading data&#x2026;</string>
 
+    <string name="t_nameButtonText">%s V%s</string>
     <string name="t_descriptionText">Description: %s</string>
     <string name="t_workoutCounterText">Workouts (\u03A3): %s</string>
     <string name="t_averageIntervalText">Interval (\u00D8): %s days</string>

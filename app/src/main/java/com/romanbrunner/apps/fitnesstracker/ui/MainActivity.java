@@ -20,6 +20,7 @@ import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 
@@ -39,6 +40,11 @@ public class MainActivity extends AppCompatActivity
     // --------------------
 
     public static boolean isEditModeActive = false;
+
+    private static boolean isExerciseInfoLoading = true;
+    private static boolean isExerciseSetsLoading = true;
+    private static boolean isWorkoutInfoLoading = true;
+    private static boolean isWorkoutUnitsLoading = true;
 
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
@@ -81,51 +87,98 @@ public class MainActivity extends AppCompatActivity
             // TODO: reload adapter
         });
         binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
-        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits(this));  // Button only visible in debugging build
+        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
         subscribeUi(viewModel);
     }
 
+    // Update the layout binding when the data in the view model changes:
     private void subscribeUi(final MainViewModel viewModel)
     {
-        // Update the layout binding when the data in the view model changes:
+        // Info entries:
         viewModel.getWorkoutInfo().observe(this, (@Nullable List<WorkoutInfoEntity> workoutInfoList) ->
         {
             if (workoutInfoList != null)
             {
-                float averageInterval = 0F;
-                for (int i = 1; i < workoutInfoList.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
+                isWorkoutInfoLoading = false;
+                if (!isWorkoutUnitsLoading)
                 {
-                    averageInterval += TimeUnit.DAYS.convert(workoutInfoList.get(i).getDate().getTime() - workoutInfoList.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
+                    final String name = binding.getWorkoutUnit().getWorkoutInfoName();
+                    final int version = binding.getWorkoutUnit().getWorkoutInfoVersion();
+                    for (WorkoutInfoEntity workoutInfo: workoutInfoList)
+                    {
+                        if (Objects.equals(workoutInfo.getName(), name) && workoutInfo.getVersion() == version)
+                        {
+                            binding.setWorkoutInfo(workoutInfo);
+                            break;
+                        }
+                    }
                 }
-                binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workoutInfoList.size() - 2)));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
+            else
+            {
+                isWorkoutInfoLoading = true;
+            }
+            binding.setIsExercisesLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
         viewModel.getExerciseInfo().observe(this, (@Nullable List<ExerciseInfoEntity> exerciseInfoList) ->
         {
             if (exerciseInfoList != null)
             {
-                binding.setIsExercisesLoading(!adapter.setExerciseInfo(exerciseInfoList));
+                isExerciseInfoLoading = false;
+                adapter.setExerciseInfo(exerciseInfoList);
             }
             else
             {
-                binding.setIsExercisesLoading(true);
+                isExerciseInfoLoading = true;
             }
+            binding.setIsExercisesLoading(isExerciseInfoLoading || isExerciseSetsLoading);
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
+        // Current entries:
         viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
         {
             if (workoutUnit != null)
             {
-                binding.setIsWorkoutLoading(false);
-                binding.setWorkout(workoutUnit);
+                isWorkoutUnitsLoading = false;
+                binding.setWorkoutUnit(workoutUnit);
+                List<WorkoutInfoEntity> workoutInfoList = viewModel.getWorkoutInfo().getValue();
+                if (!isWorkoutInfoLoading && workoutInfoList != null)
+                {
+                    final String name = workoutUnit.getWorkoutInfoName();
+                    final int version = workoutUnit.getWorkoutInfoVersion();
+                    for (WorkoutInfoEntity workoutInfo: workoutInfoList)
+                    {
+                        if (Objects.equals(workoutInfo.getName(), name) && workoutInfo.getVersion() == version)
+                        {
+                            binding.setWorkoutInfo(workoutInfo);
+                            break;
+                        }
+                    }
+                }
             }
             else
             {
-                binding.setIsWorkoutLoading(true);
+                isWorkoutUnitsLoading = true;
             }
+            binding.setIsExercisesLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
+        viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSetList) ->
+        {
+            if (exerciseSetList != null)
+            {
+                isExerciseSetsLoading = false;
+                adapter.setExerciseSets(exerciseSetList);
+            }
+            else
+            {
+                isExerciseSetsLoading = true;
+            }
+            binding.setIsExercisesLoading(isExerciseInfoLoading || isExerciseSetsLoading);
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+        });
+        // Entries for statistics:
         viewModel.getLastWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
         {
             if (workoutUnit != null)
@@ -134,17 +187,18 @@ public class MainActivity extends AppCompatActivity
                 binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
         });
-        viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSetList) ->
+        viewModel.getAllWorkoutUnits().observe(this, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
         {
-            if (exerciseSetList != null)
+            if (workoutUnits != null)
             {
-                binding.setIsExercisesLoading(!adapter.setExerciseSets(exerciseSetList));
+                float averageInterval = 0F;
+                for (int i = 1; i < workoutUnits.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
+                {
+                    averageInterval += TimeUnit.DAYS.convert(workoutUnits.get(i).getDate().getTime() - workoutUnits.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
+                }
+                binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workoutUnits.size() - 2)));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
             }
-            else
-            {
-                binding.setIsExercisesLoading(true);
-            }
-            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
     }
 }

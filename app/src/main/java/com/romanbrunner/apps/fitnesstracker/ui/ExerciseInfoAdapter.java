@@ -13,7 +13,7 @@ import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseInfoCardBinding;
+import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,9 +34,9 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
-        final ExerciseInfoCardBinding binding;
+        final ExerciseCardBinding binding;
 
-        ExerciseInfoViewHolder(ExerciseInfoCardBinding binding)
+        ExerciseInfoViewHolder(ExerciseCardBinding binding)
         {
             super(binding.getRoot());
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
@@ -67,7 +67,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     public @NonNull
     ExerciseInfoViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
-        ExerciseInfoCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_card, viewGroup, false);
+        ExerciseCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_card, viewGroup, false);
         return new ExerciseInfoViewHolder(binding);
     }
 
@@ -143,7 +143,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 //        return new ArrayList<>(exerciseInfoMap.values());
 //    }
 
-    public boolean setExerciseInfo(@NonNull final List<? extends ExerciseInfo> exerciseInfo)
+    public void setExerciseInfo(@NonNull final List<? extends ExerciseInfo> exerciseInfo)
     {
         if (this.exerciseInfo == null)
         {
@@ -152,7 +152,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             if (exerciseInfo2SetsMap != null)
             {
                 notifyItemRangeInserted(0, exerciseInfo.size());
-                return true;
             }
         }
         else if (exerciseInfo2SetsMap != null)
@@ -185,12 +184,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 }
             });
             result.dispatchUpdatesTo(this);
-            return true;
         }
-        return false;
     }
 
-    public boolean setExerciseSets(@NonNull final List<ExerciseSetEntity> exerciseSets)
+    public void setExerciseSets(@NonNull final List<ExerciseSetEntity> exerciseSets)
     {
         if (exerciseInfo2SetsMap == null)
         {
@@ -218,6 +215,5 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
         }
         adapter.setExerciseSets(exerciseSets);
-        return (this.exerciseInfo != null);
     }
 }

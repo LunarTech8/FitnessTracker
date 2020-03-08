@@ -13,7 +13,8 @@
         <variable name="isEditModeActive" type="boolean" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
-        <variable name="workout" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo" />
+        <variable name="workoutInfo" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo" />
+        <variable name="workoutUnit" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutUnit" />
     </data>
 
     <LinearLayout
@@ -58,7 +59,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:ems="11"
-                    android:text="@={workout.name}"
+                    android:text="@{@string/t_nameButtonText(workoutInfo.name, workoutInfo.version)}"
                     android:textSize="@dimen/comment_text_size"
                     android:textAllCaps="false"
                     style="@android:style/Widget.Material.Light.Button.Inset"
@@ -71,7 +72,7 @@
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:ems="5"
                     android:inputType="date"
-                    android:text="@={workout.date}"
+                    android:text="@={workoutUnit.date}"
                     app:visibleGone="@{!isWorkoutLoading}"
                     android:autofillHints="date"
                     android:hint="@string/h_emptyHint"
@@ -96,7 +97,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                     android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
-                    android:text="@{@string/t_descriptionText(workout.description)}"
+                    android:text="@{@string/t_descriptionText(workoutInfo.description)}"
                     android:textSize="@dimen/comment_text_size"
                     />
 
@@ -113,7 +114,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                        android:text="@{@string/t_workoutCounterText(workout.id)}"
+                        android:text="@{@string/t_workoutCounterText(workoutUnit.id)}"
                         android:textSize="@dimen/comment_text_size"
                         />
 

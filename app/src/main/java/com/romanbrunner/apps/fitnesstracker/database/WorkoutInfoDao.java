@@ -28,7 +28,7 @@ public interface WorkoutInfoDao
     LiveData<List<WorkoutInfoEntity>> loadAll();
 
     @Insert
-    void insert(WorkoutInfoEntity... workoutInfo);
+    void insert(List<WorkoutInfoEntity> workoutInfo);
 
     @Update
     void update(WorkoutInfoEntity... workoutInfo);
