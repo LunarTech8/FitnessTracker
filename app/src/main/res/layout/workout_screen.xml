@@ -36,12 +36,11 @@
             android:background="@drawable/border_medium_angular"
             >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/headerRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/workoutLoadingNotification"
@@ -50,35 +49,41 @@
                     android:gravity="center_vertical|center_horizontal"
                     android:text="@string/t_loadingText"
                     android:textAlignment="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     app:visibleGone="@{isWorkoutLoading}"
                     />
 
                 <Button
                     android:id="@+id/nameButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:ems="11"
-                    android:text="@{@string/t_nameButtonText(workoutInfo.name, workoutInfo.version)}"
-                    android:textSize="@dimen/comment_text_size"
-                    android:textAllCaps="false"
                     style="@android:style/Widget.Material.Light.Button.Inset"
-                    app:visibleGone="@{!isWorkoutLoading}" />
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:text="@{@string/t_nameButtonText(workoutInfo.name, workoutInfo.version)}"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/comment_text_size"
+                    app:layout_constraintEnd_toStartOf="@+id/dateField"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
 
                 <EditText
                     android:id="@+id/dateField"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:autofillHints="date"
                     android:ems="5"
+                    android:hint="@string/h_emptyHint"
                     android:inputType="date"
                     android:text="@={workoutUnit.date}"
-                    app:visibleGone="@{!isWorkoutLoading}"
-                    android:autofillHints="date"
-                    android:hint="@string/h_emptyHint"
-                    />
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}" />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/infoBox"

@@ -65,9 +65,9 @@ public abstract class AppDatabase extends RoomDatabase
     private static List<ExerciseInfoEntity> initializeExerciseInfo()
     {
         List<ExerciseInfoEntity> exerciseInfoList = new ArrayList<>(12);
-        exerciseInfoList.add(new ExerciseInfoEntity("Cross-Walker", "-", "Laufwiderstand: 10; Repeats in Minuten"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Negativ-Crunch", "-"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Klimmzug breit zur Brust", "-"));
+        exerciseInfoList.add(new ExerciseInfoEntity("Cross-Walker", "", "Laufwiderstand: 10; Repeats in Minuten"));
+        exerciseInfoList.add(new ExerciseInfoEntity("Negativ-Crunch", ""));
+        exerciseInfoList.add(new ExerciseInfoEntity("Klimmzug breit zur Brust", ""));
         exerciseInfoList.add(new ExerciseInfoEntity("Beinstrecker", "E04", "Fuß: 3; Beine: 11; Sitz: 1,5"));
         exerciseInfoList.add(new ExerciseInfoEntity("Beinbeuger", "E05", "Fuß: 6; Beine: 12"));
         exerciseInfoList.add(new ExerciseInfoEntity("Butterfly", "A02"));

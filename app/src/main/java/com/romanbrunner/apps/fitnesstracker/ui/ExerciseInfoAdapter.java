@@ -15,6 +15,8 @@ import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +32,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = null;
     private List<? extends ExerciseInfo> exerciseInfo;
-    private ExerciseSetAdapter adapter;
+    private List<ExerciseSetAdapter> adapters;
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
@@ -48,7 +50,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     ExerciseInfoAdapter()
     {
         exerciseInfo = null;
-        adapter = new ExerciseSetAdapter();
+        adapters = null;
     }
 
     @Override
@@ -76,9 +78,15 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     public void onBindViewHolder(ExerciseInfoViewHolder exerciseInfoViewHolder, int position)
     {
         // Adjust changeable values of the view fields by the current exercises list:
-        exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfo.get(position));
+        ExerciseInfo exerciseInfo = this.exerciseInfo.get(position);
+        exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfo);
         exerciseInfoViewHolder.binding.executePendingBindings();
 
+        ExerciseSetAdapter adapter = adapters.get(position);
+        if (exerciseInfo2SetsMap != null)
+        {
+            adapter.setExerciseSets(exerciseInfo2SetsMap.get(exerciseInfo.getName()));
+        }
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
     }
 
@@ -149,6 +157,11 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         {
             // Add all entries:
             this.exerciseInfo = exerciseInfo;
+            adapters = new ArrayList<>(exerciseInfo.size());
+            for (int i = 0; i < exerciseInfo.size(); i++)
+            {
+                adapters.add(new ExerciseSetAdapter());
+            }
             if (exerciseInfo2SetsMap != null)
             {
                 notifyItemRangeInserted(0, exerciseInfo.size());
@@ -192,10 +205,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         if (exerciseInfo2SetsMap == null)
         {
             exerciseInfo2SetsMap = new HashMap<>();
-            if (this.exerciseInfo != null)
-            {
-                notifyItemRangeInserted(0, exerciseInfo.size());
-            }
         }
         else
         {
@@ -211,9 +220,12 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             else
             {
-                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(exerciseSets));
+                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
             }
         }
-        adapter.setExerciseSets(exerciseSets);
+        if (this.exerciseInfo != null)
+        {
+            notifyDataSetChanged();
+        }
     }
 }

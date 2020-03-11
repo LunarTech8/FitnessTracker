@@ -24,7 +24,7 @@
             android:padding="@dimen/comment_padding"
             >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/nameRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -33,29 +33,31 @@
 
                 <EditText
                     android:id="@+id/exerciseNameField"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:ems="14"
-                    android:inputType="textCapWords"
-                    android:text="@={exerciseInfo.name}"
                     android:autofillHints="text"
                     android:hint="@string/h_exerciseName"
+                    android:inputType="textCapWords"
+                    android:text="@={exerciseInfo.name}"
+                    app:layout_constraintEnd_toStartOf="@+id/exerciseTokenField"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     />
 
                 <EditText
                     android:id="@+id/exerciseTokenField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:ems="2"
+                    android:hint="@string/h_exerciseToken"
+                    android:importantForAutofill="no"
                     android:inputType="textNoSuggestions"
                     android:text="@={exerciseInfo.token}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_exerciseToken"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
                     />
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/noteRow"
@@ -68,6 +70,7 @@
                     android:id="@+id/exerciseRemarksLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
                     android:text="@string/t_exerciseRemarksLabel"
                     android:textSize="@dimen/comment_text_size"
@@ -77,13 +80,10 @@
                     android:id="@+id/exerciseRemarksField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:ems="13"
-                    android:inputType="textNoSuggestions"
-                    android:text="@={exerciseInfo.remarks}"
                     android:autofillHints="text"
                     android:hint="@string/h_emptyHint"
-                    />
+                    android:inputType="textNoSuggestions"
+                    android:text="@={exerciseInfo.remarks}" />
 
             </LinearLayout>
 

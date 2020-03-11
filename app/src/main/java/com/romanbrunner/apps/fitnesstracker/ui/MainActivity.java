@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
             {
                 isWorkoutInfoLoading = true;
             }
-            binding.setIsExercisesLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
+            binding.setIsWorkoutLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
         viewModel.getExerciseInfo().observe(this, (@Nullable List<ExerciseInfoEntity> exerciseInfoList) ->
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity
             {
                 isWorkoutUnitsLoading = true;
             }
-            binding.setIsExercisesLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
+            binding.setIsWorkoutLoading(isWorkoutInfoLoading || isWorkoutUnitsLoading);
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
         viewModel.getCurrentExerciseSets().observe(this, (@Nullable List<ExerciseSetEntity> exerciseSetList) ->

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
+<layout xmlns:tools="http://schemas.android.com/tools"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     >
 
     <data>
@@ -16,76 +17,84 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="@dimen/comment_padding"
             >
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/dataRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/exerciseWeightLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                     android:text="@string/t_exerciseWeightLabel"
                     android:textSize="@dimen/comment_text_size"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
                     android:id="@+id/exerciseWeightField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:hint="@string/h_emptyHint"
+                    android:importantForAutofill="no"
                     android:inputType="numberDecimal"
                     android:text="@={exerciseSet.weight}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/exerciseWeightLabel"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
                     android:id="@+id/exerciseRepeatsLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
                     android:text="@string/t_exerciseRepeatsLabel"
                     android:textSize="@dimen/comment_text_size"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/exerciseWeightField"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <EditText
                     android:id="@+id/exerciseRepeatsField"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:hint="@string/h_emptyHint"
+                    android:importantForAutofill="no"
                     android:inputType="number"
                     android:text="@={exerciseSet.repeats}"
-                    android:importantForAutofill="no"
-                    android:hint="@string/h_emptyHint"
-                    />
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/exerciseRepeatsLabel"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <CheckBox
                     android:id="@+id/exerciseDoneCheckbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:checked="@={exerciseSet.done}"
-                    android:text="@string/t_exerciseDone"
-                    android:textSize="@dimen/comment_text_size"
-                    />
-
-                <Button
-                    android:id="@+id/exerciseIncrementButton"
                     android:layout_width="@dimen/increment_button_size"
                     android:layout_height="@dimen/increment_button_size"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@string/t_exerciseIncrement"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
-                    />
+                    android:checked="@={exerciseSet.done}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/exerciseIncrementButton"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-            </LinearLayout>
+                <Button
+                    android:id="@+id/exerciseIncrementButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:text="@string/t_exerciseIncrement"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

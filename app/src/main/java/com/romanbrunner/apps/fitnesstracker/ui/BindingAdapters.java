@@ -9,10 +9,18 @@ import androidx.databinding.InverseBindingAdapter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class BindingAdapters
 {
+    // --------------------
+    // Data code
+    // --------------------
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+
+
     // --------------------
     // Functional code
     // --------------------
@@ -82,7 +90,7 @@ public class BindingAdapters
         {
             return;
         }
-        view.setText(SimpleDateFormat.getDateInstance().format(value));
+        view.setText(DATE_FORMAT.format(value));
     }
 
     @InverseBindingAdapter(attribute = "android:text")
@@ -95,7 +103,7 @@ public class BindingAdapters
         }
         try
         {
-            return SimpleDateFormat.getDateInstance().parse(dateString);
+            return DATE_FORMAT.parse(dateString);
         }
         catch (ParseException e)
         {
