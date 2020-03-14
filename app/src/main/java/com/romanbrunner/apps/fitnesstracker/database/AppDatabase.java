@@ -28,10 +28,30 @@ public abstract class AppDatabase extends RoomDatabase
     // --------------------
 
     private final static String DATABASE_NAME = "fitness-tracker-database";
-
-    private static List<WorkoutInfoEntity> initializeWorkoutInfo()
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2)
     {
-        List<WorkoutInfoEntity> workoutInfoList = new ArrayList<>(2);
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            database.execSQL("CREATE TABLE `workoutUnits` (`id` INTEGER NOT NULL, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
+            database.execSQL("CREATE INDEX `index_workoutUnits_workoutInfoName_workoutInfoVersion` ON `workoutUnits` (`workoutInfoName`, `workoutInfoVersion`)");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, `name`, 1, `date` FROM `workouts`");
+
+            database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseInfoNames` TEXT, PRIMARY KEY(`name`, `version`))");
+            insertDefaultWorkoutInfo(database);
+
+            database.execSQL("CREATE TABLE `exerciseSets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutUnitId` INTEGER NOT NULL, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutUnitId`) REFERENCES `workoutUnits`(`id`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
+            database.execSQL("CREATE INDEX `index_exerciseSets_workoutUnitId` ON `exerciseSets` (`workoutUnitId`)");
+            database.execSQL("CREATE INDEX `index_exerciseSets_exerciseInfoName` ON `exerciseSets` (`exerciseInfoName`)");
+            database.execSQL("INSERT INTO `exerciseSets` (`id`, `workoutUnitId`, `exerciseInfoName`, `repeats`, `weight`, `done`) SELECT `id`, `workoutId`, `name`, `repeats`, `weight`, `done` FROM `exercises`");
+
+            database.execSQL("CREATE TABLE `exerciseInfo` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))");
+            insertDefaultExerciseInfo(database);
+        }
+    };
+
+    private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
+    {
         String exerciseInfoNames = "";
         exerciseInfoNames += "Cross-Walker" + ";";
         exerciseInfoNames += "Negativ-Crunch" + ";";
@@ -45,7 +65,7 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseInfoNames += "Pushdown am Kabelzug" + ";";
         exerciseInfoNames += "Rückenstrecker" + ";";
         exerciseInfoNames += "Crunch Bauchbank" + ";";
-        workoutInfoList.add(new WorkoutInfoEntity("HIT full-body (McFit)", 1, "High intensity training full-body at McFit", exerciseInfoNames));
+        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseInfoNames + "')");
         exerciseInfoNames = "";
         exerciseInfoNames += "Cross-Walker" + ";";
         exerciseInfoNames += "Klimmzug breit zur Brust" + ";";
@@ -58,26 +78,23 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseInfoNames += "Pushdown am Kabelzug" + ";";
         exerciseInfoNames += "Rückenstrecker" + ";";
         exerciseInfoNames += "Crunch Bauchbank" + ";";
-        workoutInfoList.add(new WorkoutInfoEntity("HIT full-body (Body+Souls)", 1, "High intensity training full-body at Body+Souls", exerciseInfoNames));
-        return workoutInfoList;
+        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseInfoNames + "')");
     }
 
-    private static List<ExerciseInfoEntity> initializeExerciseInfo()
+    private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)
     {
-        List<ExerciseInfoEntity> exerciseInfoList = new ArrayList<>(12);
-        exerciseInfoList.add(new ExerciseInfoEntity("Cross-Walker", "", "Laufwiderstand: 10; Repeats in Minuten"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Negativ-Crunch", ""));
-        exerciseInfoList.add(new ExerciseInfoEntity("Klimmzug breit zur Brust", ""));
-        exerciseInfoList.add(new ExerciseInfoEntity("Beinstrecker", "E04", "Fuß: 3; Beine: 11; Sitz: 1,5"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Beinbeuger", "E05", "Fuß: 6; Beine: 12"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Butterfly", "A02"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Wadenheben an der Beinpresse", "E01", "Rücken: 2; Sitz: 5"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Duale Schrägband-Drückmaschine", "C02", "Sitz: 1"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Bizepsmaschine", "D01"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Pushdown am Kabelzug", "B06"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Rückenstrecker", "B03", "Beine: 4"));
-        exerciseInfoList.add(new ExerciseInfoEntity("Crunch Bauchbank", "F01", "Beine: 3"));
-        return exerciseInfoList;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Cross-Walker', '', 'Laufwiderstand: 10; Repeats in Minuten')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Negativ-Crunch', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Klimmzug breit zur Brust', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinstrecker', 'E04', 'Fuß: 3; Beine: 11; Sitz: 1,5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinbeuger', 'E05', 'Fuß: 6; Beine: 12')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Butterfly', 'A02', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Wadenheben an der Beinpresse', 'E01', 'Rücken: 2; Sitz: 5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Duale Schrägband-Drückmaschine', 'C02', 'Sitz: 1')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Bizepsmaschine', 'D01', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Pushdown am Kabelzug', 'B06', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Rückenstrecker', 'B03', 'Beine: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
     }
 
     private static void createDefaultWorkoutUnit(final AppDatabase database, int workoutUnitId)
@@ -100,25 +117,6 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Crunch Bauchbank", 19, 0.F));
         database.exerciseSetDao().insert(exerciseSetList);
     }
-
-    private static final Migration MIGRATION_1_2 = new Migration(1, 2)
-    {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database)
-        {
-            database.execSQL("CREATE TABLE IF NOT EXISTS `workoutUnits` (`id` INTEGER, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
-            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, `name`, 1, `date` FROM `workouts`");
-
-            database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER, `description` TEXT, `exerciseInfoNames` TEXT, PRIMARY KEY(`name`, `version`))");
-            instance.workoutInfoDao().insert(initializeWorkoutInfo());
-
-            database.execSQL("CREATE TABLE `exerciseSets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `workoutUnitId` INTEGER, `exerciseInfoName` TEXT, `repeats` INTEGER, `weight` REAL, `done` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutUnitId`) REFERENCES `workoutUnits`(`id`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
-            database.execSQL("INSERT INTO `exerciseSets` (`id`, `workoutUnitId`, `exerciseInfoName`, `repeats`, `weight`, `done`) SELECT `id`, `workoutId`, `name`, `repeats`, `weight`, `done` FROM `exercises`");
-
-            database.execSQL("CREATE TABLE `exerciseInfo` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))");
-            instance.exerciseInfoDao().insert(initializeExerciseInfo());
-        }
-    };
 
 
     // --------------------
@@ -166,9 +164,9 @@ public abstract class AppDatabase extends RoomDatabase
                     AppDatabase database = AppDatabase.getInstance(appContext, executors);
                     database.runInTransaction(() ->
                     {
-                        // Initialize info data:
-                        database.workoutInfoDao().insert(initializeWorkoutInfo());
-                        database.exerciseInfoDao().insert(initializeExerciseInfo());
+                        // Insert default info data:
+                        insertDefaultWorkoutInfo(db);
+                        insertDefaultExerciseInfo(db);
 
                         // Create first workout unit:
                         createDefaultWorkoutUnit(database, 0);
