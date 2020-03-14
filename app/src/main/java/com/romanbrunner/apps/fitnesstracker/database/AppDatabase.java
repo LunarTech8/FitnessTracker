@@ -9,6 +9,7 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
+import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.romanbrunner.apps.fitnesstracker.AppExecutors;
@@ -16,10 +17,9 @@ import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
-@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 1)
+@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 2)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -101,6 +101,25 @@ public abstract class AppDatabase extends RoomDatabase
         database.exerciseSetDao().insert(exerciseSetList);
     }
 
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2)
+    {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            database.execSQL("CREATE TABLE IF NOT EXISTS `workoutUnits` (`id` INTEGER, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, `name`, 1, `date` FROM `workouts`");
+
+            database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER, `description` TEXT, `exerciseInfoNames` TEXT, PRIMARY KEY(`name`, `version`))");
+            instance.workoutInfoDao().insert(initializeWorkoutInfo());
+
+            database.execSQL("CREATE TABLE `exerciseSets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `workoutUnitId` INTEGER, `exerciseInfoName` TEXT, `repeats` INTEGER, `weight` REAL, `done` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutUnitId`) REFERENCES `workoutUnits`(`id`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
+            database.execSQL("INSERT INTO `exerciseSets` (`id`, `workoutUnitId`, `exerciseInfoName`, `repeats`, `weight`, `done`) SELECT `id`, `workoutId`, `name`, `repeats`, `weight`, `done` FROM `exercises`");
+
+            database.execSQL("CREATE TABLE `exerciseInfo` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))");
+            instance.exerciseInfoDao().insert(initializeExerciseInfo());
+        }
+    };
+
 
     // --------------------
     // Functional code
@@ -162,7 +181,7 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(appContext, AppDatabase.class, DATABASE_NAME).addCallback(callback).build();
+        return Room.databaseBuilder(appContext, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2).build();
     }
 
     /* Check whether the database already exists and expose it via {@link #getDatabaseCreated()}. */

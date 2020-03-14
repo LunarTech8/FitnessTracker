@@ -20,7 +20,6 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Rework data structure to be able to store exercise info, data and (multiple) sets separately
 !!- Implement an "Add Set" and a "Remove Set" button at bottom of exercise card
 !!- Implement an "Add Exercise" button at bottom
 !- Add option to switch between colour themes

@@ -81,10 +81,9 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
 //            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
-
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);
-            // TODO: reload adapter
+            adapter.reloadViews();
         });
         binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
         binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build

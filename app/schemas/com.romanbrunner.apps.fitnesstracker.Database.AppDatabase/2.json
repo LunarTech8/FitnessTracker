@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "162e6e0f9ed67a811ef18b8d0a973543",
+    "identityHash": "160b07d6ac672bf35cf3c99844eac854",
     "entities": [
       {
-        "tableName": "workouts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `date` INTEGER, `name` TEXT, `description` TEXT, PRIMARY KEY(`id`))",
+        "tableName": "workoutUnits",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,21 +15,21 @@
             "notNull": true
           },
           {
+            "fieldPath": "workoutInfoName",
+            "columnName": "workoutInfoName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "workoutInfoVersion",
+            "columnName": "workoutInfoVersion",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
             "fieldPath": "date",
             "columnName": "date",
             "affinity": "INTEGER",
-            "notNull": false
-          },
-          {
-            "fieldPath": "name",
-            "columnName": "name",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "description",
-            "columnName": "description",
-            "affinity": "TEXT",
             "notNull": false
           }
         ],
@@ -39,12 +39,75 @@
           ],
           "autoGenerate": false
         },
+        "indices": [
+          {
+            "name": "index_workoutUnits_workoutInfoName_workoutInfoVersion",
+            "unique": false,
+            "columnNames": [
+              "workoutInfoName",
+              "workoutInfoVersion"
+            ],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_workoutUnits_workoutInfoName_workoutInfoVersion` ON `${TABLE_NAME}` (`workoutInfoName`, `workoutInfoVersion`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "workoutInfo",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "workoutInfoName",
+              "workoutInfoVersion"
+            ],
+            "referencedColumns": [
+              "name",
+              "version"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "workoutInfo",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseInfoNames` TEXT, PRIMARY KEY(`name`, `version`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "version",
+            "columnName": "version",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "exerciseInfoNames",
+            "columnName": "exerciseInfoNames",
+            "affinity": "TEXT",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "name",
+            "version"
+          ],
+          "autoGenerate": false
+        },
         "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "exerciseSets",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutId` INTEGER NOT NULL, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutUnitId` INTEGER NOT NULL, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutUnitId`) REFERENCES `workoutUnits`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON UPDATE NO ACTION ON DELETE RESTRICT )",
         "fields": [
           {
             "fieldPath": "id",
@@ -53,8 +116,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "workoutId",
-            "columnName": "workoutId",
+            "fieldPath": "workoutUnitId",
+            "columnName": "workoutUnitId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -91,12 +154,12 @@
         },
         "indices": [
           {
-            "name": "index_exerciseSets_workoutId",
+            "name": "index_exerciseSets_workoutUnitId",
             "unique": false,
             "columnNames": [
-              "workoutId"
+              "workoutUnitId"
             ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_exerciseSets_workoutId` ON `${TABLE_NAME}` (`workoutId`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_exerciseSets_workoutUnitId` ON `${TABLE_NAME}` (`workoutUnitId`)"
           },
           {
             "name": "index_exerciseSets_exerciseInfoName",
@@ -109,11 +172,11 @@
         ],
         "foreignKeys": [
           {
-            "table": "workouts",
+            "table": "workoutUnits",
             "onDelete": "CASCADE",
             "onUpdate": "NO ACTION",
             "columns": [
-              "workoutId"
+              "workoutUnitId"
             ],
             "referencedColumns": [
               "id"
@@ -134,18 +197,12 @@
       },
       {
         "tableName": "exerciseInfo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `workoutId` INTEGER NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`), FOREIGN KEY(`workoutId`) REFERENCES `workouts`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))",
         "fields": [
           {
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "workoutId",
-            "columnName": "workoutId",
-            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -167,35 +224,14 @@
           ],
           "autoGenerate": false
         },
-        "indices": [
-          {
-            "name": "index_exerciseInfo_workoutId",
-            "unique": false,
-            "columnNames": [
-              "workoutId"
-            ],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_exerciseInfo_workoutId` ON `${TABLE_NAME}` (`workoutId`)"
-          }
-        ],
-        "foreignKeys": [
-          {
-            "table": "workouts",
-            "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "workoutId"
-            ],
-            "referencedColumns": [
-              "id"
-            ]
-          }
-        ]
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '162e6e0f9ed67a811ef18b8d0a973543')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '160b07d6ac672bf35cf3c99844eac854')"
     ]
   }
 }

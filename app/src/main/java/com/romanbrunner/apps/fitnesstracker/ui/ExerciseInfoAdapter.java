@@ -80,6 +80,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         // Adjust changeable values of the view fields by the current exercises list:
         ExerciseInfo exerciseInfo = this.exerciseInfo.get(position);
         exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfo);
+        exerciseInfoViewHolder.binding.setIsEditModeActive(MainActivity.isEditModeActive);
         exerciseInfoViewHolder.binding.executePendingBindings();
 
         ExerciseSetAdapter adapter = adapters.get(position);
@@ -227,5 +228,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         {
             notifyDataSetChanged();
         }
+    }
+
+    public void reloadViews()
+    {
+        notifyDataSetChanged();
     }
 }
