@@ -103,9 +103,9 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
         {
             // Add all entries:
             this.exerciseSets = exerciseSets;
-            if (this.exerciseSets == null)
+            if (this.exerciseSets != null)
             {
-                notifyItemRangeInserted(0, exerciseSets.size());
+                notifyItemRangeInserted(0, this.exerciseSets.size());
             }
         }
         else
