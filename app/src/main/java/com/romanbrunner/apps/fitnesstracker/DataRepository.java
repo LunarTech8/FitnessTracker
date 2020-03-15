@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoDao;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoDao;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
@@ -75,6 +77,40 @@ public class DataRepository
         });
     }
 
+    private void storeWorkoutInfo(final List<WorkoutInfoEntity> workoutInfoList)
+    {
+        // Insert or update given entries:
+        executor.execute(() ->
+        {
+            WorkoutInfoDao workoutInfoDao = database.workoutInfoDao();
+            for (WorkoutInfoEntity workoutInfo: workoutInfoList)
+            {
+                if (workoutInfoDao.insertIgnore(workoutInfo) == -1L)
+                {
+                    workoutInfoDao.update(workoutInfo);
+                }
+            }
+
+        });
+    }
+
+    private void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
+    {
+        // Insert or update given entries:
+        executor.execute(() ->
+        {
+            ExerciseInfoDao exerciseInfoDao = database.exerciseInfoDao();
+            for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
+            {
+                if (exerciseInfoDao.insertIgnore(exerciseInfo) == -1L)
+                {
+                    exerciseInfoDao.update(exerciseInfo);
+                }
+            }
+
+        });
+    }
+
     static DataRepository getInstance(final AppDatabase database)
     {
         if (instance == null)
@@ -98,22 +134,6 @@ public class DataRepository
     public LiveData<List<ExerciseInfoEntity>> getExerciseInfo()
     {
         return observableExerciseInfo;
-    }
-
-    public void setExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
-    {
-        List<ExerciseInfoEntity> observedExerciseInfoList = observableExerciseInfo.getValue();
-        for (ExerciseInfoEntity exerciseInfo : exerciseInfoList)
-        {
-            if (observedExerciseInfoList != null && observedExerciseInfoList.contains(exerciseInfo))
-            {
-                executor.execute(() -> database.exerciseInfoDao().update(exerciseInfoList));
-            }
-            else
-            {
-                executor.execute(() -> database.exerciseInfoDao().insert(exerciseInfoList));
-            }
-        }
     }
 
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
@@ -165,30 +185,43 @@ public class DataRepository
         return database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId());
     }
 
-    public void setExerciseSet(final ExerciseSetEntity exercise)
+    public void setCurrentWorkout(WorkoutUnitEntity workoutUnitEntity, List<ExerciseSetEntity> exerciseSetEntities)
     {
-        executor.execute(() -> database.exerciseSetDao().insertOrReplace(exercise));
+        observableWorkoutUnit.setValue(workoutUnitEntity);
+        observableExerciseSets.setValue(exerciseSetEntities);
     }
 
     public void saveCurrentData()
     {
-        // Update workout info:
+        // Store workout info:
         List<WorkoutInfoEntity> workoutInfoList = observableWorkoutInfo.getValue();
         if (workoutInfoList != null)
         {
-            executor.execute(() -> database.workoutInfoDao().update(workoutInfoList));
+            storeWorkoutInfo(workoutInfoList);
         }
-        // Update exercise info:
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutInfo");
+        }
+        // Store exercise info:
         List<ExerciseInfoEntity> exerciseInfoList = observableExerciseInfo.getValue();
         if (exerciseInfoList != null)
         {
-            executor.execute(() -> database.exerciseInfoDao().update(exerciseInfoList));
+            storeExerciseInfo(exerciseInfoList);
         }
-        // Update current workout units:
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseInfo");
+        }
+        // Update current workout unit:
         WorkoutUnitEntity currentWorkoutUnit = observableWorkoutUnit.getValue();
         if (currentWorkoutUnit != null)
         {
             executor.execute(() -> database.workoutUnitDao().update(currentWorkoutUnit));
+        }
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutUnit");
         }
         // Update current exercise sets:
         List<ExerciseSetEntity> currentExerciseSets = observableExerciseSets.getValue();
@@ -196,25 +229,35 @@ public class DataRepository
         {
             executor.execute(() -> database.exerciseSetDao().update(currentExerciseSets));
         }
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseSets");
+        }
     }
 
     public void finishExercises()
     {
-        // Update current info entries:
+        // Store info entries:
         List<WorkoutInfoEntity> workoutInfoList = observableWorkoutInfo.getValue();
         if (workoutInfoList != null) 
         {
-            // Update current entries:
-            executor.execute(() -> database.workoutInfoDao().update(workoutInfoList));
+            storeWorkoutInfo(workoutInfoList);
+        }
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutInfo");
         }
         List<ExerciseInfoEntity> exerciseInfoList = observableExerciseInfo.getValue();
         if (exerciseInfoList != null)
         {
-            // Update current entries:
-            executor.execute(() -> database.exerciseInfoDao().update(exerciseInfoList));
+            storeExerciseInfo(exerciseInfoList);
+        }
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseInfo");
         }
 
-        // Update and create new unit and sets:
+        // Store and create new unit and set entries:
         WorkoutUnitEntity oldWorkoutUnit = observableWorkoutUnit.getValue();
         if (oldWorkoutUnit != null)
         {
@@ -242,6 +285,14 @@ public class DataRepository
                 // Adjust current entries:
                 observableExerciseSets.setValue(newExercises);
             }
+            else
+            {
+                java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseSets");
+            }
+        }
+        else
+        {
+            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutUnit");
         }
     }
 }

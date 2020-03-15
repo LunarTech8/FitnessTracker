@@ -1,21 +1,21 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
+import android.os.Bundle;
+import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.os.Bundle;
-import android.view.View;
-
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
-import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
+import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final boolean TEST_MODE_ACTIVE = true;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
-    public static final int DEBUG_LOG_MODE = 2;  // 0="All workouts and all exercises", 1="Last workout and last exercises", 2="All workouts"
+    public static final int DEBUG_LOG_MODE = 1;  // 0="Observed workout units and exercise sets", 1="Stored workout units and exercise sets", 2="Last stored workout unit and exercise sets", 3="Stored workout units", 4="Observed workout info and exercise info"
 
 
     // --------------------
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
             adapter.reloadViews();
         });
         binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
-        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
+        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits(this));  // Button only visible in debugging build
         subscribeUi(viewModel);
     }
 

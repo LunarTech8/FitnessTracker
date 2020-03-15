@@ -97,16 +97,13 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public void setExerciseSets(final List<? extends ExerciseSet> exerciseSets)
+    public void setExerciseSets(@NonNull final List<? extends ExerciseSet> exerciseSets)
     {
         if (this.exerciseSets == null)
         {
             // Add all entries:
             this.exerciseSets = exerciseSets;
-            if (this.exerciseSets != null)
-            {
-                notifyItemRangeInserted(0, this.exerciseSets.size());
-            }
+            notifyItemRangeInserted(0, this.exerciseSets.size());
         }
         else
         {

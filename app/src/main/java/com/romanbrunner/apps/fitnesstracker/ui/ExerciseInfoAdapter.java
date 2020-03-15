@@ -86,7 +86,16 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         ExerciseSetAdapter adapter = adapters.get(position);
         if (exerciseInfo2SetsMap != null)
         {
-            adapter.setExerciseSets(exerciseInfo2SetsMap.get(exerciseInfo.getName()));
+            List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfo.getName());
+            if (exerciseSets == null)
+            {
+                exerciseSets = new ArrayList<>(0);
+                java.lang.System.out.println("WARNING: Empty exercise sets list for " + exerciseInfo.getName());
+            }
+            else
+            {
+                adapter.setExerciseSets(exerciseSets);  // DEBUG: test if this helps
+            }
         }
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
     }
