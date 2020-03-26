@@ -8,11 +8,12 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.Observer;
 
 import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
@@ -185,16 +186,33 @@ public class MainViewModel extends AndroidViewModel
         }
         else if (MainActivity.DEBUG_LOG_MODE == 1)  // Stored workout units and exercise sets
         {
-            LiveData<List<WorkoutUnitEntity>> liveData = repository.getAllWorkoutUnits();
-            liveData.observe(owner, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
+            final LiveData<List<WorkoutUnitEntity>> liveDataWorkoutUnits = repository.getAllWorkoutUnits();
+            final Observer<List<WorkoutUnitEntity>> observerWorkoutUnits = new Observer<List<WorkoutUnitEntity>>()
             {
-                liveData.removeObservers(owner);  // TODO: problem, removes all observers
-                printWorkoutUnitsData("Stored workout units:", null, workoutUnits);
-            });
-            repository.getAllExerciseSets().observe(owner, (@Nullable List<ExerciseSetEntity> exerciseSets) -> printExerciseSetsData("Stored exercise sets (normal and debug):", null, exerciseSets));
+                @Override
+                public void onChanged(@Nullable List<WorkoutUnitEntity> workoutUnits)
+                {
+                    printWorkoutUnitsData("Stored workout units:", null, workoutUnits);
+                    liveDataWorkoutUnits.removeObserver(this);
+                }
+            };
+            liveDataWorkoutUnits.observe(owner, observerWorkoutUnits);
+
+            final LiveData<List<ExerciseSetEntity>> liveDataExerciseSets = repository.getAllExerciseSets();
+            final Observer<List<ExerciseSetEntity>> observerExerciseSets = new Observer<List<ExerciseSetEntity>>()
+            {
+                @Override
+                public void onChanged(@Nullable List<ExerciseSetEntity> exerciseSets)
+                {
+                    printExerciseSetsData("Stored exercise sets (normal and debug):", null, exerciseSets);
+                    liveDataExerciseSets.removeObserver(this);
+                }
+            };
+            liveDataExerciseSets.observe(owner, observerExerciseSets);
         }
         else if (MainActivity.DEBUG_LOG_MODE == 2)  // Last stored workout unit and exercise sets
         {
+            // TODO: rewrite to use removeObserver
             repository.getLastWorkoutUnit().observe(owner, (@Nullable WorkoutUnitEntity workoutUnit) ->
             {
                 if (workoutUnit != null)
@@ -206,6 +224,7 @@ public class MainViewModel extends AndroidViewModel
         }
         else if (MainActivity.DEBUG_LOG_MODE == 3)  // Stored workout units
         {
+            // TODO: rewrite to use removeObserver
             repository.getAllWorkoutUnits().observe(owner, (@Nullable List<WorkoutUnitEntity> workoutUnits) -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 4)  // Observed workout info and exercise info
