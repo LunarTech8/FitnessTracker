@@ -5,8 +5,8 @@ import androidx.lifecycle.MediatorLiveData;
 
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoDao;
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoDao;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
@@ -165,11 +165,6 @@ public class DataRepository
         }
     }
 
-    public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)
-    {
-        database.workoutUnitDao().delete(workoutUnits);
-    }
-
     public LiveData<List<ExerciseSetEntity>> getCurrentExerciseSets()
     {
         return observableExerciseSets;
@@ -189,6 +184,11 @@ public class DataRepository
     {
         observableWorkoutUnit.setValue(workoutUnitEntity);
         observableExerciseSets.setValue(exerciseSetEntities);
+    }
+
+    public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)
+    {
+        executor.execute(() -> database.workoutUnitDao().delete(workoutUnits));
     }
 
     public void saveCurrentData()

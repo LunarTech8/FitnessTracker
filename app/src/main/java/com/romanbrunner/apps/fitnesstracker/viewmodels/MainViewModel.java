@@ -35,6 +35,11 @@ public class MainViewModel extends AndroidViewModel
     private final MediatorLiveData<WorkoutUnitEntity> observableWorkoutUnit;
     private final MediatorLiveData<List<ExerciseSetEntity>> observableExerciseSets;
 
+    public interface CallbackSimple<T>
+    {
+        void execute(@Nullable T object);
+    }
+
     public MainViewModel(Application application)
     {
         super(application);
@@ -136,6 +141,19 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
+    private <T> void executeOnceOnChanged(@NonNull LifecycleOwner owner, LiveData<T> liveData, CallbackSimple<T> callback)
+    {
+        liveData.observe(owner, new Observer<T>()
+        {
+            @Override
+            public void onChanged(@Nullable T object)
+            {
+                callback.execute(object);
+                liveData.removeObserver(this);
+            }
+        });
+    }
+
     public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo()
     {
         return observableWorkoutInfo;
@@ -176,7 +194,7 @@ public class MainViewModel extends AndroidViewModel
         repository.finishExercises();
     }
 
-    public void printDebugLog(@NonNull LifecycleOwner owner)  // TODO: observe causes the callbacks to be triggered whenever there is a change (instead of once like it is needed here)
+    public void printDebugLog(@NonNull LifecycleOwner owner)
     {
         java.lang.System.out.println("--- DEBUG LOG ---");
         if (MainActivity.DEBUG_LOG_MODE == 0)  // Observed workout units and exercise sets
@@ -186,46 +204,23 @@ public class MainViewModel extends AndroidViewModel
         }
         else if (MainActivity.DEBUG_LOG_MODE == 1)  // Stored workout units and exercise sets
         {
-            final LiveData<List<WorkoutUnitEntity>> liveDataWorkoutUnits = repository.getAllWorkoutUnits();
-            final Observer<List<WorkoutUnitEntity>> observerWorkoutUnits = new Observer<List<WorkoutUnitEntity>>()
-            {
-                @Override
-                public void onChanged(@Nullable List<WorkoutUnitEntity> workoutUnits)
-                {
-                    printWorkoutUnitsData("Stored workout units:", null, workoutUnits);
-                    liveDataWorkoutUnits.removeObserver(this);
-                }
-            };
-            liveDataWorkoutUnits.observe(owner, observerWorkoutUnits);
-
-            final LiveData<List<ExerciseSetEntity>> liveDataExerciseSets = repository.getAllExerciseSets();
-            final Observer<List<ExerciseSetEntity>> observerExerciseSets = new Observer<List<ExerciseSetEntity>>()
-            {
-                @Override
-                public void onChanged(@Nullable List<ExerciseSetEntity> exerciseSets)
-                {
-                    printExerciseSetsData("Stored exercise sets (normal and debug):", null, exerciseSets);
-                    liveDataExerciseSets.removeObserver(this);
-                }
-            };
-            liveDataExerciseSets.observe(owner, observerExerciseSets);
+            executeOnceOnChanged(owner, repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
+            executeOnceOnChanged(owner, repository.getAllExerciseSets(), exerciseSets -> printExerciseSetsData("Stored exercise sets (normal and debug):", null, exerciseSets));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 2)  // Last stored workout unit and exercise sets
         {
-            // TODO: rewrite to use removeObserver
-            repository.getLastWorkoutUnit().observe(owner, (@Nullable WorkoutUnitEntity workoutUnit) ->
+            executeOnceOnChanged(owner, repository.getLastWorkoutUnit(), workoutUnit ->
             {
                 if (workoutUnit != null)
                 {
                     printWorkoutUnitsData("Last stored workout unit:", null, Collections.singletonList(workoutUnit));
-                    repository.getExerciseSetsByWorkoutUnit(workoutUnit).observe(owner, (@Nullable List<ExerciseSetEntity> exerciseSets) -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
+                    executeOnceOnChanged(owner, repository.getExerciseSetsByWorkoutUnit(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
                 }
             });
         }
         else if (MainActivity.DEBUG_LOG_MODE == 3)  // Stored workout units
         {
-            // TODO: rewrite to use removeObserver
-            repository.getAllWorkoutUnits().observe(owner, (@Nullable List<WorkoutUnitEntity> workoutUnits) -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
+            executeOnceOnChanged(owner, repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 4)  // Observed workout info and exercise info
         {
@@ -234,16 +229,16 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public void removeDebugWorkoutUnits(@NonNull LifecycleOwner owner)  // TODO: observe causes the callbacks to be triggered whenever there is a change (instead of once like it is needed here)
+    public void removeDebugWorkoutUnits(@NonNull LifecycleOwner owner)
     {
         if (MainActivity.TEST_MODE_ACTIVE)
         {
-            repository.getAllWorkoutUnits().observe(owner, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
+            executeOnceOnChanged(owner, repository.getAllWorkoutUnits(), workoutUnits ->
             {
                 if (workoutUnits != null && workoutUnits.size() > 1)
                 {
                     WorkoutUnitEntity firstWorkoutUnit = workoutUnits.remove(0);
-                    repository.setCurrentWorkout(firstWorkoutUnit, repository.getExerciseSetsByWorkoutUnit(firstWorkoutUnit).getValue());
+                    executeOnceOnChanged(owner, repository.getExerciseSetsByWorkoutUnit(firstWorkoutUnit), exerciseSets -> repository.setCurrentWorkout(firstWorkoutUnit, exerciseSets));
                     repository.deleteWorkoutUnits(workoutUnits);
                 }
             });

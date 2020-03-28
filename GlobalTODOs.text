@@ -29,6 +29,7 @@ Work status:
 // Application design:
 // -------------
 
+!!- Find a way to change between workouts (maybe via a slider in topBox)
 !!- Find a way to remove exercises
 !!- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Make dark colour theme work

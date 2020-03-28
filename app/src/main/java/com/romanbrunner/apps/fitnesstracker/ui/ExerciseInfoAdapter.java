@@ -94,7 +94,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             else
             {
-                adapter.setExerciseSets(exerciseSets);  // DEBUG: test if this helps
+                adapter.setExerciseSets(exerciseSets);  // DEBUG: test why exerciseSets can be empty and if its a bug
             }
         }
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
