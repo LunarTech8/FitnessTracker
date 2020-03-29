@@ -30,7 +30,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     // Functional code
     // --------------------
 
-    private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = null;
+    private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = null;  // Initialised with null to mark that exercise sets haven't been set yet
     private List<? extends ExerciseInfo> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
 
@@ -51,6 +51,11 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     {
         exerciseInfo = null;
         adapters = null;
+    }
+
+    void reloadViews()
+    {
+        notifyDataSetChanged();
     }
 
     @Override
@@ -89,13 +94,15 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfo.getName());
             if (exerciseSets == null)
             {
+                // DEBUG: exerciseSets is null when exercise info name changed -> link change of exercise info name to current exercise sets
                 exerciseSets = new ArrayList<>(0);
                 java.lang.System.out.println("WARNING: Empty exercise sets list for " + exerciseInfo.getName());
             }
-            else
-            {
-                adapter.setExerciseSets(exerciseSets);  // DEBUG: test why exerciseSets can be empty and if its a bug
-            }
+            adapter.setExerciseSets(exerciseSets);
+        }
+        else
+        {
+            java.lang.System.out.println("ERROR: exerciseInfo2SetsMap is null, cannot set exercise sets");
         }
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
     }
@@ -172,6 +179,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             {
                 adapters.add(new ExerciseSetAdapter());
             }
+            // Load all views if complete data is available:
             if (exerciseInfo2SetsMap != null)
             {
                 notifyItemRangeInserted(0, exerciseInfo.size());
@@ -206,6 +214,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                     return ExerciseInfoEntity.isContentTheSame(exerciseInfo.get(newItemPosition), ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition));
                 }
             });
+            // Reload updated views:
             result.dispatchUpdatesTo(this);
         }
     }
@@ -218,8 +227,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
         else
         {
+            java.lang.System.out.println("INFO: setExerciseSets was cleared");  // DEBUG:
             exerciseInfo2SetsMap.clear();
         }
+        // Add exerciseSets to exerciseInfo2SetsMap:
         for (ExerciseSetEntity exerciseSet: exerciseSets)
         {
             final String exerciseInfoName = exerciseSet.getExerciseInfoName();
@@ -233,14 +244,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
             }
         }
+        // Load/Reload all views if complete data is available:
         if (this.exerciseInfo != null)
         {
             notifyDataSetChanged();
         }
-    }
-
-    public void reloadViews()
-    {
-        notifyDataSetChanged();
     }
 }

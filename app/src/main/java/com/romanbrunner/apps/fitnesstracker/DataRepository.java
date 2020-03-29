@@ -1,7 +1,9 @@
 package com.romanbrunner.apps.fitnesstracker;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 
 import com.romanbrunner.apps.fitnesstracker.database.AppDatabase;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoDao;
@@ -29,50 +31,92 @@ public class DataRepository
     private static DataRepository instance;
 
     private final AppDatabase database;
-    private final MediatorLiveData<List<WorkoutInfoEntity>> observableWorkoutInfo;  // TODO: maybe find another way to store this data
-    private final MediatorLiveData<List<ExerciseInfoEntity>> observableExerciseInfo;  // TODO: maybe find another way to store this data
-    private final MediatorLiveData<WorkoutUnitEntity> observableWorkoutUnit;
-    private final MediatorLiveData<List<ExerciseSetEntity>> observableExerciseSets;
+    private final MutableLiveData<List<WorkoutInfoEntity>> observableWorkoutInfo;
+    private final MutableLiveData<List<ExerciseInfoEntity>> observableExerciseInfo;
+    private final MutableLiveData<WorkoutUnitEntity> observableWorkoutUnit;
+    private final MutableLiveData<List<ExerciseSetEntity>> observableExerciseSets;
     private final Executor executor;
+
+    public interface CallbackAction<T>
+    {
+        void execute(@Nullable T object);
+    }
+
+    public interface CallbackCondition
+    {
+        boolean check();
+    }
 
     private DataRepository(final AppDatabase database)
     {
         this.database = database;
-        observableWorkoutInfo = new MediatorLiveData<>();
-        observableExerciseInfo = new MediatorLiveData<>();
-        observableWorkoutUnit = new MediatorLiveData<>();
-        observableExerciseSets = new MediatorLiveData<>();
+        observableWorkoutInfo = new MutableLiveData<>();
+        observableExerciseInfo = new MutableLiveData<>();
+        observableWorkoutUnit = new MutableLiveData<>();
+        observableExerciseSets = new MutableLiveData<>();
         executor = Executors.newSingleThreadExecutor();
 
-        // Load all info entries as mediators as soon as the database is ready:
-        observableWorkoutInfo.addSource(database.workoutInfoDao().loadAll(), workoutInfo ->
-        {
-            if (database.getDatabaseCreated().getValue() != null)
-            {
-                observableWorkoutInfo.postValue(workoutInfo);
-            }
-        });
-        observableExerciseInfo.addSource(database.exerciseInfoDao().loadAll(), exerciseInfo ->
-        {
-            if (database.getDatabaseCreated().getValue() != null)
-            {
-                observableExerciseInfo.postValue(exerciseInfo);
-            }
-        });
+        // Load all info entries and post their values into observables as soon as the database is ready:
+        executeOnceForLiveData(database.workoutInfoDao().loadAll(), () -> database.getDatabaseCreated().getValue() != null, observableWorkoutInfo::postValue);
+        executeOnceForLiveData(database.exerciseInfoDao().loadAll(), () -> database.getDatabaseCreated().getValue() != null, observableExerciseInfo::postValue);
 
-        // Load newest workout unit with associated exercise sets as mediators as soon as the database is ready:
-        LiveData<WorkoutUnitEntity> source = database.workoutUnitDao().loadNewest();
-        if (MainActivity.TEST_MODE_ACTIVE)
+        // Load newest workout unit with associated exercise sets and post their values into observables as soon as the database is ready:
+        executeOnceForLiveData(getNewestWorkoutUnit(), () -> database.getDatabaseCreated().getValue() != null, workoutUnit ->
         {
-            source = database.workoutUnitDao().loadNewestDebug();
-        }
-        observableWorkoutUnit.addSource(source, workoutUnit ->
-        {
-            if (database.getDatabaseCreated().getValue() != null)
+            if (workoutUnit != null)
             {
                 workoutUnit.setDate(new Date());  // Set to current date
                 observableWorkoutUnit.postValue(workoutUnit);
-                observableExerciseSets.addSource(database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId()), observableExerciseSets::postValue);
+                executeOnceForLiveData(database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId()), observableExerciseSets::postValue);
+            }
+            else
+            {
+                java.lang.System.out.println("ERROR: Could not retrieve value from getNewestWorkoutUnit");
+            }
+        });
+    }
+
+    static DataRepository getInstance(final AppDatabase database)
+    {
+        if (instance == null)
+        {
+            synchronized (DataRepository.class)
+            {
+                if (instance == null)
+                {
+                    instance = new DataRepository(database);
+                }
+            }
+        }
+        return instance;
+    }
+
+    private static <T> void executeOnceForLiveData(LiveData<T> liveData, CallbackCondition condition, CallbackAction<T> action)
+    {
+        liveData.observeForever(new Observer<T>()
+        {
+            @Override
+            /* Is called once directly after observer is added if liveData is not empty. */
+            public void onChanged(@Nullable T object)
+            {
+                if (condition.check())
+                {
+                    action.execute(object);
+                    liveData.removeObserver(this);
+                }
+            }
+        });
+    }
+    public static <T> void executeOnceForLiveData(LiveData<T> liveData, CallbackAction<T> action)
+    {
+        liveData.observeForever(new Observer<T>()
+        {
+            @Override
+            /* Is called once directly after observer is added if liveData is not empty. */
+            public void onChanged(@Nullable T object)
+            {
+                action.execute(object);
+                liveData.removeObserver(this);
             }
         });
     }
@@ -111,19 +155,16 @@ public class DataRepository
         });
     }
 
-    static DataRepository getInstance(final AppDatabase database)
+    private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit()
     {
-        if (instance == null)
+        if (MainActivity.TEST_MODE_ACTIVE)
         {
-            synchronized (DataRepository.class)
-            {
-                if (instance == null)
-                {
-                    instance = new DataRepository(database);
-                }
-            }
+            return database.workoutUnitDao().loadNewestDebug();
         }
-        return instance;
+        else
+        {
+            return database.workoutUnitDao().loadNewestNormal();
+        }
     }
 
     public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo()
@@ -149,7 +190,7 @@ public class DataRepository
         }
         else
         {
-            return database.workoutUnitDao().loadLast();
+            return database.workoutUnitDao().loadLastNormal();
         }
     }
 
@@ -161,7 +202,7 @@ public class DataRepository
         }
         else
         {
-            return database.workoutUnitDao().loadAll();
+            return database.workoutUnitDao().loadAllNormal();
         }
     }
 
@@ -172,7 +213,14 @@ public class DataRepository
 
     public LiveData<List<ExerciseSetEntity>> getAllExerciseSets()
     {
-        return database.exerciseSetDao().loadAll();
+        if (MainActivity.TEST_MODE_ACTIVE)
+        {
+            return database.exerciseSetDao().loadAllDebug();
+        }
+        else
+        {
+            return database.exerciseSetDao().loadAllNormal();
+        }
     }
 
     public LiveData<List<ExerciseSetEntity>> getExerciseSetsByWorkoutUnit(WorkoutUnitEntity workoutUnit)
@@ -257,7 +305,7 @@ public class DataRepository
             java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseInfo");
         }
 
-        // Store and create new unit and set entries:
+        // Store and create new workout unit and exercise set entries:
         WorkoutUnitEntity oldWorkoutUnit = observableWorkoutUnit.getValue();
         if (oldWorkoutUnit != null)
         {

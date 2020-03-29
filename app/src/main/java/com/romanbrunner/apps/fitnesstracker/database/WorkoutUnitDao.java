@@ -27,19 +27,19 @@ public interface WorkoutUnitDao
     // --------------------
 
     @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAll();
+    LiveData<List<WorkoutUnitEntity>> loadAllNormal();
 
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
     LiveData<List<WorkoutUnitEntity>> loadAllDebug();
 
     @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewest();
+    LiveData<WorkoutUnitEntity> loadNewestNormal();
 
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestDebug();
 
     @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits) ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadLast();
+    LiveData<WorkoutUnitEntity> loadLastNormal();
 
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits) ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadLastDebug();

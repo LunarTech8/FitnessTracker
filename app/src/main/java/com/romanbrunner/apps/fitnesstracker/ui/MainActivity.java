@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final boolean TEST_MODE_ACTIVE = true;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
-    public static final int DEBUG_LOG_MODE = 1;  // 0="Observed workout units and exercise sets", 1="Stored workout units and exercise sets", 2="Last stored workout unit and exercise sets", 3="Stored workout units", 4="Observed workout info and exercise info"
+    public static final int DEBUG_LOG_MODE = 5;
 
 
     // --------------------
@@ -85,8 +85,8 @@ public class MainActivity extends AppCompatActivity
             binding.setIsEditModeActive(isEditModeActive);
             adapter.reloadViews();
         });
-        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog(this));  // Button only visible in debugging build
-        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits(this));  // Button only visible in debugging build
+        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
+        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
         subscribeUi(viewModel);
     }
 
