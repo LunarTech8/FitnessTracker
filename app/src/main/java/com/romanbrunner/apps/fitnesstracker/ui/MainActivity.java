@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final boolean TEST_MODE_ACTIVE = true;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
-    public static final int DEBUG_LOG_MODE = 5;
+    public static final int DEBUG_LOG_MODE = 4;
 
 
     // --------------------
@@ -81,6 +81,7 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
 //            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
+            // TODO: current exerciseInfo from adapter stored on finishExercises
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);
             adapter.reloadViews();

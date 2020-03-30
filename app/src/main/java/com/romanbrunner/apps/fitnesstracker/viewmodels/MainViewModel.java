@@ -179,8 +179,8 @@ public class MainViewModel extends AndroidViewModel
         java.lang.System.out.println("--- DEBUG LOG ---");
         if (MainActivity.DEBUG_LOG_MODE == 0)  // Observed workout units and exercise sets
         {
-            DataRepository.executeOnceForLiveData(repository.getCurrentWorkoutUnit(), workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
-            DataRepository.executeOnceForLiveData(repository.getCurrentExerciseSets(), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
+            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
+            DataRepository.executeOnceForLiveData(observableExerciseSets, exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 1)  // Stored workout units and exercise sets
         {
@@ -208,13 +208,13 @@ public class MainViewModel extends AndroidViewModel
         }
         else if (MainActivity.DEBUG_LOG_MODE == 4)  // Observed workout info and exercise info
         {
-            DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(), workoutInfo -> printWorkoutInfoData("Observed workout info:", "No workout info observed", workoutInfo));
-            DataRepository.executeOnceForLiveData(repository.getExerciseInfo(), exerciseInfo -> printExerciseInfoData("Observed exercise info:", "No exercise info observed", exerciseInfo));
+            DataRepository.executeOnceForLiveData(observableWorkoutInfo, workoutInfo -> printWorkoutInfoData("Observed workout info:", "No workout info observed", workoutInfo));
+            DataRepository.executeOnceForLiveData(observableExerciseInfo, exerciseInfo -> printExerciseInfoData("Observed exercise info:", "No exercise info observed", exerciseInfo));
         }
         else if (MainActivity.DEBUG_LOG_MODE == 5)  // Observed and stored workout units and exercise sets
         {
-            DataRepository.executeOnceForLiveData(repository.getCurrentWorkoutUnit(), workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
-            DataRepository.executeOnceForLiveData(repository.getCurrentExerciseSets(), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
+            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
+            DataRepository.executeOnceForLiveData(observableExerciseSets, exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
             DataRepository.executeOnceForLiveData(repository.getAllExerciseSets(), exerciseSets -> printExerciseSetsData("Stored exercise sets:", null, exerciseSets));
         }

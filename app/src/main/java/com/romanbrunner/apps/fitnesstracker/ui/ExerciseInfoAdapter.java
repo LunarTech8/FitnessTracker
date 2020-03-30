@@ -1,5 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -9,11 +11,11 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
-import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
 import com.romanbrunner.apps.fitnesstracker.R;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
+import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,13 +32,16 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     // Functional code
     // --------------------
 
+    // TODO: maybe have ExerciseInfo of exerciseInfo instead of String in exerciseInfo2SetsMap and get rid of exerciseInfo
+    // TODO: -> requires ExerciseInfo to be inserted before ExerciseSetEntity
     private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = null;  // Initialised with null to mark that exercise sets haven't been set yet
     private List<? extends ExerciseInfo> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
-        final ExerciseCardBinding binding;
+        private final ExerciseCardBinding binding;
+        private boolean isRecycled = true;
 
         ExerciseInfoViewHolder(ExerciseCardBinding binding)
         {
@@ -44,6 +49,52 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.setsBoard.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
             this.binding = binding;
+
+            // Create and add a text watcher to the name field:
+            binding.exerciseNameField.addTextChangedListener(new TextWatcher()
+            {
+                private String beforeTextChanged = null;
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after)
+                {
+                    beforeTextChanged = s.toString();
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count)
+                {
+                    if (!isRecycled)
+                    {
+                        final List<ExerciseSetEntity> exerciseSetsOldName = exerciseInfo2SetsMap.get(beforeTextChanged);
+                        if (exerciseSetsOldName != null)
+                        {
+                            final String afterTextChanged = s.toString();
+                            java.lang.System.out.println("INFO: exerciseInfo " + beforeTextChanged + " renamed to " + afterTextChanged);  // DEBUG:
+                            // Remove old data:
+                            exerciseInfo2SetsMap.remove(beforeTextChanged);
+                            // Adjust exercise info name of linked exercise sets:
+                            for (ExerciseSetEntity exerciseSet : exerciseSetsOldName)
+                            {
+                                java.lang.System.out.println("INFO: exerciseSet adjusted");  // DEBUG:
+                                exerciseSet.setExerciseInfoName(afterTextChanged);
+                            }
+                            // Merge exercise sets list if new exercise info name already existed:
+                            final List<ExerciseSetEntity> exerciseSetsNewName = exerciseInfo2SetsMap.getOrDefault(afterTextChanged, null);
+                            if (exerciseSetsNewName != null)
+                            {
+                                exerciseSetsOldName.addAll(exerciseSetsNewName);
+                            }
+                            // Add adjusted data:
+                            exerciseInfo2SetsMap.put(afterTextChanged, exerciseSetsOldName);
+                        }
+                    }
+                    beforeTextChanged = null;
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {}
+            });
         }
     }
 
@@ -71,23 +122,24 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     }
 
     @Override
-    public @NonNull
-    ExerciseInfoViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
+    public @NonNull ExerciseInfoViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
         ExerciseCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_card, viewGroup, false);
         return new ExerciseInfoViewHolder(binding);
     }
 
     @Override
-    /* Is called when an exercise_card is reloaded (that was previously not visible) */
+    /* Is called when an exercise_card is loaded/reloaded (that was previously not visible) */
     public void onBindViewHolder(ExerciseInfoViewHolder exerciseInfoViewHolder, int position)
     {
-        // Adjust changeable values of the view fields by the current exercises list:
+        // Adjust changeable values of the view fields of targeted exercise info:
         ExerciseInfo exerciseInfo = this.exerciseInfo.get(position);
         exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfo);
         exerciseInfoViewHolder.binding.setIsEditModeActive(MainActivity.isEditModeActive);
         exerciseInfoViewHolder.binding.executePendingBindings();
+        exerciseInfoViewHolder.isRecycled = false;
 
+        // Adjust adapter for exercise sets of targeted exercise info:
         ExerciseSetAdapter adapter = adapters.get(position);
         if (exerciseInfo2SetsMap != null)
         {
@@ -105,6 +157,13 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             java.lang.System.out.println("ERROR: exerciseInfo2SetsMap is null, cannot set exercise sets");
         }
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ExerciseInfoViewHolder exerciseInfoViewHolder)
+    {
+        super.onViewRecycled(exerciseInfoViewHolder);
+        exerciseInfoViewHolder.isRecycled = true;
     }
 
     @Override
@@ -187,6 +246,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
         else if (exerciseInfo2SetsMap != null)
         {
+            java.lang.System.out.println("INFO: exerciseInfo2SetsMap changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             // Update changed entries:
             DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
             {

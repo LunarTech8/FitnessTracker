@@ -36,7 +36,7 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
 
     static class ExerciseSetViewHolder extends RecyclerView.ViewHolder
     {
-        final ExerciseSetCardBinding binding;
+        private final ExerciseSetCardBinding binding;
 
         ExerciseSetViewHolder(ExerciseSetCardBinding binding)
         {
