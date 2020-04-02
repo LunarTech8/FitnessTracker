@@ -27,6 +27,9 @@ public interface WorkoutInfoDao
     @Query("SELECT * FROM WorkoutInfo")
     LiveData<List<WorkoutInfoEntity>> loadAll();
 
+    @Query("SELECT * FROM WorkoutInfo WHERE name = :searchName AND version = :searchVersion")
+    LiveData<WorkoutInfoEntity> loadByNameAndVersion(String searchName, int searchVersion);
+
     @Insert
     void insert(List<WorkoutInfoEntity> workoutInfo);
 

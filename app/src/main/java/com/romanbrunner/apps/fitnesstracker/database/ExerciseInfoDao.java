@@ -15,6 +15,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 import java.util.List;
+import java.util.Set;
 
 
 @Dao
@@ -26,6 +27,9 @@ public interface ExerciseInfoDao
 
     @Query("SELECT * FROM exerciseInfo")
     LiveData<List<ExerciseInfoEntity>> loadAll();
+
+    @Query("SELECT * FROM exerciseInfo WHERE name IN (:searchNames)")
+    LiveData<List<ExerciseInfoEntity>> loadByNames(Set<String> searchNames);
 
     @Insert
     void insert(List<ExerciseInfoEntity> exerciseInfoList);

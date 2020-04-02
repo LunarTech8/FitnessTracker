@@ -7,12 +7,10 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.romanbrunner.apps.fitnesstracker.R;
-import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
@@ -23,7 +21,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 
 class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.ExerciseInfoViewHolder>
@@ -34,7 +31,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     // TODO: maybe have ExerciseInfo of exerciseInfo instead of String in exerciseInfo2SetsMap and get rid of exerciseInfo
     // TODO: -> requires ExerciseInfo to be inserted before ExerciseSetEntity
-    private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = null;  // Initialised with null to mark that exercise sets haven't been set yet
+    private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap = new HashMap<>();
     private List<? extends ExerciseInfo> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
 
@@ -102,6 +99,46 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     {
         exerciseInfo = null;
         adapters = null;
+    }
+
+    void setExerciseInfo(@NonNull final List<? extends ExerciseInfo> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
+    {
+        // Clear current exerciseInfo2SetsMap:
+        java.lang.System.out.println("INFO: setExerciseSets was cleared");  // DEBUG:
+        exerciseInfo2SetsMap.clear();
+        // Add exerciseSets to exerciseInfo2SetsMap:
+        for (ExerciseSetEntity exerciseSet: exerciseSets)
+        {
+            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
+            final List<ExerciseSetEntity> exerciseSetList = exerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
+            if (exerciseSetList != null)
+            {
+                exerciseSetList.add(exerciseSet);
+            }
+            else
+            {
+                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
+            }
+        }
+        // Set exerciseInfo:
+        if (this.exerciseInfo == null)
+        {
+            // Add all entries:
+            this.exerciseInfo = exerciseInfo;
+            adapters = new ArrayList<>(exerciseInfo.size());
+            for (int i = 0; i < exerciseInfo.size(); i++)
+            {
+                adapters.add(new ExerciseSetAdapter());
+            }
+            // Load all views:
+            notifyItemRangeInserted(0, exerciseInfo.size());
+        }
+        else
+        {
+            this.exerciseInfo = exerciseInfo;
+            // Load/Reload all views:
+            notifyDataSetChanged();
+        }
     }
 
     void reloadViews()
@@ -227,87 +264,85 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 //        return new ArrayList<>(exerciseInfoMap.values());
 //    }
 
-    public void setExerciseInfo(@NonNull final List<? extends ExerciseInfo> exerciseInfo)
-    {
-        if (this.exerciseInfo == null)
-        {
-            // Add all entries:
-            this.exerciseInfo = exerciseInfo;
-            adapters = new ArrayList<>(exerciseInfo.size());
-            for (int i = 0; i < exerciseInfo.size(); i++)
-            {
-                adapters.add(new ExerciseSetAdapter());
-            }
-            // Load all views if complete data is available:
-            if (exerciseInfo2SetsMap != null)
-            {
-                notifyItemRangeInserted(0, exerciseInfo.size());
-            }
-        }
-        else if (exerciseInfo2SetsMap != null)
-        {
-            java.lang.System.out.println("INFO: exerciseInfo2SetsMap changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            // Update changed entries:
-            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
-            {
-                @Override
-                public int getOldListSize()
-                {
-                    return ExerciseInfoAdapter.this.exerciseInfo.size();
-                }
+//    public void setExerciseInfo(@NonNull final List<? extends ExerciseInfo> exerciseInfo)  // OBSOLETE:
+//    {
+//        if (this.exerciseInfo == null)
+//        {
+//            // Add all entries:
+//            this.exerciseInfo = exerciseInfo;
+//            adapters = new ArrayList<>(exerciseInfo.size());
+//            for (int i = 0; i < exerciseInfo.size(); i++)
+//            {
+//                adapters.add(new ExerciseSetAdapter());
+//            }
+//            // Load all views if complete data is available:
+//            if (exerciseInfo2SetsMap != null)
+//            {
+//                notifyItemRangeInserted(0, exerciseInfo.size());
+//            }
+//        }
+//        else if (exerciseInfo2SetsMap != null)
+//        {
+//            // Update changed entries:
+//            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
+//            {
+//                @Override
+//                public int getOldListSize()
+//                {
+//                    return ExerciseInfoAdapter.this.exerciseInfo.size();
+//                }
+//
+//                @Override
+//                public int getNewListSize()
+//                {
+//                    return exerciseInfo.size();
+//                }
+//
+//                @Override
+//                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
+//                {
+//                    return Objects.equals(ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition).getName(), exerciseInfo.get(newItemPosition).getName());
+//                }
+//
+//                @Override
+//                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
+//                {
+//                    return ExerciseInfoEntity.isContentTheSame(exerciseInfo.get(newItemPosition), ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition));
+//                }
+//            });
+//            // Reload updated views:
+//            result.dispatchUpdatesTo(this);
+//        }
+//    }
 
-                @Override
-                public int getNewListSize()
-                {
-                    return exerciseInfo.size();
-                }
-
-                @Override
-                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
-                {
-                    return Objects.equals(ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition).getName(), exerciseInfo.get(newItemPosition).getName());
-                }
-
-                @Override
-                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
-                {
-                    return ExerciseInfoEntity.isContentTheSame(exerciseInfo.get(newItemPosition), ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition));
-                }
-            });
-            // Reload updated views:
-            result.dispatchUpdatesTo(this);
-        }
-    }
-
-    public void setExerciseSets(@NonNull final List<ExerciseSetEntity> exerciseSets)
-    {
-        if (exerciseInfo2SetsMap == null)
-        {
-            exerciseInfo2SetsMap = new HashMap<>();
-        }
-        else
-        {
-            java.lang.System.out.println("INFO: setExerciseSets was cleared");  // DEBUG:
-            exerciseInfo2SetsMap.clear();
-        }
-        // Add exerciseSets to exerciseInfo2SetsMap:
-        for (ExerciseSetEntity exerciseSet: exerciseSets)
-        {
-            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
-            final List<ExerciseSetEntity> exerciseSetList = exerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
-            if (exerciseSetList != null)
-            {
-                exerciseSetList.add(exerciseSet);
-            }
-            else
-            {
-                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
-            }
-        }
-        // Load/Reload all views if complete data is available:
-        if (this.exerciseInfo != null)
-        {
-            notifyDataSetChanged();
-        }
-    }
+//    public void setExerciseSets(@NonNull final List<ExerciseSetEntity> exerciseSets)  // OBSOLETE:
+//    {
+//        if (exerciseInfo2SetsMap == null)
+//        {
+//            exerciseInfo2SetsMap = new HashMap<>();
+//        }
+//        else
+//        {
+//            exerciseInfo2SetsMap.clear();
+//        }
+//        // Add exerciseSets to exerciseInfo2SetsMap:
+//        for (ExerciseSetEntity exerciseSet: exerciseSets)
+//        {
+//            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
+//            final List<ExerciseSetEntity> exerciseSetList = exerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
+//            if (exerciseSetList != null)
+//            {
+//                exerciseSetList.add(exerciseSet);
+//            }
+//            else
+//            {
+//                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
+//            }
+//        }
+//        // Load/Reload all views if complete data is available:
+//        if (this.exerciseInfo != null)
+//        {
+//            notifyDataSetChanged();
+//        }
+//    }
 }
