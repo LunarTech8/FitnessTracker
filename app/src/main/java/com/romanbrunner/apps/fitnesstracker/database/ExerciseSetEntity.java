@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 
+import java.util.List;
 import java.util.Objects;
 
 
@@ -132,5 +133,20 @@ public class ExerciseSetEntity implements ExerciseSet
             && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
             && exerciseSetA.getWorkoutUnitId() == exerciseSetB.getWorkoutUnitId()
             && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
+    }
+    public static boolean isContentTheSame(List<ExerciseSetEntity> exerciseSetListA, List<ExerciseSetEntity> exerciseSetListB)
+    {
+        if (exerciseSetListA.size() != exerciseSetListB.size())
+        {
+            return false;
+        }
+        for (int i = 0; i < exerciseSetListA.size(); i++)
+        {
+            if (!isContentTheSame(exerciseSetListA.get(i), exerciseSetListB.get(i)))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 }

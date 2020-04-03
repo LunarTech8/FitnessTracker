@@ -12,11 +12,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -73,16 +75,15 @@ public class MainActivity extends AppCompatActivity
         binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {
+            viewModel.storeWorkoutInfo(Collections.singletonList((WorkoutInfoEntity)binding.getWorkoutInfo()));
+            viewModel.storeExerciseInfo(adapter.getExerciseInfo());
             viewModel.finishWorkout();
-            adapter.notifyDataSetChanged();
         });
         binding.editModeButton.setOnClickListener((View view) ->
         {
-//            viewModel.setExerciseInfo(adapter.getUpdatedExerciseInfo());  // DEBUG: should probably called on finishButton click instead
-            // TODO: store current exerciseInfo from adapter on finishWorkout
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);
-            adapter.reloadViews();
+            adapter.notifyDataSetChanged();
         });
         binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
         binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build

@@ -158,9 +158,14 @@ public class MainViewModel extends AndroidViewModel
         return observableExerciseSets;
     }
 
-    public void saveCurrentData()  // UNUSED:
+    public void storeWorkoutInfo(final List<WorkoutInfoEntity> workoutInfoList)
     {
-        repository.saveCurrentData();
+        repository.storeWorkoutInfo(workoutInfoList);
+    }
+
+    public void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo)
+    {
+        repository.storeExerciseInfo(exerciseInfo);
     }
 
     public void finishWorkout()

@@ -114,40 +114,6 @@ public class DataRepository
         });
     }
 
-    private void storeWorkoutInfo(final List<WorkoutInfoEntity> workoutInfoList)
-    {
-        // Insert or update given entries:
-        executor.execute(() ->
-        {
-            WorkoutInfoDao workoutInfoDao = database.workoutInfoDao();
-            for (WorkoutInfoEntity workoutInfo: workoutInfoList)
-            {
-                if (workoutInfoDao.insertIgnore(workoutInfo) == -1L)
-                {
-                    workoutInfoDao.update(workoutInfo);
-                }
-            }
-
-        });
-    }
-
-    private void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
-    {
-        // Insert or update given entries:
-        executor.execute(() ->
-        {
-            ExerciseInfoDao exerciseInfoDao = database.exerciseInfoDao();
-            for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
-            {
-                if (exerciseInfoDao.insertIgnore(exerciseInfo) == -1L)
-                {
-                    exerciseInfoDao.update(exerciseInfo);
-                }
-            }
-
-        });
-    }
-
     private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit()
     {
         if (MainActivity.TEST_MODE_ACTIVE)
@@ -221,6 +187,40 @@ public class DataRepository
         return database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId());
     }
 
+    public void storeWorkoutInfo(final List<WorkoutInfoEntity> workoutInfoList)
+    {
+        // Insert or update given entries:
+        executor.execute(() ->
+        {
+            WorkoutInfoDao workoutInfoDao = database.workoutInfoDao();
+            for (WorkoutInfoEntity workoutInfo: workoutInfoList)
+            {
+                if (workoutInfoDao.insertIgnore(workoutInfo) == -1L)
+                {
+                    workoutInfoDao.update(workoutInfo);
+                }
+            }
+
+        });
+    }
+
+    public void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
+    {
+        // Insert or update given entries:
+        executor.execute(() ->
+        {
+            ExerciseInfoDao exerciseInfoDao = database.exerciseInfoDao();
+            for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
+            {
+                if (exerciseInfoDao.insertIgnore(exerciseInfo) == -1L)
+                {
+                    exerciseInfoDao.update(exerciseInfo);
+                }
+            }
+
+        });
+    }
+
     public void setCurrentWorkout(WorkoutUnitEntity workoutUnitEntity, List<ExerciseSetEntity> exerciseSetEntities)
     {
         observableWorkoutUnit.setValue(workoutUnitEntity);
@@ -230,30 +230,6 @@ public class DataRepository
     public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)
     {
         executor.execute(() -> database.workoutUnitDao().delete(workoutUnits));
-    }
-
-    public void saveCurrentData()
-    {
-        // Update current workout unit:
-        WorkoutUnitEntity currentWorkoutUnit = observableWorkoutUnit.getValue();
-        if (currentWorkoutUnit != null)
-        {
-            executor.execute(() -> database.workoutUnitDao().update(currentWorkoutUnit));
-        }
-        else
-        {
-            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutUnit");
-        }
-        // Update current exercise sets:
-        List<ExerciseSetEntity> currentExerciseSets = observableExerciseSets.getValue();
-        if (currentExerciseSets != null)
-        {
-            executor.execute(() -> database.exerciseSetDao().update(currentExerciseSets));
-        }
-        else
-        {
-            java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseSets");
-        }
     }
 
     public void finishWorkout()
