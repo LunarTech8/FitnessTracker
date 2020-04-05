@@ -16,11 +16,14 @@ import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.ExerciseInfoViewHolder>
@@ -135,113 +138,35 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         notifyDataSetChanged();
     }
 
-//    void setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
-//    {
-//        // Add exerciseSets to newExerciseInfo2SetsMap:
-//        Map<String, List<ExerciseSetEntity>> newExerciseInfo2SetsMap = new HashMap<>();
-//        for (ExerciseSetEntity exerciseSet: exerciseSets)
-//        {
-//            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
-//            final List<ExerciseSetEntity> exerciseSetList = newExerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
-//            if (exerciseSetList != null)
-//            {
-//                exerciseSetList.add(exerciseSet);
-//            }
-//            else
-//            {
-//                newExerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
-//            }
-//        }
-//        // Set exerciseInfo:
-//        if (this.exerciseInfo == null)
-//        {
-//            java.lang.System.out.println("INFO: exerciseInfo was set");  // DEBUG:
-//            // Set data:
-//            this.exerciseInfo = exerciseInfo;
-//            exerciseInfo2SetsMap = newExerciseInfo2SetsMap;
-//            // Create exercise set adapters:
-//            final int exerciseInfoCount = exerciseInfo.size();
-//            adapters = new ArrayList<>(exerciseInfoCount);
-//            for (int i = 0; i < exerciseInfoCount; i++)
-//            {
-//                adapters.add(new ExerciseSetAdapter());
-//            }
-//            // Load all views:
-//            notifyItemRangeInserted(0, exerciseInfoCount);
-//        }
-//        else
-//        {
-//            java.lang.System.out.println("INFO: exerciseInfo was changed");  // DEBUG:
-//            // Determine changes:
-//            DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback()
-//            {
-//                @Override
-//                public int getOldListSize()
-//                {
-//                    return ExerciseInfoAdapter.this.exerciseInfo.size();
-//                }
-//
-//                @Override
-//                public int getNewListSize()
-//                {
-//                    return exerciseInfo.size();
-//                }
-//
-//                @Override
-//                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
-//                {
-//                    final String oldExerciseInfoName = ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition).getName();
-//                    final String newExerciseInfoName = exerciseInfo.get(newItemPosition).getName();
-//                    return Objects.equals(oldExerciseInfoName, newExerciseInfoName) && Objects.requireNonNull(exerciseInfo2SetsMap.get(oldExerciseInfoName)).size() == Objects.requireNonNull(newExerciseInfo2SetsMap.get(newExerciseInfoName)).size();
-//                }
-//
-//                @Override
-//                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
-//                {
-//                    final ExerciseInfoEntity oldExerciseInfoEntity = ExerciseInfoAdapter.this.exerciseInfo.get(oldItemPosition);
-//                    final ExerciseInfoEntity newExerciseInfoEntity = exerciseInfo.get(newItemPosition);
-//                    return ExerciseInfoEntity.isContentTheSame(oldExerciseInfoEntity, newExerciseInfoEntity) && ExerciseSetEntity.isContentTheSame(Objects.requireNonNull(exerciseInfo2SetsMap.get(oldExerciseInfoEntity.getName())), Objects.requireNonNull(newExerciseInfo2SetsMap.get(newExerciseInfoEntity.getName())));
-//                }
-//            });
-//            // Set data:
-//            this.exerciseInfo = exerciseInfo;
-//            exerciseInfo2SetsMap = newExerciseInfo2SetsMap;
-//            // Adjust exercise set adapters:
-//            // TODO: think if adapters can be replaced only where changed or else if it's ok to completely replace them with new ones
-//            result.dispatchUpdatesTo(new ListUpdateCallback()
-//            {
-//                @Override
-//                public void onInserted(int position, int count)
-//                {
-//                    java.lang.System.out.println("INFO: onInserted " + position + " - " + count);  // DEBUG:
-//                    adapters.set(position, new ExerciseSetAdapter());
-//                }
-//
-//                @Override
-//                public void onRemoved(int position, int count)
-//                {
-//                    java.lang.System.out.println("INFO: onRemoved " + position + " - " + count);  // DEBUG:
-////                    adapters.set(position, null);
-//                }
-//
-//                @Override
-//                public void onMoved(int fromPosition, int toPosition)
-//                {
-//                    java.lang.System.out.println("INFO: onMoved " + fromPosition + " / " + toPosition);  // DEBUG:
-//                    adapters.set(toPosition, adapters.get(fromPosition));
-//                }
-//
-//                @Override
-//                public void onChanged(int position, int count, @Nullable Object payload)
-//                {
-//                    java.lang.System.out.println("INFO: onChanged " + position + " - " + count);  // DEBUG:
-//                    adapters.set(position, new ExerciseSetAdapter());
-//                }
-//            });
-//            // Reload updated views:
-//            result.dispatchUpdatesTo(this);
-//        }
-//    }
+    void sortExerciseInfo(@NonNull final String sortedExerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
+    {
+        // Get sorted list:
+        final List<ExerciseInfoEntity> sortedExerciseInfo = new ArrayList<>(getItemCount());
+        for (String exerciseInfoName : sortedExerciseInfoNames.split(";"))
+        {
+            boolean targetNotFound = true;
+            for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
+            {
+                if (Objects.equals(exerciseInfoEntity.getName(), exerciseInfoName))
+                {
+                    sortedExerciseInfo.add(exerciseInfoEntity);
+                    targetNotFound = false;
+                    break;
+                }
+            }
+            if (targetNotFound)
+            {
+                java.lang.System.out.println("ERROR: Could not find " + exerciseInfoName + " in exerciseInfo");
+            }
+        }
+        // Update adapter:
+        setExerciseInfo(sortedExerciseInfo, exerciseSets);
+    }
+    void sortExerciseInfo(@NonNull final String sortedExerciseInfoNames)
+    {
+        sortExerciseInfo(sortedExerciseInfoNames, getExerciseInfo(), exerciseInfo2SetsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+    }
+
 
     @Override
     public int getItemCount()
@@ -275,21 +200,13 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
         // Adjust adapter for exercise sets of targeted exercise info:
         ExerciseSetAdapter adapter = adapters.get(position);
-        if (exerciseInfo2SetsMap != null)
+        List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoEntity.getName());
+        if (exerciseSets == null)
         {
-            List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoEntity.getName());
-            if (exerciseSets == null)
-            {
-                // DEBUG: exerciseSets is null when exercise info name changed -> link change of exercise info name to current exercise sets
-                exerciseSets = new ArrayList<>(0);
-                java.lang.System.out.println("WARNING: Empty exercise sets list for " + exerciseInfoEntity.getName());
-            }
-            adapter.setExerciseSets(exerciseSets);
+            exerciseSets = new ArrayList<>(0);
+            java.lang.System.out.println("WARNING: Empty exercise sets list for " + exerciseInfoEntity.getName());  // DEBUG: should probably never be called
         }
-        else
-        {
-            java.lang.System.out.println("ERROR: exerciseInfo2SetsMap is null, cannot set exercise sets");
-        }
+        adapter.setExerciseSets(exerciseSets);
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
     }
 

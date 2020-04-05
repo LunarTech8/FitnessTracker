@@ -46,7 +46,7 @@ public class AppExecutors
         this.networkIO = networkIO;
         this.mainThread = mainThread;
     }
-    public AppExecutors()
+    AppExecutors()
     {
         this(Executors.newSingleThreadExecutor(), Executors.newFixedThreadPool(3), new MainThreadExecutor());
     }

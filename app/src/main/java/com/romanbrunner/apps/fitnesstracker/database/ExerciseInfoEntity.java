@@ -2,7 +2,6 @@ package com.romanbrunner.apps.fitnesstracker.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
@@ -58,19 +57,7 @@ public class ExerciseInfoEntity implements ExerciseInfo
         if (!Objects.equals(this.remarks, remarks)) this.remarks = remarks;
     }
 
-    public ExerciseInfoEntity() {}
-    @Ignore
-    public ExerciseInfoEntity(@NonNull String name, String token)
-    {
-        this.name = name;
-        this.token = token;
-    }
-    @Ignore
-    public ExerciseInfoEntity(@NonNull String name, String token, String remarks)
-    {
-        this(name, token);
-        this.remarks = remarks;
-    }
+    ExerciseInfoEntity() {}
 
     public static boolean isContentTheSame(ExerciseInfo exerciseInfoA, ExerciseInfo exerciseInfoB)
     {

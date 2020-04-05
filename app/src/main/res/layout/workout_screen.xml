@@ -106,7 +106,7 @@
                     android:textSize="@dimen/comment_text_size"
                     />
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
@@ -118,20 +118,26 @@
                         android:id="@+id/workoutCounterText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                         android:text="@{@string/t_workoutCounterText(workoutUnit.id)}"
                         android:textSize="@dimen/comment_text_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         />
 
                     <TextView
                         android:id="@+id/averageIntervalText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/comment_horizontal_margin_large"
                         android:text="@{@string/t_averageIntervalText(averageInterval)}"
                         android:textSize="@dimen/comment_text_size"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/workoutCounterText"
+                        app:layout_constraintTop_toTopOf="parent"
                         />
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
                     android:id="@+id/lastWorkoutDateText"
@@ -149,6 +155,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_finishButton"
+                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                />
+
+            <Button
+                android:id="@+id/nextWorkoutButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_nextWorkoutButton"
                 app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
                 />
 

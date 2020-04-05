@@ -56,16 +56,10 @@ public class DataRepository
         // Load newest workout unit with associated exercise sets and post their values into observables as soon as the database is ready:
         executeOnceForLiveData(getNewestWorkoutUnit(), () -> database.getDatabaseCreated().getValue() != null, workoutUnit ->
         {
-            if (workoutUnit != null)
-            {
-                workoutUnit.setDate(new Date());  // Set to current date
-                observableWorkoutUnit.postValue(workoutUnit);
-                executeOnceForLiveData(database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId()), observableExerciseSets::postValue);
-            }
-            else
-            {
-                java.lang.System.out.println("ERROR: Could not retrieve value from getNewestWorkoutUnit");
-            }
+            assert workoutUnit != null;
+            workoutUnit.setDate(new Date());  // Set to current date
+            observableWorkoutUnit.postValue(workoutUnit);
+            executeOnceForLiveData(database.exerciseSetDao().loadByWorkoutUnitId(workoutUnit.getId()), observableExerciseSets::postValue);
         });
     }
 
@@ -234,42 +228,31 @@ public class DataRepository
 
     public void finishWorkout()
     {
-        // Store and create new workout unit and exercise set entries:
+        // Store and create new workout unit entries:
         WorkoutUnitEntity oldWorkoutUnit = observableWorkoutUnit.getValue();
-        if (oldWorkoutUnit != null)
-        {
-            // Update current entry:
-            executor.execute(() -> database.workoutUnitDao().update(oldWorkoutUnit));
-            // Clone and insert new entry:
-            WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
-            final int newWorkoutId = newWorkoutUnit.getId();
-            executor.execute(() -> database.workoutUnitDao().insert(newWorkoutUnit));
-            // Adjust current entry:
-            observableWorkoutUnit.setValue(newWorkoutUnit);
+        assert oldWorkoutUnit != null;
+        // Update current entry:
+        executor.execute(() -> database.workoutUnitDao().update(oldWorkoutUnit));
+        // Clone and insert new entry:
+        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
+        final int newWorkoutId = newWorkoutUnit.getId();
+        executor.execute(() -> database.workoutUnitDao().insert(newWorkoutUnit));
+        // Adjust current entry:
+        observableWorkoutUnit.setValue(newWorkoutUnit);
 
-            List<ExerciseSetEntity> oldExerciseSets = observableExerciseSets.getValue();
-            if (oldExerciseSets != null)
-            {
-                // Update current entries:
-                executor.execute(() -> database.exerciseSetDao().update(oldExerciseSets));
-                // Clone and insert new entries:
-                List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
-                for (ExerciseSetEntity exercise : oldExerciseSets)
-                {
-                    newExercises.add(new ExerciseSetEntity(exercise, newWorkoutId));
-                }
-                executor.execute(() -> database.exerciseSetDao().insert(newExercises));
-                // Adjust current entries:
-                observableExerciseSets.setValue(newExercises);
-            }
-            else
-            {
-                java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseSets");
-            }
-        }
-        else
+        // Store and create new exercise set entries:
+        List<ExerciseSetEntity> oldExerciseSets = observableExerciseSets.getValue();
+        assert oldExerciseSets != null;
+        // Update current entries:
+        executor.execute(() -> database.exerciseSetDao().update(oldExerciseSets));
+        // Clone and insert new entries:
+        List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
+        for (ExerciseSetEntity exercise : oldExerciseSets)
         {
-            java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutUnit");
+            newExercises.add(new ExerciseSetEntity(exercise, newWorkoutId));
         }
+        executor.execute(() -> database.exerciseSetDao().insert(newExercises));
+        // Adjust current entries:
+        observableExerciseSets.setValue(newExercises);
     }
 }

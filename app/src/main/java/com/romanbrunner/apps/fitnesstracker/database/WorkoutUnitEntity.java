@@ -73,9 +73,9 @@ public class WorkoutUnitEntity implements WorkoutUnit
         if (date != null && (this.date == null || this.date.compareTo(date) != 0)) this.date = date;
     }
 
-    public WorkoutUnitEntity() {}
+    WorkoutUnitEntity() {}
     @Ignore
-    public WorkoutUnitEntity(int id, String workoutInfoName, int workoutInfoVersion)
+    WorkoutUnitEntity(int id, String workoutInfoName, int workoutInfoVersion)
     {
         this.id = id;
         this.workoutInfoName = workoutInfoName;

@@ -23,7 +23,8 @@
                 android:id="@+id/dataRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                >
 
                 <TextView
                     android:id="@+id/exerciseWeightLabel"
@@ -34,7 +35,8 @@
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
                 <EditText
                     android:id="@+id/exerciseWeightField"
@@ -47,7 +49,8 @@
                     android:text="@={exerciseSet.weight}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/exerciseWeightLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
                 <TextView
                     android:id="@+id/exerciseRepeatsLabel"
@@ -58,7 +61,8 @@
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/exerciseWeightField"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
                 <EditText
                     android:id="@+id/exerciseRepeatsField"
@@ -71,7 +75,8 @@
                     android:text="@={exerciseSet.repeats}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/exerciseRepeatsLabel"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
                 <CheckBox
                     android:id="@+id/exerciseDoneCheckbox"
@@ -81,7 +86,8 @@
                     android:checked="@={exerciseSet.done}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/exerciseIncrementButton"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
                 <Button
                     android:id="@+id/exerciseIncrementButton"
@@ -92,7 +98,8 @@
                     android:text="@string/t_exerciseIncrement"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

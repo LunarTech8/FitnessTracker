@@ -190,15 +190,9 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(repository.getLastWorkoutUnit(), workoutUnit ->
             {
-                if (workoutUnit != null)
-                {
-                    printWorkoutUnitsData("Last stored workout unit:", null, Collections.singletonList(workoutUnit));
-                    DataRepository.executeOnceForLiveData(repository.getExerciseSetsByWorkoutUnit(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
-                }
-                else
-                {
-                    java.lang.System.out.println("ERROR: Could not retrieve value from getLastWorkoutUnit");
-                }
+                assert workoutUnit != null;
+                printWorkoutUnitsData("Last stored workout unit:", null, Collections.singletonList(workoutUnit));
+                DataRepository.executeOnceForLiveData(repository.getExerciseSetsByWorkoutUnit(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
             });
         }
         else if (MainActivity.DEBUG_LOG_MODE == 3)  // Stored workout units
@@ -209,30 +203,18 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnitEntity ->
             {
-                if (workoutUnitEntity != null)
-                {
-                    DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(workoutUnitEntity.getWorkoutInfoName(), workoutUnitEntity.getWorkoutInfoVersion()), workoutInfo -> printWorkoutInfoData("Current workout info:", "No current workout info", Collections.singletonList(workoutInfo)));
-                }
-                else
-                {
-                    java.lang.System.out.println("ERROR: Could not retrieve value from observableWorkoutUnit");
-                }
+                assert workoutUnitEntity != null;
+                DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(workoutUnitEntity.getWorkoutInfoName(), workoutUnitEntity.getWorkoutInfoVersion()), workoutInfo -> printWorkoutInfoData("Current workout info:", "No current workout info", Collections.singletonList(workoutInfo)));
             });
             DataRepository.executeOnceForLiveData(observableExerciseSets, exerciseSetList ->
             {
-                if (exerciseSetList != null)
+                assert exerciseSetList != null;
+                Set<String> exerciseInfoNames = new HashSet<>();
+                for (ExerciseSetEntity exerciseSet: exerciseSetList)
                 {
-                    Set<String> exerciseInfoNames = new HashSet<>();
-                    for (ExerciseSetEntity exerciseSet: exerciseSetList)
-                    {
-                        exerciseInfoNames.add(exerciseSet.getExerciseInfoName());
-                    }
-                    DataRepository.executeOnceForLiveData(repository.getExerciseInfo(exerciseInfoNames), exerciseInfo -> printExerciseInfoData("Current exercise info:", "No current exercise info", exerciseInfo));
+                    exerciseInfoNames.add(exerciseSet.getExerciseInfoName());
                 }
-                else
-                {
-                    java.lang.System.out.println("ERROR: Could not retrieve value from observableExerciseSets");
-                }
+                DataRepository.executeOnceForLiveData(repository.getExerciseInfo(exerciseInfoNames), exerciseInfo -> printExerciseInfoData("Current exercise info:", "No current exercise info", exerciseInfo));
             });
         }
         else if (MainActivity.DEBUG_LOG_MODE == 5)  // Observed and stored workout units and exercise sets
