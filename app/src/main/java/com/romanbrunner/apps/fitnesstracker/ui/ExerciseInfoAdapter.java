@@ -68,13 +68,13 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                         if (exerciseSets != null)
                         {
                             final String afterTextChanged = s.toString();
-                            java.lang.System.out.println("INFO: exerciseInfo " + beforeTextChanged + " renamed to " + afterTextChanged);  // DEBUG:
+                            java.lang.System.out.println("DEBUG: exerciseInfo " + beforeTextChanged + " renamed to " + afterTextChanged);  // DEBUG:
                             // Remove old data:
                             exerciseInfo2SetsMap.remove(beforeTextChanged);
                             // Adjust exercise info name of linked exercise sets:
                             for (ExerciseSetEntity exerciseSet : exerciseSets)
                             {
-                                java.lang.System.out.println("INFO: exerciseSet adjusted");  // DEBUG:
+                                java.lang.System.out.println("DEBUG: exerciseSet adjusted");  // DEBUG:
                                 exerciseSet.setExerciseInfoName(afterTextChanged);
                             }
                             // Merge exercise sets list if new exercise info name already existed:
@@ -109,7 +109,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     void setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
-        java.lang.System.out.println("INFO: setExerciseInfo is called");  // DEBUG:
+        java.lang.System.out.println("DEBUG: setExerciseInfo is called and reset");  // DEBUG:
         // Set exerciseInfo2SetsMap:
         exerciseInfo2SetsMap = new HashMap<>();
         for (ExerciseSetEntity exerciseSet: exerciseSets)

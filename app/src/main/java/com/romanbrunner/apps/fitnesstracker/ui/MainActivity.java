@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.R;
+import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
@@ -22,8 +23,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class MainActivity extends AppCompatActivity
@@ -75,13 +78,30 @@ public class MainActivity extends AppCompatActivity
         binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {
-            viewModel.storeWorkoutInfo(Collections.singletonList((WorkoutInfoEntity)binding.getWorkoutInfo()));  // TODO: if exercise names have changed a new version number has to be created with updated exerciseInfoNames
-            viewModel.storeExerciseInfo(adapter.getExerciseInfo());
+            // Check if a new workout info version is required:
+            WorkoutInfoEntity workoutInfoEntity = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+            String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(";")) + ";";
+            if (!Objects.equals(exerciseInfoNames, workoutInfoEntity.getExerciseInfoNames()))
+            {
+                java.lang.System.out.println("DEBUG: new workout info version created " + (workoutInfoEntity.getVersion() + 1));  // DEBUG: version doesn't seem to increase each time, check
+                java.lang.System.out.println("DEBUG: old exercise info names " + workoutInfoEntity.getExerciseInfoNames());  // DEBUG:
+                java.lang.System.out.println("DEBUG: new exercise info names " + exerciseInfoNames);  // DEBUG:
+                // Create new workout info version:
+                workoutInfoEntity.setVersion(workoutInfoEntity.getVersion() + 1);
+                workoutInfoEntity.setExerciseInfoNames(exerciseInfoNames);
+                // TODO: check against existing versions of workoutInfoName to avoid overlaps
+
+            }
+            // Store current info data:
+            viewModel.storeWorkoutInfo(Collections.singletonList(workoutInfoEntity));
+            viewModel.storeExerciseInfo(exerciseInfo);
+            // Finish workout:
             viewModel.finishWorkout();
         });
         binding.nextWorkoutButton.setOnClickListener((View view) ->
         {
-            // TODO: implement, maybe instead make a changeWorkout dropdown or similar
+            // TODO: implement, maybe instead make a changeWorkout dropdown or similar (with name and version as separate sliders)
         });
         binding.editModeButton.setOnClickListener((View view) ->
         {
@@ -102,6 +122,7 @@ public class MainActivity extends AppCompatActivity
         {
             if (workoutUnit != null)
             {
+                java.lang.System.out.println("DEBUG: getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);
                 DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
@@ -125,6 +146,7 @@ public class MainActivity extends AppCompatActivity
         {
             if (exerciseSetList != null)
             {
+                java.lang.System.out.println("DEBUG: getCurrentExerciseSets observed: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG: for sortExerciseInfo old exerciseInfo name not found
                 Set<String> exerciseInfoNames = new HashSet<>();
                 for (ExerciseSetEntity exerciseSet: exerciseSetList)
                 {
