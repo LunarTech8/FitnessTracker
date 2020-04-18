@@ -42,19 +42,19 @@ public class ExerciseInfoEntity implements ExerciseInfo
     @Override
     public void setName(String name)
     {
-        if (!Objects.equals(this.name, name)) this.name = name;
+        this.name = name;
     }
 
     @Override
     public void setToken(String token)
     {
-        if (!Objects.equals(this.token, token)) this.token = token;
+        this.token = token;
     }
 
     @Override
     public void setRemarks(String remarks)
     {
-        if (!Objects.equals(this.remarks, remarks)) this.remarks = remarks;
+        this.remarks = remarks;
     }
 
     ExerciseInfoEntity() {}

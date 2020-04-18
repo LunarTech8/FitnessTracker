@@ -52,25 +52,25 @@ public class WorkoutUnitEntity implements WorkoutUnit
     @Override
     public void setId(int id)
     {
-        if (this.id != id) this.id = id;
+        this.id = id;
     }
 
     @Override
     public void setWorkoutInfoName(String workoutInfoName)
     {
-        if (!Objects.equals(this.workoutInfoName, workoutInfoName)) this.workoutInfoName = workoutInfoName;
+        this.workoutInfoName = workoutInfoName;
     }
 
     @Override
     public void setWorkoutInfoVersion(int workoutInfoVersion)
     {
-        if (this.workoutInfoVersion != workoutInfoVersion) this.workoutInfoVersion = workoutInfoVersion;
+        this.workoutInfoVersion = workoutInfoVersion;
     }
 
     @Override
     public void setDate(Date date)
     {
-        if (date != null && (this.date == null || this.date.compareTo(date) != 0)) this.date = date;
+        if (date != null) this.date = date;
     }
 
     WorkoutUnitEntity() {}

@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.viewmodels;
 
 import android.app.Application;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,19 +53,19 @@ public class MainViewModel extends AndroidViewModel
     {
         if (workoutInfoList != null)
         {
-            java.lang.System.out.println(headerMessage);
+            Log.i("printWorkoutInfoData", headerMessage);
             for (WorkoutInfoEntity workout : workoutInfoList)
             {
 
-                java.lang.System.out.print("WorkoutInfo -> Name: " + workout.getName() + ", ");
-                java.lang.System.out.print("Version: " + workout.getVersion() + ", ");
-                java.lang.System.out.print("Description: " + workout.getDescription() + ", ");
-                java.lang.System.out.print("ExerciseInfoNames: " + workout.getExerciseInfoNames() + "\n");
+                Log.i("printWorkoutInfoData", "WorkoutInfo -> Name: " + workout.getName() + ", ");
+                Log.i("printWorkoutInfoData", "Version: " + workout.getVersion() + ", ");
+                Log.i("printWorkoutInfoData", "Description: " + workout.getDescription() + ", ");
+                Log.i("printWorkoutInfoData", "ExerciseInfoNames: " + workout.getExerciseInfoNames() + "\n");
             }
         }
         else if (nullMessage != null)
         {
-            java.lang.System.out.println(nullMessage);
+            Log.i("printWorkoutInfoData", nullMessage);
         }
     }
 
@@ -72,18 +73,18 @@ public class MainViewModel extends AndroidViewModel
     {
         if (exerciseInfoList != null)
         {
-            java.lang.System.out.println(headerMessage);
+            Log.i("printExerciseInfoData", headerMessage);
             for (ExerciseInfoEntity exercise : exerciseInfoList)
             {
 
-                java.lang.System.out.print("ExerciseInfo -> Name: " + exercise.getName() + ", ");
-                java.lang.System.out.print("Token: " + exercise.getToken() + ", ");
-                java.lang.System.out.print("Remarks: " + exercise.getRemarks() + "\n");
+                Log.i("printExerciseInfoData", "ExerciseInfo -> Name: " + exercise.getName() + ", ");
+                Log.i("printExerciseInfoData", "Token: " + exercise.getToken() + ", ");
+                Log.i("printExerciseInfoData", "Remarks: " + exercise.getRemarks() + "\n");
             }
         }
         else if (nullMessage != null)
         {
-            java.lang.System.out.println(nullMessage);
+            Log.i("printExerciseInfoData", nullMessage);
         }
     }
 
@@ -91,18 +92,18 @@ public class MainViewModel extends AndroidViewModel
     {
         if (workoutUnits != null)
         {
-            java.lang.System.out.println(headerMessage);
+            Log.i("printWorkoutUnitsData", headerMessage);
             for (WorkoutUnitEntity workout : workoutUnits)
             {
-                java.lang.System.out.print("WorkoutUnit -> Id: " + workout.getId() + ", ");
-                java.lang.System.out.print("WorkoutInfoName: " + workout.getWorkoutInfoName() + ", ");
-                java.lang.System.out.print("WorkoutInfoVersion: " + workout.getWorkoutInfoVersion() + ", ");
-                java.lang.System.out.print("Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + "\n");
+                Log.i("printWorkoutUnitsData", "WorkoutUnit -> Id: " + workout.getId() + ", ");
+                Log.i("printWorkoutUnitsData", "WorkoutInfoName: " + workout.getWorkoutInfoName() + ", ");
+                Log.i("printWorkoutUnitsData", "WorkoutInfoVersion: " + workout.getWorkoutInfoVersion() + ", ");
+                Log.i("printWorkoutUnitsData", "Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + "\n");
             }
         }
         else if (nullMessage != null)
         {
-            java.lang.System.out.println(nullMessage);
+            Log.i("printWorkoutUnitsData", nullMessage);
         }
     }
 
@@ -110,21 +111,21 @@ public class MainViewModel extends AndroidViewModel
     {
         if (exerciseSets != null)
         {
-            java.lang.System.out.println(headerMessage);
+            Log.i("printExerciseSetsData", headerMessage);
             for (ExerciseSetEntity exercise : exerciseSets)
             {
 
-                java.lang.System.out.print("ExerciseSet -> Id: " + exercise.getId() + ", ");
-                java.lang.System.out.print("WorkoutId: " + exercise.getWorkoutUnitId() + ", ");
-                java.lang.System.out.print("ExerciseInfoName: " + exercise.getExerciseInfoName() + ", ");
-                java.lang.System.out.print("Repeats: " + exercise.getRepeats() + ", ");
-                java.lang.System.out.print("Weight: " + exercise.getWeight() + ", ");
-                java.lang.System.out.print("Done: " + exercise.isDone() + "\n");
+                Log.i("printExerciseSetsData", "ExerciseSet -> Id: " + exercise.getId() + ", ");
+                Log.i("printExerciseSetsData", "WorkoutId: " + exercise.getWorkoutUnitId() + ", ");
+                Log.i("printExerciseSetsData", "ExerciseInfoName: " + exercise.getExerciseInfoName() + ", ");
+                Log.i("printExerciseSetsData", "Repeats: " + exercise.getRepeats() + ", ");
+                Log.i("printExerciseSetsData", "Weight: " + exercise.getWeight() + ", ");
+                Log.i("printExerciseSetsData", "Done: " + exercise.isDone() + "\n");
             }
         }
         else if (nullMessage != null)
         {
-            java.lang.System.out.println(nullMessage);
+            Log.i("printExerciseSetsData", nullMessage);
         }
     }
 
@@ -175,7 +176,7 @@ public class MainViewModel extends AndroidViewModel
 
     public void printDebugLog()
     {
-        java.lang.System.out.println("--- DEBUG LOG ---");
+        Log.i("printDebugLog", "--- DEBUG LOG ---");
         if (MainActivity.DEBUG_LOG_MODE == 0)  // Observed workout units and exercise sets
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));

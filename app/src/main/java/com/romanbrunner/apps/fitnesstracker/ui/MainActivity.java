@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.Nullable;
@@ -84,14 +85,18 @@ public class MainActivity extends AppCompatActivity
             String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(";")) + ";";
             if (!Objects.equals(exerciseInfoNames, workoutInfoEntity.getExerciseInfoNames()))
             {
-                java.lang.System.out.println("DEBUG: new workout info version created " + (workoutInfoEntity.getVersion() + 1));  // DEBUG: version doesn't seem to increase each time, check
-                java.lang.System.out.println("DEBUG: old exercise info names " + workoutInfoEntity.getExerciseInfoNames());  // DEBUG:
-                java.lang.System.out.println("DEBUG: new exercise info names " + exerciseInfoNames);  // DEBUG:
-                // Create new workout info version:
-                workoutInfoEntity.setVersion(workoutInfoEntity.getVersion() + 1);
-                workoutInfoEntity.setExerciseInfoNames(exerciseInfoNames);
+                Log.d("onCreate", "old exercise info names: " + workoutInfoEntity.getExerciseInfoNames());  // DEBUG:
+                Log.d("onCreate", "new exercise info names: " + exerciseInfoNames);  // DEBUG:
+                // Determine new workout info version:
+                int newVersion = workoutInfoEntity.getVersion() + 1;
                 // TODO: check against existing versions of workoutInfoName to avoid overlaps
-
+                // Adjust workout info:
+                workoutInfoEntity.setVersion(newVersion);
+                workoutInfoEntity.setExerciseInfoNames(exerciseInfoNames);
+                Log.d("onCreate", "new workout info version created: V" + workoutInfoEntity.getVersion());  // DEBUG:
+                // Adjust workout unit:
+                WorkoutUnitEntity workoutUnitEntity = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                workoutUnitEntity.setWorkoutInfoVersion(newVersion);
             }
             // Store current info data:
             viewModel.storeWorkoutInfo(Collections.singletonList(workoutInfoEntity));
@@ -122,14 +127,16 @@ public class MainActivity extends AppCompatActivity
         {
             if (workoutUnit != null)
             {
-                java.lang.System.out.println("DEBUG: getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
+                Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName() + " V" + workoutUnit.getWorkoutInfoVersion());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);
                 DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
                     assert workoutInfo != null;
+                    Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
                     binding.setWorkoutInfo(workoutInfo);
                     if (!isExercisesLoading)
                     {
+                        Log.d("subscribeUi", "adapter.sortExerciseInfo short is called");  // DEBUG:
                         adapter.sortExerciseInfo(workoutInfo.getExerciseInfoNames());
                     }
                     binding.setIsWorkoutLoading(isWorkoutLoading = false);
@@ -146,7 +153,7 @@ public class MainActivity extends AppCompatActivity
         {
             if (exerciseSetList != null)
             {
-                java.lang.System.out.println("DEBUG: getCurrentExerciseSets observed: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG: for sortExerciseInfo old exerciseInfo name not found
+                Log.d("subscribeUi", "getCurrentExerciseSets observed: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
                 Set<String> exerciseInfoNames = new HashSet<>();
                 for (ExerciseSetEntity exerciseSet: exerciseSetList)
                 {
@@ -155,12 +162,16 @@ public class MainActivity extends AppCompatActivity
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseInfoNames), exerciseInfoList ->
                 {
                     assert exerciseInfoList != null;
+                    // FIXME: change exercise info name -> finish button (before anything else is selected) -> exerciseInfoList misses new exercise info name
+                    Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
                     if (!isWorkoutLoading)
                     {
+                        Log.d("subscribeUi", "adapter.sortExerciseInfo long is called");  // DEBUG:
                         adapter.sortExerciseInfo(binding.getWorkoutInfo().getExerciseInfoNames(), exerciseInfoList, exerciseSetList);
                     }
                     else
                     {
+                        Log.d("subscribeUi", "adapter.setExerciseInfo is called");  // DEBUG:
                         adapter.setExerciseInfo(exerciseInfoList, exerciseSetList);
                     }
                     binding.setIsExercisesLoading(isExercisesLoading = false);

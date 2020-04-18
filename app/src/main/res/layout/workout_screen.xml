@@ -151,14 +151,6 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/finishButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_finishButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
-                />
-
-            <Button
                 android:id="@+id/nextWorkoutButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -194,7 +186,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/dataList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -208,7 +200,20 @@
                 android:gravity="center_vertical|center_horizontal"
                 android:text="@string/t_loadingText"
                 android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 app:visibleGone="@{isExercisesLoading}"
+                />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/exercisesBoard"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/addExerciseButton"
+                app:layoutManager="LinearLayoutManager"
+                app:visibleGone="@{!isExercisesLoading}"
                 />
 
             <Button
@@ -216,18 +221,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_addExerciseButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/finishButton"
                 app:visibleGone="@{!isExercisesLoading ? isEditModeActive : false}"
                 />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/exercisesBoard"
+            <Button
+                android:id="@+id/finishButton"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="LinearLayoutManager"
+                android:layout_height="wrap_content"
+                android:text="@string/t_finishButton"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:visibleGone="@{!isExercisesLoading}"
                 />
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </LinearLayout>
 

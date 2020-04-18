@@ -2,6 +2,7 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -68,13 +69,13 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                         if (exerciseSets != null)
                         {
                             final String afterTextChanged = s.toString();
-                            java.lang.System.out.println("DEBUG: exerciseInfo " + beforeTextChanged + " renamed to " + afterTextChanged);  // DEBUG:
+                            Log.d("onTextChanged", "exerciseInfo " + beforeTextChanged + " renamed to " + afterTextChanged);  // DEBUG:
                             // Remove old data:
                             exerciseInfo2SetsMap.remove(beforeTextChanged);
                             // Adjust exercise info name of linked exercise sets:
                             for (ExerciseSetEntity exerciseSet : exerciseSets)
                             {
-                                java.lang.System.out.println("DEBUG: exerciseSet adjusted");  // DEBUG:
+                                Log.d("onTextChanged", "exerciseSet adjusted");  // DEBUG:
                                 exerciseSet.setExerciseInfoName(afterTextChanged);
                             }
                             // Merge exercise sets list if new exercise info name already existed:
@@ -109,7 +110,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     void setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
-        java.lang.System.out.println("DEBUG: setExerciseInfo is called and reset");  // DEBUG:
+        Log.d("setExerciseInfo", "setExerciseInfo is called and reset");  // DEBUG: should this really be called twice after finish?
         // Set exerciseInfo2SetsMap:
         exerciseInfo2SetsMap = new HashMap<>();
         for (ExerciseSetEntity exerciseSet: exerciseSets)
@@ -156,7 +157,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             if (targetNotFound)
             {
-                java.lang.System.out.println("ERROR: Could not find " + exerciseInfoName + " in exerciseInfo");
+                Log.e("sortExerciseInfo", "Could not find " + exerciseInfoName + " in exerciseInfo");
             }
         }
         // Update adapter:
@@ -204,7 +205,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         if (exerciseSets == null)
         {
             exerciseSets = new ArrayList<>(0);
-            java.lang.System.out.println("WARNING: Empty exercise sets list for " + exerciseInfoEntity.getName());  // DEBUG: should probably never be called
+            Log.w("onBindViewHolder", "Empty exercise sets list for " + exerciseInfoEntity.getName());  // TODO: should probably never be called
         }
         adapter.setExerciseSets(exerciseSets);
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);

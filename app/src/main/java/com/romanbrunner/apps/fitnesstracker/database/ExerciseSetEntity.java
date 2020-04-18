@@ -76,37 +76,37 @@ public class ExerciseSetEntity implements ExerciseSet
     @Override
     public void setId(int id)
     {
-        if (this.id != id) this.id = id;
+        this.id = id;
     }
 
     @Override
     public void setWorkoutUnitId(int workoutUnitId)
     {
-        if (this.workoutUnitId != workoutUnitId) this.workoutUnitId = workoutUnitId;
+        this.workoutUnitId = workoutUnitId;
     }
 
     @Override
     public void setExerciseInfoName(String exerciseInfoName)
     {
-        if (!Objects.equals(this.exerciseInfoName, exerciseInfoName)) this.exerciseInfoName = exerciseInfoName;
+        this.exerciseInfoName = exerciseInfoName;
     }
 
     @Override
     public void setRepeats(int repeats)
     {
-        if (this.repeats != repeats) this.repeats = repeats;
+        this.repeats = repeats;
     }
 
     @Override
     public void setWeight(float weight)
     {
-        if (Float.compare(this.weight, weight) != 0) this.weight = weight;
+        this.weight = weight;
     }
 
     @Override
     public void setDone(boolean done)
     {
-        if (this.done != done) this.done = done;
+        this.done = done;
     }
 
     public ExerciseSetEntity() {}

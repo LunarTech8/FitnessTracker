@@ -47,25 +47,25 @@ public class WorkoutInfoEntity implements WorkoutInfo
     @Override
     public void setName(@NonNull String name)
     {
-        if (!Objects.equals(this.name, name)) this.name = name;
+        this.name = name;
     }
 
     @Override
     public void setVersion(int version)
     {
-        if (this.version != version) this.version = version;
+        this.version = version;
     }
 
     @Override
     public void setDescription(String description)
     {
-        if (!Objects.equals(this.description, description)) this.description = description;
+        this.description = description;
     }
 
     @Override
     public void setExerciseInfoNames(String exerciseInfoNames)
     {
-        if (!Objects.equals(this.exerciseInfoNames, exerciseInfoNames)) this.exerciseInfoNames = exerciseInfoNames;
+        this.exerciseInfoNames = exerciseInfoNames;
     }
 
     WorkoutInfoEntity() {}

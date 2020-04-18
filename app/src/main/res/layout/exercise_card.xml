@@ -38,7 +38,7 @@
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:autofillHints="text"
                     android:hint="@string/h_exerciseName"
-                    android:inputType="textCapWords"
+                    android:inputType="textCapWords|textNoSuggestions"
                     android:text="@={exerciseInfo.name}"
                     app:layout_constraintEnd_toStartOf="@+id/exerciseTokenField"
                     app:layout_constraintStart_toStartOf="parent"
