@@ -108,39 +108,14 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         return exerciseInfo;
     }
 
-    void setExerciseInfo(@NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
+    List<ExerciseSetEntity> getExerciseSets()
     {
-        Log.d("setExerciseInfo", "setExerciseInfo is called and reset");  // DEBUG: should this really be called twice after finish?
-        // Set exerciseInfo2SetsMap:
-        exerciseInfo2SetsMap = new HashMap<>();
-        for (ExerciseSetEntity exerciseSet: exerciseSets)
-        {
-            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
-            final List<ExerciseSetEntity> exerciseSetList = exerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
-            if (exerciseSetList != null)
-            {
-                exerciseSetList.add(exerciseSet);
-            }
-            else
-            {
-                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
-            }
-        }
-        // Set exerciseInfo:
-        this.exerciseInfo = exerciseInfo;
-        // Create exercise set adapters:
-        final int exerciseInfoCount = exerciseInfo.size();
-        adapters = new ArrayList<>(exerciseInfoCount);
-        for (int i = 0; i < exerciseInfoCount; i++)
-        {
-            adapters.add(new ExerciseSetAdapter());
-        }
-        // Load/Reload all views:
-        notifyDataSetChanged();
+        return exerciseInfo2SetsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    void sortExerciseInfo(@NonNull final String sortedExerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
+    void setExercise(@NonNull final String sortedExerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
+        Log.d("setExerciseInfo", "setExerciseInfo is called and reset");  // DEBUG:
         // Get sorted list:
         final List<ExerciseInfoEntity> sortedExerciseInfo = new ArrayList<>(getItemCount());
         for (String exerciseInfoName : sortedExerciseInfoNames.split(";"))
@@ -160,14 +135,33 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 Log.e("sortExerciseInfo", "Could not find " + exerciseInfoName + " in exerciseInfo");
             }
         }
-        // Update adapter:
-        setExerciseInfo(sortedExerciseInfo, exerciseSets);
+        // Set exerciseInfo2SetsMap:
+        exerciseInfo2SetsMap = new HashMap<>();
+        for (ExerciseSetEntity exerciseSet: exerciseSets)
+        {
+            final String exerciseInfoName = exerciseSet.getExerciseInfoName();
+            final List<ExerciseSetEntity> exerciseSetList = exerciseInfo2SetsMap.getOrDefault(exerciseInfoName, null);
+            if (exerciseSetList != null)
+            {
+                exerciseSetList.add(exerciseSet);
+            }
+            else
+            {
+                exerciseInfo2SetsMap.put(exerciseInfoName, new LinkedList<>(Collections.singletonList(exerciseSet)));
+            }
+        }
+        // Set exerciseInfo:
+        this.exerciseInfo = sortedExerciseInfo;
+        // Create exercise set adapters:
+        final int exerciseInfoCount = sortedExerciseInfo.size();
+        adapters = new ArrayList<>(exerciseInfoCount);
+        for (int i = 0; i < exerciseInfoCount; i++)
+        {
+            adapters.add(new ExerciseSetAdapter());
+        }
+        // Load/Reload all views:
+        notifyDataSetChanged();
     }
-    void sortExerciseInfo(@NonNull final String sortedExerciseInfoNames)
-    {
-        sortExerciseInfo(sortedExerciseInfoNames, getExerciseInfo(), exerciseInfo2SetsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
-    }
-
 
     @Override
     public int getItemCount()

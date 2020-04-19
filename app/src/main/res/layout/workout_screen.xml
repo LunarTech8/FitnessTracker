@@ -9,7 +9,6 @@
         <variable name="isTestModeActive" type="boolean" />
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
-        <variable name="isExercisesLoading" type="boolean" />
         <variable name="isEditModeActive" type="boolean" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
@@ -40,7 +39,8 @@
                 android:id="@+id/headerRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                >
 
                 <TextView
                     android:id="@+id/workoutLoadingNotification"
@@ -155,7 +155,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_nextWorkoutButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
                 />
 
             <Button
@@ -163,7 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_editModeButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isExercisesLoading : false}"
+                app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
                 />
 
             <Button
@@ -202,7 +202,7 @@
                 android:textAlignment="center"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:visibleGone="@{isExercisesLoading}"
+                app:visibleGone="@{isWorkoutLoading}"
                 />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -213,7 +213,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/addExerciseButton"
                 app:layoutManager="LinearLayoutManager"
-                app:visibleGone="@{!isExercisesLoading}"
+                app:visibleGone="@{!isWorkoutLoading}"
                 />
 
             <Button
@@ -223,7 +223,7 @@
                 android:text="@string/t_addExerciseButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/finishButton"
-                app:visibleGone="@{!isExercisesLoading ? isEditModeActive : false}"
+                app:visibleGone="@{!isWorkoutLoading ? isEditModeActive : false}"
                 />
 
             <Button
@@ -233,7 +233,7 @@
                 android:text="@string/t_finishButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:visibleGone="@{!isExercisesLoading}"
+                app:visibleGone="@{!isWorkoutLoading}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
