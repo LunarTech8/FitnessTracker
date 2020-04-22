@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity
         binding.setIsTopBoxMinimized(true);
         binding.setIsEditModeActive(isEditModeActive);
         binding.setIsTestModeActive(TEST_MODE_ACTIVE);
-        binding.nameButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.workoutInfoButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.finishButton.setOnClickListener((View view) ->
         {
             WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
@@ -81,15 +81,23 @@ public class MainActivity extends AppCompatActivity
             // Get newest workout info version:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
             {
-                assert newestWorkoutInfo != null;
                 List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
-                // Check if a new workout info version is required:
+                // Check for requirement of a new version:
                 String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(";")) + ";";
-                if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()))
+                int newVersion = -1;
+                if (newestWorkoutInfo == null)
+                {
+                    newVersion = 0;
+                }
+                else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()))
+                {
+                    newVersion = newestWorkoutInfo.getVersion() + 1;
+                }
+                // Create new workout info version if required:
+                if (newVersion >= 0)
                 {
                     Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
                     Log.d("onCreate", "new exercise info names: " + exerciseInfoNames);  // DEBUG:
-                    int newVersion = newestWorkoutInfo.getVersion() + 1;
                     // Adjust workout info:
                     workoutInfo.setVersion(newVersion);
                     workoutInfo.setExerciseInfoNames(exerciseInfoNames);
