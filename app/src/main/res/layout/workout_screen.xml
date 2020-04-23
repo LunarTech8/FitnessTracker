@@ -111,7 +111,6 @@
                         android:layout_height="wrap_content"
                         android:text="@string/t_workoutNameLabel"
                         android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         />
@@ -121,7 +120,9 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                        android:paddingTop="0dp"
                         android:autofillHints="text"
+                        android:hint="@string/h_emptyHint"
                         android:inputType="textNoSuggestions"
                         android:text="@{workoutInfo.name}"
                         android:textSize="@dimen/comment_text_size"
@@ -136,14 +137,13 @@
                         android:layout_height="wrap_content"
                         android:text="@{@string/t_workoutVersionText(workoutInfo.version)}"
                         android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/workoutDescriptionRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -158,59 +158,53 @@
                         android:layout_height="wrap_content"
                         android:text="@string/t_workoutDescriptionLabel"
                         android:textSize="@dimen/comment_text_size"
-                        />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                     <EditText
                         android:id="@+id/workoutDescriptionText"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                        android:paddingTop="0dp"
                         android:autofillHints="text"
-                        android:inputType="textNoSuggestions"
+                        android:hint="@string/h_emptyHint"
+                        android:inputType="textMultiLine"
                         android:text="@{workoutInfo.description}"
                         android:textSize="@dimen/comment_text_size"
-                        />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/workoutDescriptionLabel"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <TextView
+                    android:id="@+id/workoutCounterText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
                     android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
-                    android:orientation="horizontal"
-                    >
+                    android:text="@{@string/t_workoutCounterText(workoutUnit.id)}"
+                    android:textSize="@dimen/comment_text_size"
+                    />
 
-                    <TextView
-                        android:id="@+id/workoutCounterText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{@string/t_workoutCounterText(workoutUnit.id)}"
-                        android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
-
-                    <TextView
-                        android:id="@+id/averageIntervalText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/comment_horizontal_margin_large"
-                        android:text="@{@string/t_averageIntervalText(averageInterval)}"
-                        android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toEndOf="@+id/workoutCounterText"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/averageIntervalText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
+                    android:text="@{@string/t_averageIntervalText(averageInterval)}"
+                    android:textSize="@dimen/comment_text_size"
+                    />
 
                 <TextView
                     android:id="@+id/lastWorkoutDateText"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
                     android:text="@{@string/t_lastWorkoutDateText(lastWorkoutDate)}"
                     android:textSize="@dimen/comment_text_size"
                     />

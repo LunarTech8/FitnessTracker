@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity
         {
             WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
             WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            // FIXME: user changes for workoutInfo fields are not seen here
             // Get newest workout info version:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
             {
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     newVersion = 0;
                 }
-                else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()))
+                else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
                 {
                     newVersion = newestWorkoutInfo.getVersion() + 1;
                 }
