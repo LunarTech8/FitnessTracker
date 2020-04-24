@@ -41,6 +41,7 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
         ExerciseSetViewHolder(ExerciseSetCardBinding binding)
         {
             super(binding.getRoot());
+            binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.exerciseIncrementButton.setOnClickListener((View view) ->
             {
                 binding.exerciseDoneCheckbox.setChecked(true);
@@ -87,6 +88,7 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
     {
         // Adjust changeable values of the view fields by the current exercises list:
         exerciseSetViewHolder.binding.setExerciseSet(exerciseSets.get(position));
+        exerciseSetViewHolder.binding.setIsEditModeActive(MainActivity.isEditModeActive);
         exerciseSetViewHolder.binding.executePendingBindings();
     }
 

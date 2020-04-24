@@ -5,6 +5,7 @@
     >
 
     <data>
+        <variable name="isEditModeActive" type="boolean" />
         <variable name="exerciseSet" type="com.romanbrunner.apps.fitnesstracker.model.ExerciseSet" />
     </data>
 
@@ -26,15 +27,28 @@
                 android:orientation="horizontal"
                 >
 
+                <Button
+                    android:id="@+id/removeExerciseSetButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:text="@string/t_removeExerciseSetButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{isEditModeActive}"
+                    />
+
                 <TextView
                     android:id="@+id/exerciseWeightLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginStart="@{isEditModeActive ? @dimen/comment_horizontal_margin_large : @dimen/comment_horizontal_margin_small, default=@dimen/comment_horizontal_margin_large}"
                     android:text="@string/t_exerciseWeightLabel"
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/removeExerciseSetButton"
                     app:layout_constraintTop_toTopOf="parent"
                     />
 
@@ -87,6 +101,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/exerciseIncrementButton"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isEditModeActive}"
                     />
 
                 <Button
@@ -99,6 +114,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isEditModeActive}"
                     />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

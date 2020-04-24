@@ -22,6 +22,7 @@
     <string name="h_exerciseName">Exercise Name</string>
     <string name="h_exerciseToken">ID</string>
 
+    <string name="t_removeExerciseSetButton">x</string>
     <string name="t_exerciseRepeatsLabel">Repeats:</string>
     <string name="t_exerciseWeightLabel">Weight:</string>
     <string name="t_exerciseIncrement">+</string>
