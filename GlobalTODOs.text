@@ -20,10 +20,8 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Implement an "Add Set" button at bottom of exercise cards
+!!>>>- Remove exercises when all their sets are removed
 !!>>- Implement an "Add Exercise" button at bottom
-!!>>- Implement an "x" button at exercise cards to remove them
-!!>- Remove exercises when all their sets are removed
 !!>>- Implement an "Next Exercise" button
 !- Add option to switch between colour themes
 

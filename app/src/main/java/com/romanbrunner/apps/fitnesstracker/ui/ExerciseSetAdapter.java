@@ -32,13 +32,19 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
     // Functional code
     // --------------------
 
+    public interface CallbackAction
+    {
+        void execute();
+    }
+
     private List<? extends ExerciseSet> exerciseSets;
+    private CallbackAction checkForEmptyExercisesAction;
 
     static class ExerciseSetViewHolder extends RecyclerView.ViewHolder
     {
         private final ExerciseSetCardBinding binding;
 
-        ExerciseSetViewHolder(ExerciseSetCardBinding binding)
+        ExerciseSetViewHolder(ExerciseSetCardBinding binding, ExerciseSetAdapter exerciseSetAdapter)
         {
             super(binding.getRoot());
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
@@ -54,13 +60,24 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
                 }
                 binding.exerciseRepeatsField.setText(String.valueOf(repeats));
             });
+            binding.removeExerciseSetButton.setOnClickListener((View view) ->
+            {
+                final int position = getAdapterPosition();
+                exerciseSetAdapter.exerciseSets.remove(position);
+                exerciseSetAdapter.notifyItemRemoved(position);
+                if (exerciseSetAdapter.exerciseSets.size() <= 0)
+                {
+                    exerciseSetAdapter.checkForEmptyExercisesAction.execute();
+                }
+            });
             this.binding = binding;
         }
     }
 
-    ExerciseSetAdapter()
+    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesAction)
     {
         exerciseSets = null;
+        this.checkForEmptyExercisesAction = checkForEmptyExercisesAction;
     }
 
     @Override
@@ -79,7 +96,7 @@ class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.Exercis
     public @NonNull ExerciseSetViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
         ExerciseSetCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_set_card, viewGroup, false);
-        return new ExerciseSetViewHolder(binding);
+        return new ExerciseSetViewHolder(binding, this);
     }
 
     @Override

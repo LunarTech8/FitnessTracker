@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity
         });
         binding.nextWorkoutButton.setOnClickListener((View view) ->
         {
-            // TODO: implement, maybe instead make a changeWorkout dropdown or similar (with name and version as separate sliders)
+            // TODO: implement
         });
         binding.editModeButton.setOnClickListener((View view) ->
         {
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity
 
                 DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
-                    assert workoutInfo != null;
+                    assert workoutInfo != null;  // FIXME: workoutInfo is null after finish button when an exercise was removed
                     Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
                     binding.setWorkoutInfo(workoutInfo);
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->

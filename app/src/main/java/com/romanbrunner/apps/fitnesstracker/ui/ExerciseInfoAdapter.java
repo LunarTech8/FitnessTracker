@@ -4,6 +4,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -20,10 +21,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -42,11 +45,26 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         private final ExerciseCardBinding binding;
         private boolean isRecycled = true;
 
-        ExerciseInfoViewHolder(ExerciseCardBinding binding)
+        ExerciseInfoViewHolder(ExerciseCardBinding binding, ExerciseInfoAdapter exerciseInfoAdapter)
         {
             super(binding.getRoot());
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.setsBoard.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+            binding.addSetButton.setOnClickListener((View view) ->
+            {
+                final String exerciseInfoName = binding.getExerciseInfo().getName();
+                final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
+                assert exerciseSets != null;
+                final int lastExerciseSetIndex = exerciseSets.size() - 1;
+                if (lastExerciseSetIndex < 0)
+                {
+                    Log.e("ExerciseInfoViewHolder", "No exercise sets for " + exerciseInfoName + " stored");
+                }
+                final ExerciseSetEntity lastExerciseSet = exerciseSets.get(lastExerciseSetIndex);
+                exerciseSets.add(new ExerciseSetEntity(lastExerciseSet.getWorkoutUnitId(), exerciseInfoName, lastExerciseSet.getRepeats(), lastExerciseSet.getWeight()));
+                exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
+                exerciseInfoAdapter.notifyItemChanged(getAdapterPosition());
+            });
             this.binding = binding;
 
             // Create and add a text watcher to the name field:
@@ -103,6 +121,27 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = null;
     }
 
+    private void checkForEmptyExercises()
+    {
+        Log.d("removeEmptyExercise", "removeEmptyExercise called");
+        Set<Integer> removableExercisePositions = new HashSet<>();
+        for (int i = 0; i < exerciseInfo.size(); i++)
+        {
+            if (Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfo.get(i).getName())).size() <= 0)
+            {
+                removableExercisePositions.add(i);
+            }
+        }
+        for (int position : removableExercisePositions)
+        {
+            Log.d("removeEmptyExercise", "Empty exerciseSets in position " + position);
+            exerciseInfo2SetsMap.remove(exerciseInfo.get(position).getName());
+            exerciseInfo.remove(position);
+            adapters.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
+
     List<ExerciseInfoEntity> getExerciseInfo()
     {
         return exerciseInfo;
@@ -157,7 +196,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = new ArrayList<>(exerciseInfoCount);
         for (int i = 0; i < exerciseInfoCount; i++)
         {
-            adapters.add(new ExerciseSetAdapter());
+            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises));
         }
         // Load/Reload all views:
         notifyDataSetChanged();
@@ -179,7 +218,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     public @NonNull ExerciseInfoViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType)
     {
         ExerciseCardBinding binding = DataBindingUtil.inflate(LayoutInflater.from(viewGroup.getContext()), R.layout.exercise_card, viewGroup, false);
-        return new ExerciseInfoViewHolder(binding);
+        return new ExerciseInfoViewHolder(binding, this);
     }
 
     @Override
@@ -195,13 +234,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
         // Adjust adapter for exercise sets of targeted exercise info:
         ExerciseSetAdapter adapter = adapters.get(position);
-        List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoEntity.getName());
-        if (exerciseSets == null)
-        {
-            exerciseSets = new ArrayList<>(0);
-            Log.w("onBindViewHolder", "Empty exercise sets list for " + exerciseInfoEntity.getName());  // TODO: should probably never be called
-        }
-        adapter.setExerciseSets(exerciseSets);
+        adapter.setExerciseSets(Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfoEntity.getName())));
         exerciseInfoViewHolder.binding.setsBoard.setAdapter(adapter);
     }
 
