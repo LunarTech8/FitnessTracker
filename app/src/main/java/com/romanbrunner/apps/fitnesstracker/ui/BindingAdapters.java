@@ -1,5 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -115,10 +116,8 @@ public class BindingAdapters
     @BindingAdapter("android:layout_marginStart")
     public static void setLayoutMarginStart(View view, float marginStart)
     {
-        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-        // FIXME: make this work for marginStart
-        // https://stackoverflow.com/questions/34863729/how-to-bind-a-layout-width-and-layout-height-using-data-binding-in-android
-//        layoutParams.width = (int)marginStart;
+        ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams)view.getLayoutParams();
+        layoutParams.setMarginStart((int)marginStart);
         view.setLayoutParams(layoutParams);
     }
 }

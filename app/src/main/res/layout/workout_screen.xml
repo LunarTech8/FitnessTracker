@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="0dp"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@{@string/t_workoutInfoButtonText}"
+                    android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
                     android:textAllCaps="false"
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintEnd_toStartOf="@+id/dateField"
@@ -95,53 +95,6 @@
                 android:background="@drawable/border_small_angular"
                 app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
                 >
-
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:id="@+id/workoutNameRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
-                    android:layout_marginBottom="@dimen/comment_horizontal_margin_small"
-                    android:orientation="horizontal"
-                    >
-
-                    <TextView
-                        android:id="@+id/workoutNameLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/t_workoutNameLabel"
-                        android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
-
-                    <EditText
-                        android:id="@+id/workoutNameText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="@dimen/comment_horizontal_margin_small"
-                        android:paddingTop="0dp"
-                        android:autofillHints="text"
-                        android:hint="@string/h_emptyHint"
-                        android:inputType="textNoSuggestions"
-                        android:text="@{workoutInfo.name}"
-                        android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintStart_toEndOf="@+id/workoutNameLabel"
-                        app:layout_constraintEnd_toStartOf="@+id/workoutVersionText"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
-
-                    <TextView
-                        android:id="@+id/workoutVersionText"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{@string/t_workoutVersionText(workoutInfo.version)}"
-                        android:textSize="@dimen/comment_text_size"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        />
-
-                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/workoutDescriptionRow"

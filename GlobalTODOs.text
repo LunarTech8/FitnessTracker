@@ -20,8 +20,11 @@ Work status:
 // Programming:
 // -------------
 
-!!- Implement an "Add Set" and a "Remove Set" button at bottom of exercise card
-!!- Implement an "Add Exercise" button at bottom
+!!>>- Implement an "Add Set" button at bottom of exercise cards
+!!>>- Implement an "Add Exercise" button at bottom
+!!>>- Implement an "x" button at exercise cards to remove them
+!!>- Remove exercises when all their sets are removed
+!!>>- Implement an "Next Exercise" button
 !- Add option to switch between colour themes
 
 
@@ -29,8 +32,7 @@ Work status:
 // Application design:
 // -------------
 
-!!- Find a way to change between workouts (maybe via a slider in topBox)
-!!- Find a way to remove exercises
+!!>- Have a separate window to change between workouts and modify them
 !!- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Make dark colour theme work
 !- Add different exercise types (one for cardio, etc.)

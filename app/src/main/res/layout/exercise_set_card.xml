@@ -27,28 +27,39 @@
                 android:orientation="horizontal"
                 >
 
-                <Button
-                    android:id="@+id/removeExerciseSetButton"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
+                <CheckBox
+                    android:id="@+id/exerciseDoneCheckbox"
                     android:layout_width="@dimen/increment_button_size"
                     android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_removeExerciseSetButton"
+                    android:checked="@={exerciseSet.done}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{isEditModeActive}"
+                    app:visibleGone="@{!isEditModeActive}"
+                    />
+
+                <Button
+                    android:id="@+id/exerciseIncrementButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_exerciseIncrement"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/exerciseDoneCheckbox"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isEditModeActive}"
                     />
 
                 <TextView
                     android:id="@+id/exerciseWeightLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@{isEditModeActive ? @dimen/comment_horizontal_margin_large : @dimen/comment_horizontal_margin_small, default=@dimen/comment_horizontal_margin_large}"
+                    android:layout_marginStart="@{isEditModeActive ? @dimen/comment_horizontal_margin_small : @dimen/comment_horizontal_margin_large, default=@dimen/comment_horizontal_margin_large}"
                     android:text="@string/t_exerciseWeightLabel"
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/removeExerciseSetButton"
+                    app:layout_constraintStart_toEndOf="@+id/exerciseIncrementButton"
                     app:layout_constraintTop_toTopOf="parent"
                     />
 
@@ -92,29 +103,16 @@
                     app:layout_constraintTop_toTopOf="parent"
                     />
 
-                <CheckBox
-                    android:id="@+id/exerciseDoneCheckbox"
-                    android:layout_width="@dimen/increment_button_size"
-                    android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:checked="@={exerciseSet.done}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/exerciseIncrementButton"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isEditModeActive}"
-                    />
-
                 <Button
-                    android:id="@+id/exerciseIncrementButton"
+                    android:id="@+id/removeExerciseSetButton"
                     style="@android:style/Widget.Material.Light.Button.Inset"
                     android:layout_width="@dimen/increment_button_size"
                     android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
-                    android:text="@string/t_exerciseIncrement"
+                    android:text="@string/t_removeExerciseSetButton"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isEditModeActive}"
+                    app:visibleGone="@{isEditModeActive}"
                     />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
