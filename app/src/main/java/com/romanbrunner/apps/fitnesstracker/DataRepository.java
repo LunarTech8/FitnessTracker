@@ -55,7 +55,7 @@ public class DataRepository
         // Load newest workout unit and post its value into its observable as soon as the database is ready:
         executeOnceForLiveData(getNewestWorkoutUnit(), workoutUnit -> database.getDatabaseCreated().getValue() != null, workoutUnit ->
         {
-            assert workoutUnit != null;
+            if (workoutUnit == null) throw new AssertionError("object cannot be null");
             workoutUnit.setDate(new Date());  // Set to current date
             observableWorkoutUnit.postValue(workoutUnit);
         });
@@ -216,6 +216,11 @@ public class DataRepository
     public void setCurrentWorkout(WorkoutUnitEntity workoutUnitEntity)
     {
         observableWorkoutUnit.setValue(workoutUnitEntity);
+    }
+
+    public void deleteNewerWorkoutInfoVersions(String name, int version)
+    {
+        executor.execute(() -> database.workoutInfoDao().deleteNewerVersions(name, version));
     }
 
     public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)

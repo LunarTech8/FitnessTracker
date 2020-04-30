@@ -181,19 +181,28 @@
                 />
 
             <Button
-                android:id="@+id/debugLogButton"
+                android:id="@+id/debugPrintLogButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/t_debugLogButton"
+                android:text="@string/t_debugPrintLogButton"
                 android:visible="@bool/DEBUG"
                 app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
                 />
 
             <Button
-                android:id="@+id/debugResetButton"
+                android:id="@+id/debugRemoveWorkoutUnitsButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/t_debugResetButton"
+                android:text="@string/t_debugRemoveWorkoutUnitsButton"
+                android:visible="@bool/DEBUG"
+                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
+                />
+
+            <Button
+                android:id="@+id/debugResetWorkoutButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_debugResetWorkoutButton"
                 android:visible="@bool/DEBUG"
                 app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
                 />

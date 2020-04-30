@@ -38,4 +38,7 @@ public interface WorkoutInfoDao
 
     @Update
     void update(WorkoutInfoEntity... workoutInfo);
+
+    @Query("DELETE FROM WorkoutInfo WHERE name = :searchName AND version > :searchVersion")
+    void deleteNewerVersions(String searchName, int searchVersion);
 }

@@ -123,8 +123,13 @@ public class MainActivity extends AppCompatActivity
             binding.setIsEditModeActive(isEditModeActive);
             adapter.notifyDataSetChanged();
         });
-        binding.debugLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
-        binding.debugResetButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
+        binding.debugPrintLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
+        binding.debugRemoveWorkoutUnitsButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
+        binding.debugResetWorkoutButton.setOnClickListener((View view) ->
+        {
+            viewModel.removeDebugWorkoutUnits();
+            viewModel.resetWorkoutInfo(((WorkoutInfoEntity) binding.getWorkoutInfo()).getName());
+        });  // Button only visible in debugging build
         subscribeUi(viewModel);
     }
 
@@ -141,12 +146,12 @@ public class MainActivity extends AppCompatActivity
 
                 DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
-                    assert workoutInfo != null;  // FIXME: workoutInfo is null after finish button when an exercise was removed
+                    if (workoutInfo == null) throw new AssertionError("object cannot be null");
                     Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
                     binding.setWorkoutInfo(workoutInfo);
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                     {
-                        assert exerciseSetList != null;
+                        if (exerciseSetList == null) throw new AssertionError("object cannot be null");
                         Log.d("subscribeUi", "current getExerciseSets: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
                         Set<String> exerciseInfoNames = new HashSet<>();
                         for (ExerciseSetEntity exerciseSet: exerciseSetList)
@@ -155,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                         }
                         DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseInfoNames), exerciseInfoList ->
                         {
-                            assert exerciseInfoList != null;
+                            if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
                             Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
                             adapter.setExercise(binding.getWorkoutInfo().getExerciseInfoNames(), exerciseInfoList, exerciseSetList);
                             binding.setIsWorkoutLoading(false);

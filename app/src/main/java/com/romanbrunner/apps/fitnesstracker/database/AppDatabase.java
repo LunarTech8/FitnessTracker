@@ -136,25 +136,9 @@ public abstract class AppDatabase extends RoomDatabase
 
     private final MutableLiveData<Boolean> isDatabaseCreated = new MutableLiveData<>();
 
-    public static AppDatabase getInstance(final Context context, final AppExecutors executors)
-    {
-        if (instance == null)
-        {
-            synchronized (AppDatabase.class)
-            {
-                if (instance == null)
-                {
-                    instance = buildDatabase(context.getApplicationContext(), executors);
-                    instance.updateDatabaseCreated(context.getApplicationContext());
-                }
-            }
-        }
-        return instance;
-    }
-
     /* Build the database. {@link Builder#build()} only sets up the database configuration and creates a new instance of the database.
      * The SQLite database is only created when it's accessed for the first time. */
-    private static AppDatabase buildDatabase(final Context appContext, final AppExecutors executors)
+    private static AppDatabase buildDatabase(final Context context, final AppExecutors executors)
     {
         Callback callback = new Callback()
         {
@@ -165,7 +149,7 @@ public abstract class AppDatabase extends RoomDatabase
                 executors.getDiskIO().execute(() ->
                 {
                     // Initialize database:
-                    AppDatabase database = AppDatabase.getInstance(appContext, executors);
+                    AppDatabase database = AppDatabase.getInstance(context, executors);
                     database.runInTransaction(() ->
                     {
                         // Insert default info data:
@@ -183,7 +167,23 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(appContext, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2).build();
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2).build();
+    }
+
+    public static AppDatabase getInstance(final Context context, final AppExecutors executors)
+    {
+        if (instance == null)
+        {
+            synchronized (AppDatabase.class)
+            {
+                if (instance == null)
+                {
+                    instance = buildDatabase(context.getApplicationContext(), executors);
+                    instance.updateDatabaseCreated(context.getApplicationContext());
+                }
+            }
+        }
+        return instance;
     }
 
     /* Check whether the database already exists and expose it via {@link #getDatabaseCreated()}. */
@@ -195,13 +195,19 @@ public abstract class AppDatabase extends RoomDatabase
         }
     }
 
+    private void setDatabaseCreated()
+    {
+        isDatabaseCreated.postValue(true);
+    }
+
     public LiveData<Boolean> getDatabaseCreated()
     {
         return isDatabaseCreated;
     }
 
-    private void setDatabaseCreated()
+    public void deleteDatabase(final Context context)  // TODO: maybe not needed
     {
-        isDatabaseCreated.postValue(true);
+        context.deleteDatabase(DATABASE_NAME);
+        isDatabaseCreated.postValue(false);
     }
 }

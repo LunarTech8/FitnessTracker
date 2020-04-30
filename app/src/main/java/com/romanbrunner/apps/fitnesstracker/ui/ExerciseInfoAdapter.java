@@ -54,7 +54,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             {
                 final String exerciseInfoName = binding.getExerciseInfo().getName();
                 final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
-                assert exerciseSets != null;
+                if (exerciseSets == null) throw new AssertionError("object cannot be null");
                 final int lastExerciseSetIndex = exerciseSets.size() - 1;
                 if (lastExerciseSetIndex < 0)
                 {
