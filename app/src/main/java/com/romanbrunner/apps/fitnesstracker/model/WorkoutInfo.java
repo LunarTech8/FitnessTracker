@@ -10,6 +10,6 @@ public interface WorkoutInfo
 
     void setName(String name);
     void setVersion(int version);
-    void setDescription(String token);
+    void setDescription(String description);
     void setExerciseInfoNames(String exerciseInfoNames);
 }

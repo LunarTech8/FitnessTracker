@@ -109,7 +109,7 @@ public class ExerciseSetEntity implements ExerciseSet
         this.done = done;
     }
 
-    public ExerciseSetEntity() {}
+    ExerciseSetEntity() {}
     @Ignore
     public ExerciseSetEntity(int workoutUnitId, String exerciseInfoName, int repeats, float weight)
     {

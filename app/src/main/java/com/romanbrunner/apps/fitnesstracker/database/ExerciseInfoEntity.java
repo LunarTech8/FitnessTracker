@@ -2,6 +2,7 @@ package com.romanbrunner.apps.fitnesstracker.database;
 
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo;
@@ -40,7 +41,7 @@ public class ExerciseInfoEntity implements ExerciseInfo
     }
 
     @Override
-    public void setName(String name)
+    public void setName(@NonNull String name)
     {
         this.name = name;
     }
@@ -58,6 +59,11 @@ public class ExerciseInfoEntity implements ExerciseInfo
     }
 
     ExerciseInfoEntity() {}
+    @Ignore
+    public ExerciseInfoEntity(@NonNull String name)
+    {
+        this.name = name;
+    }
 
     public static boolean isContentTheSame(ExerciseInfo exerciseInfoA, ExerciseInfo exerciseInfoB)
     {

@@ -14,6 +14,9 @@ public class WorkoutInfoEntity implements WorkoutInfo
     // --------------------
     // Functional code
     // --------------------
+
+    public static final String EXERCISE_INFO_NAMES_DELIMITER = ";";
+
     @NonNull
     private String name = "InitNonNullName";
     private int version;

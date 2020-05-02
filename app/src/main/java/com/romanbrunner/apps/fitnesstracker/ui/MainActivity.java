@@ -74,17 +74,60 @@ public class MainActivity extends AppCompatActivity
         binding.setIsEditModeActive(isEditModeActive);
         binding.setIsTestModeActive(TEST_MODE_ACTIVE);
         binding.workoutInfoButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.nextWorkoutButton.setOnClickListener((View view) ->
+        {
+            // TODO: implement
+        });
+        binding.editModeButton.setOnClickListener((View view) ->
+        {
+            isEditModeActive = !isEditModeActive;
+            binding.setIsEditModeActive(isEditModeActive);
+            adapter.notifyDataSetChanged();
+        });
+        binding.addExerciseButton.setOnClickListener((View view) ->
+        {
+            // Create new exercise:
+            String newExerciseName = "NewExerciseName";
+            List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
+            int namePostfixCounter = 1;
+            boolean nameNotFound = true;
+            while (nameNotFound)
+            {
+                nameNotFound = false;
+                for (ExerciseInfoEntity exerciseInfo: newExerciseInfoList)
+                {
+                    if (Objects.equals(exerciseInfo.getName(), newExerciseName + namePostfixCounter))
+                    {
+                        nameNotFound = true;
+                        namePostfixCounter++;
+                        break;
+                    }
+                }
+            }
+            if (namePostfixCounter > 1)
+            {
+                newExerciseName += namePostfixCounter;
+            }
+            newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));
+            List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
+            newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getId(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
+            // Add new exercise to workout info and exercise adapter:
+            WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            workoutInfo.setExerciseInfoNames(workoutInfo.getExerciseInfoNames() + newExerciseName + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER);
+            adapter.setExercise(workoutInfo.getExerciseInfoNames(), newExerciseInfoList, newExerciseSetsList);
+            // TODO: the view should be scrolled to the bottom so that the new exercise entry is shown
+            // FIXME: when adding, removing and adding a new exercise it is displayed twice what causes problems
+        });
         binding.finishButton.setOnClickListener((View view) ->
         {
             WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-            WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-            // FIXME: user changes for workoutInfo fields are not seen here
             // Get newest workout info version:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
             {
+                WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
                 List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
                 // Check for requirement of a new version:
-                String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(";")) + ";";
+                String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER)) + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
                 int newVersion = -1;
                 if (newestWorkoutInfo == null)
                 {
@@ -112,16 +155,6 @@ public class MainActivity extends AppCompatActivity
                 // Finish workout:
                 viewModel.finishWorkout(workoutUnit, adapter.getExerciseSets());
             });
-        });
-        binding.nextWorkoutButton.setOnClickListener((View view) ->
-        {
-            // TODO: implement
-        });
-        binding.editModeButton.setOnClickListener((View view) ->
-        {
-            isEditModeActive = !isEditModeActive;
-            binding.setIsEditModeActive(isEditModeActive);
-            adapter.notifyDataSetChanged();
         });
         binding.debugPrintLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
         binding.debugRemoveWorkoutUnitsButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build

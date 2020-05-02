@@ -56,32 +56,33 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
+        final String delimiter = WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
         String exerciseInfoNames = "";
-        exerciseInfoNames += "Cross-Walker" + ";";
-        exerciseInfoNames += "Negativ-Crunch" + ";";
-        exerciseInfoNames += "Klimmzug breit zur Brust" + ";";
-        exerciseInfoNames += "Beinstrecker" + ";";
-        exerciseInfoNames += "Beinbeuger" + ";";
-        exerciseInfoNames += "Butterfly" + ";";
-        exerciseInfoNames += "Wadenheben an der Beinpresse" + ";";
-        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + ";";
-        exerciseInfoNames += "Bizepsmaschine" + ";";
-        exerciseInfoNames += "Pushdown am Kabelzug" + ";";
-        exerciseInfoNames += "Rückenstrecker" + ";";
-        exerciseInfoNames += "Crunch Bauchbank" + ";";
+        exerciseInfoNames += "Cross-Walker" + delimiter;
+        exerciseInfoNames += "Negativ-Crunch" + delimiter;
+        exerciseInfoNames += "Klimmzug breit zur Brust" + delimiter;
+        exerciseInfoNames += "Beinstrecker" + delimiter;
+        exerciseInfoNames += "Beinbeuger" + delimiter;
+        exerciseInfoNames += "Butterfly" + delimiter;
+        exerciseInfoNames += "Wadenheben an der Beinpresse" + delimiter;
+        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + delimiter;
+        exerciseInfoNames += "Bizepsmaschine" + delimiter;
+        exerciseInfoNames += "Pushdown am Kabelzug" + delimiter;
+        exerciseInfoNames += "Rückenstrecker" + delimiter;
+        exerciseInfoNames += "Crunch Bauchbank" + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseInfoNames + "')");
         exerciseInfoNames = "";
-        exerciseInfoNames += "Cross-Walker" + ";";
-        exerciseInfoNames += "Klimmzug breit zur Brust" + ";";
-        exerciseInfoNames += "Beinstrecker" + ";";
-        exerciseInfoNames += "Beinbeuger" + ";";
-        exerciseInfoNames += "Butterfly" + ";";
-        exerciseInfoNames += "Wadenheben an der Beinpresse" + ";";
-        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + ";";
-        exerciseInfoNames += "Bizepsmaschine" + ";";
-        exerciseInfoNames += "Pushdown am Kabelzug" + ";";
-        exerciseInfoNames += "Rückenstrecker" + ";";
-        exerciseInfoNames += "Crunch Bauchbank" + ";";
+        exerciseInfoNames += "Cross-Walker" + delimiter;
+        exerciseInfoNames += "Klimmzug breit zur Brust" + delimiter;
+        exerciseInfoNames += "Beinstrecker" + delimiter;
+        exerciseInfoNames += "Beinbeuger" + delimiter;
+        exerciseInfoNames += "Butterfly" + delimiter;
+        exerciseInfoNames += "Wadenheben an der Beinpresse" + delimiter;
+        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + delimiter;
+        exerciseInfoNames += "Bizepsmaschine" + delimiter;
+        exerciseInfoNames += "Pushdown am Kabelzug" + delimiter;
+        exerciseInfoNames += "Rückenstrecker" + delimiter;
+        exerciseInfoNames += "Crunch Bauchbank" + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseInfoNames + "')");
     }
 
