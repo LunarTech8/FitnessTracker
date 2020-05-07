@@ -63,6 +63,8 @@ public class ExerciseInfoEntity implements ExerciseInfo
     public ExerciseInfoEntity(@NonNull String name)
     {
         this.name = name;
+        token = "";
+        remarks = "";
     }
 
     public static boolean isContentTheSame(ExerciseInfo exerciseInfoA, ExerciseInfo exerciseInfoB)

@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         {
             // Create new exercise:
             String newExerciseName = "NewExerciseName";
-            List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
+            final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
             int namePostfixCounter = 1;
             boolean nameNotFound = true;
             while (nameNotFound)
@@ -104,19 +104,19 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             }
-            if (namePostfixCounter > 1)
-            {
-                newExerciseName += namePostfixCounter;
-            }
+            newExerciseName += namePostfixCounter;
             newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));
-            List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
+            final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
             newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getId(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout info and exercise adapter:
-            WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
             workoutInfo.setExerciseInfoNames(workoutInfo.getExerciseInfoNames() + newExerciseName + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER);
             adapter.setExercise(workoutInfo.getExerciseInfoNames(), newExerciseInfoList, newExerciseSetsList);
+            Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseInfoNames());  // DEBUG:
+            // FIXME: new added exercise seems to get lost on finish, is not in current getWorkoutInfo, thus version does not increase, but on next load it is in WorkoutInfo version 1
+            // FIXME: when adding -> removing -> adding a new exercise it is displayed twice what causes problems
             // TODO: the view should be scrolled to the bottom so that the new exercise entry is shown
-            // FIXME: when adding, removing and adding a new exercise it is displayed twice what causes problems
         });
         binding.finishButton.setOnClickListener((View view) ->
         {
@@ -124,10 +124,10 @@ public class MainActivity extends AppCompatActivity
             // Get newest workout info version:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
             {
-                WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-                List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+                final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+                final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
                 // Check for requirement of a new version:
-                String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER)) + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
+                final String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER)) + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
                 int newVersion = -1;
                 if (newestWorkoutInfo == null)
                 {
