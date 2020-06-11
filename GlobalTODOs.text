@@ -20,8 +20,10 @@ Work status:
 // Programming:
 // -------------
 
+!!>>- Implement next workout button
 !!>>>- Implement an "Add Exercise" button at bottom
 !!>>- Implement an "Next Exercise" button
+!!- Increase performance when scrolling through exercises
 !- Add option to switch between colour themes
 
 

@@ -136,6 +136,11 @@ public class MainViewModel extends AndroidViewModel
         return repository.getNewestWorkoutInfo(name);
     }
 
+    public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
+    {
+        return repository.getAllWorkoutInfo();
+    }
+
     public LiveData<List<ExerciseInfoEntity>> getExerciseInfo(Set<String> names)
     {
         return repository.getExerciseInfo(names);
@@ -176,10 +181,15 @@ public class MainViewModel extends AndroidViewModel
         repository.finishWorkout(oldWorkoutUnit, oldExerciseSets);
     }
 
+    public WorkoutUnitEntity changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
+    {
+        return repository.changeWorkout(newWorkoutInfo);
+    }
+
     public void printDebugLog()
     {
-        Log.i("printDebugLog", "--- DEBUG LOG ---");
-        if (MainActivity.DEBUG_LOG_MODE == 0)  // Observed workout units and exercise sets
+        Log.i("printDebugLog", "--- DEBUG LOG (" + MainActivity.debugLogMode + ") ---");
+        if (MainActivity.debugLogMode == 0)  // Observed workout units and exercise sets
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
@@ -188,12 +198,12 @@ public class MainViewModel extends AndroidViewModel
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
             });
         }
-        else if (MainActivity.DEBUG_LOG_MODE == 1)  // Stored workout units and exercise sets
+        else if (MainActivity.debugLogMode == 1)  // Stored workout units and exercise sets
         {
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
             DataRepository.executeOnceForLiveData(repository.getAllExerciseSets(), exerciseSets -> printExerciseSetsData("Stored exercise sets:", null, exerciseSets));
         }
-        else if (MainActivity.DEBUG_LOG_MODE == 2)  // Last stored workout unit and exercise sets
+        else if (MainActivity.debugLogMode == 2)  // Last stored workout unit and exercise sets
         {
             DataRepository.executeOnceForLiveData(repository.getLastWorkoutUnit(), workoutUnit ->
             {
@@ -202,11 +212,11 @@ public class MainViewModel extends AndroidViewModel
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
             });
         }
-        else if (MainActivity.DEBUG_LOG_MODE == 3)  // Stored workout units
+        else if (MainActivity.debugLogMode == 3)  // Stored workout units
         {
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
         }
-        else if (MainActivity.DEBUG_LOG_MODE == 4)  // Current workout info and exercise info
+        else if (MainActivity.debugLogMode == 4)  // Current workout info and exercise info
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
@@ -224,7 +234,7 @@ public class MainViewModel extends AndroidViewModel
                 });
             });
         }
-        else if (MainActivity.DEBUG_LOG_MODE == 5)  // Observed and stored workout units and exercise sets
+        else if (MainActivity.debugLogMode == 5)  // Observed and stored workout units and exercise sets
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
@@ -239,7 +249,7 @@ public class MainViewModel extends AndroidViewModel
 
     public void removeDebugWorkoutUnits()
     {
-        if (MainActivity.TEST_MODE_ACTIVE)
+        if (MainActivity.DEBUG_MODE_ACTIVE)
         {
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits ->
             {

@@ -22,6 +22,8 @@ import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -36,9 +38,9 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
-    public static final boolean TEST_MODE_ACTIVE = true;
+    public static final boolean DEBUG_MODE_ACTIVE = false;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
-    public static final int DEBUG_LOG_MODE = 4;
+    public static final int DEBUG_LOG_MAX_MODES = 5;
 
 
     // --------------------
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     // --------------------
 
     public static boolean isEditModeActive = false;
+    public static int debugLogMode = 4;
 
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
@@ -72,12 +75,46 @@ public class MainActivity extends AppCompatActivity
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
         binding.setIsEditModeActive(isEditModeActive);
-        binding.setIsTestModeActive(TEST_MODE_ACTIVE);
+        binding.setIsDebugModeActive(DEBUG_MODE_ACTIVE);
         binding.workoutInfoButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
-        binding.nextWorkoutButton.setOnClickListener((View view) ->
+        binding.nextWorkoutButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutInfo(), allWorkoutInfo ->
         {
-            // TODO: implement
-        });
+            if (allWorkoutInfo == null) throw new AssertionError("object cannot be null");
+            final WorkoutInfoEntity currentWorkoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            // Get all workout info names:
+            Set<String> workoutNames = new LinkedHashSet<>();
+            for (WorkoutInfoEntity workoutInfo: allWorkoutInfo)
+            {
+                workoutNames.add(workoutInfo.getName());  // Duplicate names will automatically be ignored in a Set
+            }
+            // Get new workout info name:
+            String newWorkoutName = currentWorkoutInfo.getName();
+            Iterator<String> iterator = workoutNames.iterator();
+            while(iterator.hasNext())
+            {
+                if (Objects.equals(iterator.next(), currentWorkoutInfo.getName()))
+                {
+                    if (iterator.hasNext())
+                    {
+                        newWorkoutName = iterator.next();
+                    }
+                    else
+                    {
+                        newWorkoutName = workoutNames.iterator().next();
+                    }
+                    break;
+                }
+            }
+            Log.d("onCreate", "new workout info name: " + newWorkoutName);  // DEBUG:
+            // Change workout to new workout info:
+            DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(newWorkoutName), newWorkoutInfo ->
+            {
+                if (newWorkoutInfo == null) throw new AssertionError("object cannot be null");
+                binding.setWorkoutInfo(newWorkoutInfo);
+                binding.setWorkoutUnit(viewModel.changeWorkout(newWorkoutInfo));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            });
+        }));
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
@@ -156,14 +193,21 @@ public class MainActivity extends AppCompatActivity
                 viewModel.finishWorkout(workoutUnit, adapter.getExerciseSets());
             });
         });
-        binding.debugPrintLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());  // Button only visible in debugging build
-        binding.debugRemoveWorkoutUnitsButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());  // Button only visible in debugging build
+        subscribeUi(viewModel);
+
+        // Add debug button listeners:
+        // (Buttons only visible in debugging build)
+        binding.debugPrintLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());
+        binding.debugNextLogModeButton.setOnClickListener((View view) ->
+        {
+            if (++debugLogMode > DEBUG_LOG_MAX_MODES) { debugLogMode = 0; }
+        });
+        binding.debugRemoveWorkoutUnitsButton.setOnClickListener((View view) -> viewModel.removeDebugWorkoutUnits());
         binding.debugResetWorkoutButton.setOnClickListener((View view) ->
         {
             viewModel.removeDebugWorkoutUnits();
             viewModel.resetWorkoutInfo(((WorkoutInfoEntity) binding.getWorkoutInfo()).getName());
-        });  // Button only visible in debugging build
-        subscribeUi(viewModel);
+        });
     }
 
     // Update the layout binding when the data in the view model changes:

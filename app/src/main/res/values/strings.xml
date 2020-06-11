@@ -14,6 +14,7 @@
     <string name="t_nextWorkoutButton">Next workout</string>
     <string name="t_editModeButton">Switch edit mode</string>
     <string name="t_debugPrintLogButton">Print debug log</string>
+    <string name="t_debugNextLogModeButton">Next debug log mode</string>
     <string name="t_debugRemoveWorkoutUnitsButton">Remove debug workout units</string>
     <string name="t_debugResetWorkoutButton">Reset current workout</string>
     <string name="t_addExerciseButton">Add new exercise</string>

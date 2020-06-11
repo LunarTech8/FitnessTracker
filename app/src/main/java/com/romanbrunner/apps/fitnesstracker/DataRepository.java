@@ -18,6 +18,7 @@ import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -116,6 +117,11 @@ public class DataRepository
         return database.workoutInfoDao().loadNewestByName(name);
     }
 
+    public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
+    {
+        return database.workoutInfoDao().loadAll();
+    }
+
     public LiveData<List<ExerciseInfoEntity>> getExerciseInfo(Set<String> names)
     {
         return database.exerciseInfoDao().loadByNames(names);
@@ -128,7 +134,7 @@ public class DataRepository
 
     private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit()
     {
-        if (MainActivity.TEST_MODE_ACTIVE)
+        if (MainActivity.DEBUG_MODE_ACTIVE)
         {
             return database.workoutUnitDao().loadNewestDebug();
         }
@@ -140,7 +146,7 @@ public class DataRepository
 
     public LiveData<WorkoutUnitEntity> getLastWorkoutUnit()
     {
-        if (MainActivity.TEST_MODE_ACTIVE)
+        if (MainActivity.DEBUG_MODE_ACTIVE)
         {
             return database.workoutUnitDao().loadLastDebug();
         }
@@ -152,7 +158,7 @@ public class DataRepository
 
     public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
     {
-        if (MainActivity.TEST_MODE_ACTIVE)
+        if (MainActivity.DEBUG_MODE_ACTIVE)
         {
             return database.workoutUnitDao().loadAllDebug();
         }
@@ -169,7 +175,7 @@ public class DataRepository
 
     public LiveData<List<ExerciseSetEntity>> getAllExerciseSets()
     {
-        if (MainActivity.TEST_MODE_ACTIVE)
+        if (MainActivity.DEBUG_MODE_ACTIVE)
         {
             return database.exerciseSetDao().loadAllDebug();
         }
@@ -252,5 +258,24 @@ public class DataRepository
         });
         // Adjust current workout unit:
         observableWorkoutUnit.setValue(newWorkoutUnit);
+    }
+
+    public WorkoutUnitEntity changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
+    {
+        final int newWorkoutId = Objects.requireNonNull(observableWorkoutUnit.getValue()).getId() + 1;  // TODO: maybe don't use getValue()
+        // Create new entries:
+        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(newWorkoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
+        List<ExerciseSetEntity> newExercises = new ArrayList<>();
+//        newExercises.add(new ExerciseSetEntity(newWorkoutId, ...));  // TODO: expand/rewrite createDefaultWorkoutUnit to have a default workout unit for each workout info
+        // FIXME: finish implementation
+        // Insert new entries:
+        executor.execute(() ->
+        {
+            database.workoutUnitDao().insert(newWorkoutUnit);
+            database.exerciseSetDao().insert(newExercises);
+        });
+        // Adjust current workout unit:
+        observableWorkoutUnit.setValue(newWorkoutUnit);
+        return newWorkoutUnit;
     }
 }

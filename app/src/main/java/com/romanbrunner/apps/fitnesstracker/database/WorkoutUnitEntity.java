@@ -75,7 +75,7 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     WorkoutUnitEntity() {}
     @Ignore
-    WorkoutUnitEntity(int id, String workoutInfoName, int workoutInfoVersion)
+    public WorkoutUnitEntity(int id, String workoutInfoName, int workoutInfoVersion)
     {
         this.id = id;
         this.workoutInfoName = workoutInfoName;

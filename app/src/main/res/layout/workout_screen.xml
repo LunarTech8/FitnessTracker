@@ -6,7 +6,7 @@
     >
 
     <data>
-        <variable name="isTestModeActive" type="boolean" />
+        <variable name="isDebugModeActive" type="boolean" />
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isEditModeActive" type="boolean" />
@@ -186,7 +186,16 @@
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugPrintLogButton"
                 android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
+                app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
+                />
+
+            <Button
+                android:id="@+id/debugNextLogModeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_debugNextLogModeButton"
+                android:visible="@bool/DEBUG"
+                app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
                 />
 
             <Button
@@ -195,7 +204,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugRemoveWorkoutUnitsButton"
                 android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
+                app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
                 />
 
             <Button
@@ -204,7 +213,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugResetWorkoutButton"
                 android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized ? isTestModeActive : false}"
+                app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
                 />
 
         </LinearLayout>
