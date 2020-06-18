@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -102,7 +103,54 @@ public abstract class AppDatabase extends RoomDatabase
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
     }
 
-    private static void createDefaultWorkoutUnit(final AppDatabase database, int workoutUnitId)
+    public static void createDefaultExercise(final List<ExerciseSetEntity> exerciseSetList, int workoutUnitId, String exerciseInfoName)
+    {
+        switch (exerciseInfoName)
+        {
+            case "Cross-Walker":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F));
+                break;
+            case "Negativ-Crunch":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 20, 0.F));
+                break;
+            case "Klimmzug breit zur Brust":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F));
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 6, 0.F));
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 4, 0.F));
+                break;
+            case "Beinstrecker":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 15, 40.F));
+                break;
+            case "Beinbeuger":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 16, 40.F));
+                break;
+            case "Butterfly":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F));
+                break;
+            case "Wadenheben an der Beinpresse":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 110.F));
+                break;
+            case "Duale Schrägband-Drückmaschine":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 30.F));
+                break;
+            case "Bizepsmaschine":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F));
+                break;
+            case "Pushdown am Kabelzug":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 20.F));
+                break;
+            case "Rückenstrecker":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 21, 0.F));
+                break;
+            case "Crunch Bauchbank":
+                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 0.F));
+                break;
+            default:
+                Log.e("createDefaultExerciseSets", "Unrecognized exerciseInfoName (" + exerciseInfoName + ")");
+        }
+    }
+
+    private static void createDefaultWorkout(final AppDatabase database, int workoutUnitId)
     {
         database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
         List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
@@ -120,6 +168,7 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Pushdown am Kabelzug", 17, 20.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Rückenstrecker", 21, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Crunch Bauchbank", 19, 0.F));
+        // TODO: maybe createDefaultExerciseSets can be used here
         database.exerciseSetDao().insert(exerciseSetList);
     }
 
@@ -158,10 +207,10 @@ public abstract class AppDatabase extends RoomDatabase
                         insertDefaultExerciseInfo(db);
 
                         // Create first workout unit:
-                        createDefaultWorkoutUnit(database, 0);
+                        createDefaultWorkout(database, 0);
 
                         // Create first debugging workout unit:
-                        createDefaultWorkoutUnit(database, MainActivity.DEBUG_WORKOUT_MIN_ID);
+                        createDefaultWorkout(database, MainActivity.DEBUG_WORKOUT_MIN_ID);
                     });
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.romanbrunner.apps.fitnesstracker.R;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
+import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.ArrayList;
@@ -155,7 +156,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         Log.d("setExerciseInfo", "setExerciseInfo is called and reset");  // DEBUG:
         // Get sorted list:
         final List<ExerciseInfoEntity> sortedExerciseInfo = new ArrayList<>(getItemCount());
-        for (String exerciseInfoName : sortedExerciseInfoNames.split(";"))
+        for (String exerciseInfoName : WorkoutInfoEntity.exerciseInfoNames2Array(sortedExerciseInfoNames))
         {
             boolean targetNotFound = true;
             for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)

@@ -73,6 +73,11 @@ public class WorkoutInfoEntity implements WorkoutInfo
 
     WorkoutInfoEntity() {}
 
+    public static String[] exerciseInfoNames2Array(String exerciseInfoNames)
+    {
+        return exerciseInfoNames.split(";");
+    }
+
     public static boolean isContentTheSame(WorkoutInfo workoutInfoA, WorkoutInfo workoutInfoB)
     {
         return Objects.equals(workoutInfoA.getName(), workoutInfoB.getName())

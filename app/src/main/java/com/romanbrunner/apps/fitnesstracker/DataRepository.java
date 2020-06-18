@@ -266,7 +266,10 @@ public class DataRepository
         // Create new entries:
         WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(newWorkoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
         List<ExerciseSetEntity> newExercises = new ArrayList<>();
-//        newExercises.add(new ExerciseSetEntity(newWorkoutId, ...));  // TODO: expand/rewrite createDefaultWorkoutUnit to have a default workout unit for each workout info
+        for (String exerciseInfoName : WorkoutInfoEntity.exerciseInfoNames2Array(newWorkoutInfo.getExerciseInfoNames()))
+        {
+            AppDatabase.createDefaultExercise(newExercises, newWorkoutId, exerciseInfoName);
+        }
         // FIXME: finish implementation
         // Insert new entries:
         executor.execute(() ->
