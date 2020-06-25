@@ -262,18 +262,19 @@ public class DataRepository
 
     public WorkoutUnitEntity changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
-        final int newWorkoutId = Objects.requireNonNull(observableWorkoutUnit.getValue()).getId() + 1;  // TODO: maybe don't use getValue()
+        WorkoutUnitEntity currentWorkoutUnit = Objects.requireNonNull(observableWorkoutUnit.getValue());  // TODO: maybe don't use getValue()
+        final int workoutId = currentWorkoutUnit.getId();
         // Create new entries:
-        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(newWorkoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
+        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
         List<ExerciseSetEntity> newExercises = new ArrayList<>();
         for (String exerciseInfoName : WorkoutInfoEntity.exerciseInfoNames2Array(newWorkoutInfo.getExerciseInfoNames()))
         {
-            AppDatabase.createDefaultExercise(newExercises, newWorkoutId, exerciseInfoName);
+            AppDatabase.createDefaultExercise(newExercises, workoutId, exerciseInfoName);
         }
-        // FIXME: finish implementation
-        // Insert new entries:
+        // Delete current workout and insert new entries:
         executor.execute(() ->
         {
+            database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });

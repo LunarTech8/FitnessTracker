@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
-    public static final boolean DEBUG_MODE_ACTIVE = false;
+    public static final boolean DEBUG_MODE_ACTIVE = true;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
     public static final int DEBUG_LOG_MAX_MODES = 5;
 

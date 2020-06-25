@@ -57,5 +57,7 @@ public interface WorkoutUnitDao
     void update(WorkoutUnitEntity... workoutUnits);
 
     @Delete
+    void delete(WorkoutUnitEntity... workoutUnit);
+    @Delete
     void delete(List<WorkoutUnitEntity> workoutUnits);
 }
