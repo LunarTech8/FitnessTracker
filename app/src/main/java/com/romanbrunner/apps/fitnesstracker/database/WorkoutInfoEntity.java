@@ -5,7 +5,9 @@ import androidx.room.Entity;
 
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo;
 
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 @Entity(primaryKeys = {"name", "version"}, tableName = "workoutInfo")
@@ -76,6 +78,11 @@ public class WorkoutInfoEntity implements WorkoutInfo
     public static String[] exerciseInfoNames2Array(String exerciseInfoNames)
     {
         return exerciseInfoNames.split(";");
+    }
+
+    public static String exerciseInfoList2Names(List<ExerciseInfoEntity> exerciseInfo)
+    {
+        return exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER)) + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
     }
 
     public static boolean isContentTheSame(WorkoutInfo workoutInfoA, WorkoutInfo workoutInfoB)

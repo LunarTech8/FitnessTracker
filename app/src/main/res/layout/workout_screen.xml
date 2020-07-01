@@ -165,19 +165,19 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/nextWorkoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_nextWorkoutButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
-                />
-
-            <Button
                 android:id="@+id/editModeButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_editModeButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isWorkoutLoading : false}"
+                app:visibleGone="@{!isTopBoxMinimized}"
+                />
+
+            <Button
+                android:id="@+id/nextWorkoutButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_nextWorkoutButton"
+                app:visibleGone="@{!isTopBoxMinimized ? !isEditModeActive : false}"
                 />
 
             <Button
@@ -265,7 +265,7 @@
                 android:text="@string/t_finishButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:visibleGone="@{!isWorkoutLoading}"
+                app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

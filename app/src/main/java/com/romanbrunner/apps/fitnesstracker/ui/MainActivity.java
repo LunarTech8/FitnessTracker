@@ -120,6 +120,45 @@ public class MainActivity extends AppCompatActivity
             isEditModeActive = !isEditModeActive;
             binding.setIsEditModeActive(isEditModeActive);
             adapter.notifyDataSetChanged();
+            if (!isEditModeActive)
+            {
+                WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                // Get newest workout info version:
+                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
+                {
+                    final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+                    final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+                    // Check for requirement of a new version:
+                    final String exerciseInfoNames = WorkoutInfoEntity.exerciseInfoList2Names(exerciseInfo);
+                    // TODO: Amount of exercise sets for each exercise info should also be stored in exerciseInfoNames
+                    int newVersion = -1;
+                    if (newestWorkoutInfo == null)
+                    {
+                        newVersion = 0;
+                    }
+                    else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
+                    {
+                        newVersion = newestWorkoutInfo.getVersion() + 1;
+                    }
+                    // Create new workout info version if required:
+                    if (newVersion >= 0)
+                    {
+                        Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
+                        Log.d("onCreate", "new exercise info names: " + exerciseInfoNames);  // DEBUG:
+                        // Adjust workout info:
+                        workoutInfo.setVersion(newVersion);
+                        workoutInfo.setExerciseInfoNames(exerciseInfoNames);
+                        binding.setWorkoutInfo(workoutInfo);
+                        Log.d("onCreate", "new workout info version created: V" + workoutInfo.getVersion());  // DEBUG:
+                        // Adjust workout unit:
+                        workoutUnit.setWorkoutInfoVersion(newVersion);
+                    }
+                    // Store current info data:
+                    viewModel.storeWorkoutInfo(Collections.singletonList(workoutInfo));
+                    viewModel.storeExerciseInfo(exerciseInfo);
+                });
+            }
+            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
         });
         binding.addExerciseButton.setOnClickListener((View view) ->
         {
@@ -153,45 +192,13 @@ public class MainActivity extends AppCompatActivity
             Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseInfoNames());  // DEBUG:
             // FIXME: new added exercise seems to get lost on finish, is not in current getWorkoutInfo, thus version does not increase, but on next load it is in WorkoutInfo version 1
             // FIXME: when adding -> removing -> adding a new exercise it is displayed twice what causes problems
+
             // TODO: the view should be scrolled to the bottom so that the new exercise entry is shown
         });
         binding.finishButton.setOnClickListener((View view) ->
         {
-            WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-            // Get newest workout info version:
-            DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
-            {
-                final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-                final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
-                // Check for requirement of a new version:
-                final String exerciseInfoNames = exerciseInfo.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER)) + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
-                int newVersion = -1;
-                if (newestWorkoutInfo == null)
-                {
-                    newVersion = 0;
-                }
-                else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
-                {
-                    newVersion = newestWorkoutInfo.getVersion() + 1;
-                }
-                // Create new workout info version if required:
-                if (newVersion >= 0)
-                {
-                    Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
-                    Log.d("onCreate", "new exercise info names: " + exerciseInfoNames);  // DEBUG:
-                    // Adjust workout info:
-                    workoutInfo.setVersion(newVersion);
-                    workoutInfo.setExerciseInfoNames(exerciseInfoNames);
-                    Log.d("onCreate", "new workout info version created: V" + workoutInfo.getVersion());  // DEBUG:
-                    // Adjust workout unit:
-                    workoutUnit.setWorkoutInfoVersion(newVersion);
-                }
-                // Store current info data:
-                viewModel.storeWorkoutInfo(Collections.singletonList(workoutInfo));
-                viewModel.storeExerciseInfo(exerciseInfo);
-                // Finish workout:
-                viewModel.finishWorkout(workoutUnit, adapter.getExerciseSets());
-            });
+            viewModel.storeExerciseInfo(adapter.getExerciseInfo());
+            viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), adapter.getExerciseSets());
         });
         subscribeUi(viewModel);
 
