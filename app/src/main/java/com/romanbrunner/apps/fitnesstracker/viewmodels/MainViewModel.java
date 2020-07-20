@@ -57,7 +57,7 @@ public class MainViewModel extends AndroidViewModel
                 Log.i("printWorkoutInfoData", "WorkoutInfo -> Name: " + workout.getName() + ", ");
                 Log.i("printWorkoutInfoData", "Version: " + workout.getVersion() + ", ");
                 Log.i("printWorkoutInfoData", "Description: " + workout.getDescription() + ", ");
-                Log.i("printWorkoutInfoData", "ExerciseInfoNames: " + workout.getExerciseInfoNames() + "\n");
+                Log.i("printWorkoutInfoData", "ExerciseInfoNames: " + workout.getExerciseNames() + "\n");
             }
         }
         else if (nullMessage != null)

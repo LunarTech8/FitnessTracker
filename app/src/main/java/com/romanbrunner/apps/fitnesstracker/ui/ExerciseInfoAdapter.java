@@ -153,15 +153,15 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     void setExercise(@NonNull final String sortedExerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
-        Log.d("setExerciseInfo", "setExerciseInfo is called and reset");  // DEBUG:
+        Log.d("setExercise", "setExercise is called and reset");  // DEBUG:
         // Get sorted list:
         final List<ExerciseInfoEntity> sortedExerciseInfo = new ArrayList<>(getItemCount());
-        for (String exerciseInfoName : WorkoutInfoEntity.exerciseInfoNames2Array(sortedExerciseInfoNames))
+        for (String exerciseName : WorkoutInfoEntity.exerciseNames2UniqueNamesArray(sortedExerciseInfoNames))
         {
             boolean targetNotFound = true;
             for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
             {
-                if (Objects.equals(exerciseInfoEntity.getName(), exerciseInfoName))
+                if (Objects.equals(exerciseInfoEntity.getName(), exerciseName))
                 {
                     sortedExerciseInfo.add(exerciseInfoEntity);
                     targetNotFound = false;
@@ -170,7 +170,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             if (targetNotFound)
             {
-                Log.e("sortExerciseInfo", "Could not find " + exerciseInfoName + " in exerciseInfo");
+                Log.e("setExercise", "Could not find " + exerciseName + " in exerciseInfo");
             }
         }
         // Set exerciseInfo2SetsMap:

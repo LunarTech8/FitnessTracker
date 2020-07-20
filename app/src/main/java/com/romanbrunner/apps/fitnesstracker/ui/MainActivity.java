@@ -127,27 +127,25 @@ public class MainActivity extends AppCompatActivity
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
                 {
                     final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-                    final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
                     // Check for requirement of a new version:
-                    final String exerciseInfoNames = WorkoutInfoEntity.exerciseInfoList2Names(exerciseInfo);
-                    // TODO: Amount of exercise sets for each exercise info should also be stored in exerciseInfoNames
+                    final String newExerciseNames = WorkoutInfoEntity.exerciseSets2exerciseNames(adapter.getExerciseSets());
                     int newVersion = -1;
                     if (newestWorkoutInfo == null)
                     {
                         newVersion = 0;
                     }
-                    else if (!Objects.equals(exerciseInfoNames, workoutInfo.getExerciseInfoNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
+                    else if (!Objects.equals(newExerciseNames, workoutInfo.getExerciseNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
                     {
                         newVersion = newestWorkoutInfo.getVersion() + 1;
                     }
                     // Create new workout info version if required:
                     if (newVersion >= 0)
                     {
-                        Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
-                        Log.d("onCreate", "new exercise info names: " + exerciseInfoNames);  // DEBUG:
+                        Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
+                        Log.d("onCreate", "new exercise info names: " + newExerciseNames);  // DEBUG:
                         // Adjust workout info:
                         workoutInfo.setVersion(newVersion);
-                        workoutInfo.setExerciseInfoNames(exerciseInfoNames);
+                        workoutInfo.setExerciseNames(newExerciseNames);
                         binding.setWorkoutInfo(workoutInfo);
                         Log.d("onCreate", "new workout info version created: V" + workoutInfo.getVersion());  // DEBUG:
                         // Adjust workout unit:
@@ -155,7 +153,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     // Store current info data:
                     viewModel.storeWorkoutInfo(Collections.singletonList(workoutInfo));
-                    viewModel.storeExerciseInfo(exerciseInfo);
+                    viewModel.storeExerciseInfo(adapter.getExerciseInfo());
                 });
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
@@ -186,10 +184,10 @@ public class MainActivity extends AppCompatActivity
             newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getId(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout info and exercise adapter:
             final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-            Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
-            workoutInfo.setExerciseInfoNames(workoutInfo.getExerciseInfoNames() + newExerciseName + WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER);
-            adapter.setExercise(workoutInfo.getExerciseInfoNames(), newExerciseInfoList, newExerciseSetsList);
-            Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseInfoNames());  // DEBUG:
+            Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
+            workoutInfo.setExerciseNames(WorkoutInfoEntity.exerciseSets2exerciseNames(newExerciseSetsList));
+            adapter.setExercise(workoutInfo.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
+            Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseNames());  // DEBUG:
             // FIXME: new added exercise seems to get lost on finish, is not in current getWorkoutInfo, thus version does not increase, but on next load it is in WorkoutInfo version 1
             // FIXME: when adding -> removing -> adding a new exercise it is displayed twice what causes problems
 
@@ -202,7 +200,7 @@ public class MainActivity extends AppCompatActivity
         });
         subscribeUi(viewModel);
 
-        // Add debug button listeners:
+        // Add debugging button listeners:
         // (Buttons only visible in debugging build)
         binding.debugPrintLogButton.setOnClickListener((View view) -> viewModel.printDebugLog());
         binding.debugNextLogModeButton.setOnClickListener((View view) ->
@@ -231,7 +229,7 @@ public class MainActivity extends AppCompatActivity
                 DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
                     if (workoutInfo == null) throw new AssertionError("object cannot be null");
-                    Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseInfoNames());  // DEBUG:
+                    Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
                     binding.setWorkoutInfo(workoutInfo);
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                     {
@@ -246,7 +244,7 @@ public class MainActivity extends AppCompatActivity
                         {
                             if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
                             Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
-                            adapter.setExercise(binding.getWorkoutInfo().getExerciseInfoNames(), exerciseInfoList, exerciseSetList);
+                            adapter.setExercise(binding.getWorkoutInfo().getExerciseNames(), exerciseInfoList, exerciseSetList);
                             binding.setIsWorkoutLoading(false);
                             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
                         });

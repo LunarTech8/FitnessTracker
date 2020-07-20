@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 2)
+@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 3)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -54,10 +54,21 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("DROP TABLE `exercises`");
         }
     };
+    private static final Migration MIGRATION_2_3 = new Migration(2, 3)
+    {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
+            database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`name`, `version`))");
+            database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) SELECT `name`, `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old`");
+            database.execSQL("DROP TABLE `workoutInfo_old`");
+        }
+    };
 
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
-        final String delimiter = WorkoutInfoEntity.EXERCISE_INFO_NAMES_DELIMITER;
+        final String delimiter = WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER;
         String exerciseInfoNames = "";
         exerciseInfoNames += "Cross-Walker" + delimiter;
         exerciseInfoNames += "Negativ-Crunch" + delimiter;
@@ -103,6 +114,7 @@ public abstract class AppDatabase extends RoomDatabase
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
     }
 
+    @SuppressWarnings("DuplicateBranchesInSwitch")
     public static void createDefaultExercise(final List<ExerciseSetEntity> exerciseSetList, int workoutUnitId, String exerciseInfoName)
     {
         switch (exerciseInfoName)
@@ -154,21 +166,18 @@ public abstract class AppDatabase extends RoomDatabase
     {
         database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
         List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Cross-Walker", 8, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Negativ-Crunch", 20, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 8, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 6, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 4, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Beinstrecker", 15, 40.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Beinbeuger", 16, 40.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Butterfly", 17, 35.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Wadenheben an der Beinpresse", 19, 110.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Duale Schrägband-Drückmaschine", 17, 30.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Bizepsmaschine", 17, 35.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Pushdown am Kabelzug", 17, 20.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Rückenstrecker", 21, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Crunch Bauchbank", 19, 0.F));
-        // TODO: maybe createDefaultExerciseSets can be used here
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Cross-Walker");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Negativ-Crunch");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Klimmzug breit zur Brust");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Beinstrecker");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Beinbeuger");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Butterfly");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Wadenheben an der Beinpresse");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Duale Schrägband-Drückmaschine");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Bizepsmaschine");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Pushdown am Kabelzug");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Rückenstrecker");
+        createDefaultExercise(exerciseSetList, workoutUnitId, "Crunch Bauchbank");
         database.exerciseSetDao().insert(exerciseSetList);
     }
 
@@ -217,7 +226,7 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2).build();
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build();
     }
 
     public static AppDatabase getInstance(final Context context, final AppExecutors executors)
