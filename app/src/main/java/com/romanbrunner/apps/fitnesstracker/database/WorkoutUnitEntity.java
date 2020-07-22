@@ -83,9 +83,9 @@ public class WorkoutUnitEntity implements WorkoutUnit
         date = new Date();  // Current date
     }
     @Ignore
-    public WorkoutUnitEntity(WorkoutUnit workoutUnit)
+    public WorkoutUnitEntity(WorkoutUnit workoutUnit, int workoutId)
     {
-        this(workoutUnit.getId() + 1, workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion());  // Increment Id by one
+        this(workoutId, workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion());
     }
 
     public static boolean isContentTheSame(WorkoutUnit workoutUnitA, WorkoutUnit workoutUnitB)

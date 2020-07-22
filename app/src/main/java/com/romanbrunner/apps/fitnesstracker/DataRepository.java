@@ -18,7 +18,6 @@ import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -143,6 +142,17 @@ public class DataRepository
             return database.workoutUnitDao().loadNewestNormal();
         }
     }
+    private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit(String workoutInfoName, int workoutInfoVersion)
+    {
+        if (MainActivity.DEBUG_MODE_ACTIVE)
+        {
+            return database.workoutUnitDao().loadNewestByWorkoutInfoDebug(workoutInfoName, workoutInfoVersion);
+        }
+        else
+        {
+            return database.workoutUnitDao().loadNewestByWorkoutInfoNormal(workoutInfoName, workoutInfoVersion);
+        }
+    }
 
     public LiveData<WorkoutUnitEntity> getLastWorkoutUnit()
     {
@@ -243,7 +253,7 @@ public class DataRepository
             database.exerciseSetDao().update(oldExerciseSets);
         });
         // Clone new entries:
-        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
+        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, oldWorkoutUnit.getId() + 1);  // Increment Id by one
         List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
         final int newWorkoutId = newWorkoutUnit.getId();
         for (ExerciseSetEntity exercise : oldExerciseSets)
@@ -260,26 +270,38 @@ public class DataRepository
         observableWorkoutUnit.setValue(newWorkoutUnit);
     }
 
-    public WorkoutUnitEntity changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
+    public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
-        WorkoutUnitEntity currentWorkoutUnit = Objects.requireNonNull(observableWorkoutUnit.getValue());  // TODO: maybe don't use getValue()
-        final int workoutId = currentWorkoutUnit.getId();
-        // Create new entries:
-        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
-        List<ExerciseSetEntity> newExercises = new ArrayList<>();
-        for (String exerciseInfoName : WorkoutInfoEntity.exerciseNames2UniqueNamesArray(newWorkoutInfo.getExerciseNames()))
+        DataRepository.executeOnceForLiveData(observableWorkoutUnit, currentWorkoutUnit ->
         {
-            AppDatabase.createDefaultExercise(newExercises, workoutId, exerciseInfoName);
-        }
-        // Delete current workout and insert new entries:
-        executor.execute(() ->
-        {
-            database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
-            database.workoutUnitDao().insert(newWorkoutUnit);
-            database.exerciseSetDao().insert(newExercises);
+            if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
+            final int workoutId = currentWorkoutUnit.getId();
+            // Create new entries:
+            DataRepository.executeOnceForLiveData(getNewestWorkoutUnit(newWorkoutInfo.getName(), newWorkoutInfo.getVersion()), oldWorkoutUnit ->
+            {
+                if (oldWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                // Clone new entries:
+                final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, workoutId);
+                DataRepository.executeOnceForLiveData(getExerciseSets(oldWorkoutUnit), oldExerciseSets ->
+                {
+                    if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
+                    List<ExerciseSetEntity> newExercises = new ArrayList<>();
+                    for (ExerciseSetEntity exercise : oldExerciseSets)
+                    {
+                        newExercises.add(new ExerciseSetEntity(exercise, workoutId));
+                    }
+                    // Delete current workout and insert new entries:
+                    executor.execute(() ->
+                    {
+                        database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
+                        database.workoutUnitDao().insert(newWorkoutUnit);
+                        database.exerciseSetDao().insert(newExercises);
+                    });
+                    // Adjust current workout unit:
+                    observableWorkoutUnit.setValue(newWorkoutUnit);
+                });
+            });
         });
-        // Adjust current workout unit:
-        observableWorkoutUnit.setValue(newWorkoutUnit);
-        return newWorkoutUnit;
+        return observableWorkoutUnit; // TODO: think about if this is really the best way of returning the new workout unit
     }
 }
