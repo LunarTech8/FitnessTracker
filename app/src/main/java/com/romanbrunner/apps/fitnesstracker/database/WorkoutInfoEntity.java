@@ -1,13 +1,14 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
+import android.util.Pair;
+
 import androidx.annotation.NonNull;
 import androidx.room.Entity;
 
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
@@ -18,14 +19,14 @@ public class WorkoutInfoEntity implements WorkoutInfo
     // Functional code
     // --------------------
 
-    private static final String EXERCISE_NAMES_COUNT_SEPARATOR = ",";  // FIXME: count information isn't used yet anywhere
+    public static final String EXERCISE_NAMES_COUNT_SEPARATOR = ",";
     public static final String EXERCISE_NAMES_DELIMITER = ";";
 
     @NonNull
     private String name = "InitNonNullName";
     private int version;
     private String description;
-    private String exerciseNames;
+    private String exerciseNames;  // Stores exercise names, count and order
 
     @Override
     public @NonNull String getName()
@@ -87,19 +88,32 @@ public class WorkoutInfoEntity implements WorkoutInfo
         return namesArray;
     }
 
-    public static String exerciseSets2exerciseNames(List<ExerciseSetEntity> exerciseSets)
+    public static String exerciseSets2exerciseNames(List<ExerciseSetEntity> orderedExerciseSets)
     {
-        final Map<String, Integer> exerciseName2exerciseSetCount = new HashMap<>();
-        for (ExerciseSetEntity exerciseSet : exerciseSets)
+        // Condense ordered exercise sets into ordered exercise data with unique entry names and their occurrence count:
+        List<Pair<String, Integer>> orderedExercises = new ArrayList<>();
+        for (ExerciseSetEntity exerciseSet : orderedExerciseSets)
         {
-            String exerciseName = exerciseSet.getExerciseInfoName();
-            //noinspection ConstantConditions
-            exerciseName2exerciseSetCount.put(exerciseName, exerciseName2exerciseSetCount.getOrDefault(exerciseName, 0) + 1);
+            String name = exerciseSet.getExerciseInfoName();
+            int index = 0;
+            while (index < orderedExercises.size() && !Objects.equals(orderedExercises.get(index).first, name))
+            {
+                index++;
+            }
+            if (index < orderedExercises.size())
+            {
+                orderedExercises.set(index, new Pair<>(name, orderedExercises.get(index).second + 1));
+            }
+            else
+            {
+                orderedExercises.add(new Pair<>(name, 1));
+            }
         }
+        // Transform ordered exercise data into exerciseNames string:
         final StringBuilder exerciseNames = new StringBuilder();
-        for (Map.Entry<String, Integer> entry : exerciseName2exerciseSetCount.entrySet())
+        for (Pair<String, Integer> exercise : orderedExercises)
         {
-            exerciseNames.append(entry.getKey()).append(EXERCISE_NAMES_COUNT_SEPARATOR).append(entry.getValue()).append(EXERCISE_NAMES_DELIMITER);
+            exerciseNames.append(exercise.first).append(EXERCISE_NAMES_COUNT_SEPARATOR).append(exercise.second).append(EXERCISE_NAMES_DELIMITER);
         }
         return String.valueOf(exerciseNames);
     }

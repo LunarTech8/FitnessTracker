@@ -181,7 +181,7 @@ public class MainViewModel extends AndroidViewModel
         repository.finishWorkout(oldWorkoutUnit, oldExerciseSets);
     }
 
-    public WorkoutUnitEntity changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
+    public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
         return repository.changeWorkout(newWorkoutInfo);
     }

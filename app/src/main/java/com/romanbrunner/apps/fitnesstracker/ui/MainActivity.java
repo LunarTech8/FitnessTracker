@@ -81,13 +81,13 @@ public class MainActivity extends AppCompatActivity
         {
             if (allWorkoutInfo == null) throw new AssertionError("object cannot be null");
             final WorkoutInfoEntity currentWorkoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-            // Get all workout info names:
+            // Get all workout names:
             Set<String> workoutNames = new LinkedHashSet<>();
             for (WorkoutInfoEntity workoutInfo: allWorkoutInfo)
             {
                 workoutNames.add(workoutInfo.getName());  // Duplicate names will automatically be ignored in a Set
             }
-            // Get new workout info name:
+            // Get new workout name:
             String newWorkoutName = currentWorkoutInfo.getName();
             Iterator<String> iterator = workoutNames.iterator();
             while(iterator.hasNext())
@@ -106,13 +106,17 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             Log.d("onCreate", "new workout info name: " + newWorkoutName);  // DEBUG:
-            // Change workout to new workout info:
+            // Change to new workout:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(newWorkoutName), newWorkoutInfo ->
             {
                 if (newWorkoutInfo == null) throw new AssertionError("object cannot be null");
-                binding.setWorkoutInfo(newWorkoutInfo);
-                binding.setWorkoutUnit(viewModel.changeWorkout(newWorkoutInfo));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                DataRepository.executeOnceForLiveData(viewModel.changeWorkout(newWorkoutInfo), newWorkoutUnit ->
+                {
+                    if (newWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                    binding.setWorkoutInfo(newWorkoutInfo);
+                    binding.setWorkoutUnit(newWorkoutUnit);
+                    binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                });
             });
         }));
         binding.editModeButton.setOnClickListener((View view) ->
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity
             {
                 WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
                 // Get newest workout info version:
+                // FIXME: after "change -> finish workout -> change" the version should have changed twice but seems to not always do so
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
                 {
                     final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
@@ -134,7 +139,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         newVersion = 0;
                     }
-                    else if (!Objects.equals(newExerciseNames, workoutInfo.getExerciseNames()) || !Objects.equals(newestWorkoutInfo.getDescription(), workoutInfo.getDescription()))
+                    else if (!Objects.equals(newExerciseNames, workoutInfo.getExerciseNames()))
                     {
                         newVersion = newestWorkoutInfo.getVersion() + 1;
                     }
@@ -188,9 +193,6 @@ public class MainActivity extends AppCompatActivity
             workoutInfo.setExerciseNames(WorkoutInfoEntity.exerciseSets2exerciseNames(newExerciseSetsList));
             adapter.setExercise(workoutInfo.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
             Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseNames());  // DEBUG:
-            // FIXME: new added exercise seems to get lost on finish, is not in current getWorkoutInfo, thus version does not increase, but on next load it is in WorkoutInfo version 1
-            // FIXME: when adding -> removing -> adding a new exercise it is displayed twice what causes problems
-
             // TODO: the view should be scrolled to the bottom so that the new exercise entry is shown
         });
         binding.finishButton.setOnClickListener((View view) ->

@@ -19,7 +19,6 @@ import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.ExerciseInfoViewHolder>
@@ -148,22 +146,27 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     List<ExerciseSetEntity> getExerciseSets()
     {
-        return exerciseInfo2SetsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        List<ExerciseSetEntity> orderedExerciseSets = new LinkedList<>();
+        for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
+        {
+            orderedExerciseSets.addAll(Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfoEntity.getName())));
+        }
+        return orderedExerciseSets;
     }
 
-    void setExercise(@NonNull final String sortedExerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
+    void setExercise(@NonNull final String exerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
         Log.d("setExercise", "setExercise is called and reset");  // DEBUG:
-        // Get sorted list:
-        final List<ExerciseInfoEntity> sortedExerciseInfo = new ArrayList<>(getItemCount());
-        for (String exerciseName : WorkoutInfoEntity.exerciseNames2UniqueNamesArray(sortedExerciseInfoNames))
+        // Get ordered list:
+        final List<ExerciseInfoEntity> orderedExerciseInfo = new ArrayList<>(getItemCount());
+        for (String exerciseName : WorkoutInfoEntity.exerciseNames2UniqueNamesArray(exerciseInfoNames))
         {
             boolean targetNotFound = true;
             for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
             {
                 if (Objects.equals(exerciseInfoEntity.getName(), exerciseName))
                 {
-                    sortedExerciseInfo.add(exerciseInfoEntity);
+                    orderedExerciseInfo.add(exerciseInfoEntity);
                     targetNotFound = false;
                     break;
                 }
@@ -189,9 +192,9 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
         }
         // Set exerciseInfo:
-        this.exerciseInfo = sortedExerciseInfo;
+        this.exerciseInfo = orderedExerciseInfo;
         // Create exercise set adapters:
-        final int exerciseInfoCount = sortedExerciseInfo.size();
+        final int exerciseInfoCount = orderedExerciseInfo.size();
         adapters = new ArrayList<>(exerciseInfoCount);
         for (int i = 0; i < exerciseInfoCount; i++)
         {

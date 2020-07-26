@@ -43,7 +43,7 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("CREATE TABLE `workoutUnits` (`id` INTEGER NOT NULL, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
             database.execSQL("CREATE INDEX `index_workoutUnits_workoutInfoName_workoutInfoVersion` ON `workoutUnits` (`workoutInfoName`, `workoutInfoVersion`)");
             database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, `name`, 1, `date` FROM `workouts`");
-            database.execSQL("UPDATE `workoutUnits` SET `workoutInfoName`='HIT full-body (McFit)' WHERE `workoutInfoName`='HIT full-body'");
+            database.execSQL("UPDATE `workoutUnits` SET `workoutInfoName` = 'HIT full-body (McFit)' WHERE `workoutInfoName` = 'HIT full-body'");
 
             database.execSQL("CREATE TABLE `exerciseSets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutUnitId` INTEGER NOT NULL, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutUnitId`) REFERENCES `workoutUnits`(`id`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
             database.execSQL("CREATE INDEX `index_exerciseSets_workoutUnitId` ON `exerciseSets` (`workoutUnitId`)");
@@ -62,6 +62,7 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
             database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`name`, `version`))");
             database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) SELECT `name`, `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old`");
+            database.execSQL("UPDATE `workoutInfo` SET `exerciseNames` = REPLACE(`exerciseNames`, '" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "', '" + WorkoutInfoEntity.EXERCISE_NAMES_COUNT_SEPARATOR + "1" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "')");
             database.execSQL("DROP TABLE `workoutInfo_old`");
         }
     };
@@ -69,33 +70,34 @@ public abstract class AppDatabase extends RoomDatabase
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
         final String delimiter = WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER;
-        String exerciseInfoNames = "";
-        exerciseInfoNames += "Cross-Walker" + delimiter;
-        exerciseInfoNames += "Negativ-Crunch" + delimiter;
-        exerciseInfoNames += "Klimmzug breit zur Brust" + delimiter;
-        exerciseInfoNames += "Beinstrecker" + delimiter;
-        exerciseInfoNames += "Beinbeuger" + delimiter;
-        exerciseInfoNames += "Butterfly" + delimiter;
-        exerciseInfoNames += "Wadenheben an der Beinpresse" + delimiter;
-        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + delimiter;
-        exerciseInfoNames += "Bizepsmaschine" + delimiter;
-        exerciseInfoNames += "Pushdown am Kabelzug" + delimiter;
-        exerciseInfoNames += "Rückenstrecker" + delimiter;
-        exerciseInfoNames += "Crunch Bauchbank" + delimiter;
-        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseInfoNames + "')");
-        exerciseInfoNames = "";
-        exerciseInfoNames += "Cross-Walker" + delimiter;
-        exerciseInfoNames += "Klimmzug breit zur Brust" + delimiter;
-        exerciseInfoNames += "Beinstrecker" + delimiter;
-        exerciseInfoNames += "Beinbeuger" + delimiter;
-        exerciseInfoNames += "Butterfly" + delimiter;
-        exerciseInfoNames += "Wadenheben an der Beinpresse" + delimiter;
-        exerciseInfoNames += "Duale Schrägband-Drückmaschine" + delimiter;
-        exerciseInfoNames += "Bizepsmaschine" + delimiter;
-        exerciseInfoNames += "Pushdown am Kabelzug" + delimiter;
-        exerciseInfoNames += "Rückenstrecker" + delimiter;
-        exerciseInfoNames += "Crunch Bauchbank" + delimiter;
-        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseInfoNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseInfoNames + "')");
+        final String separator = WorkoutInfoEntity.EXERCISE_NAMES_COUNT_SEPARATOR;
+        String exerciseNames = "";
+        exerciseNames += "Cross-Walker" + separator + "1" + delimiter;
+        exerciseNames += "Negativ-Crunch" + separator + "1" + delimiter;
+        exerciseNames += "Klimmzug breit zur Brust" + separator + "3" + delimiter;
+        exerciseNames += "Beinstrecker" + separator + "1" + delimiter;
+        exerciseNames += "Beinbeuger" + separator + "1" + delimiter;
+        exerciseNames += "Butterfly" + separator + "1" + delimiter;
+        exerciseNames += "Wadenheben an der Beinpresse" + separator + "1" + delimiter;
+        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + "1" + delimiter;
+        exerciseNames += "Bizepsmaschine" + separator + "1" + delimiter;
+        exerciseNames += "Pushdown am Kabelzug" + separator + "1" + delimiter;
+        exerciseNames += "Rückenstrecker" + separator + "1" + delimiter;
+        exerciseNames += "Crunch Bauchbank" + separator + "1" + delimiter;
+        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseNames + "')");
+        exerciseNames = "";
+        exerciseNames += "Cross-Walker" + separator + "1" + delimiter;
+        exerciseNames += "Klimmzug breit zur Brust" + separator + "3" + delimiter;
+        exerciseNames += "Beinstrecker" + separator + "1" + delimiter;
+        exerciseNames += "Beinbeuger" + separator + "1" + delimiter;
+        exerciseNames += "Butterfly" + separator + "1" + delimiter;
+        exerciseNames += "Wadenheben an der Beinpresse" + separator + "1" + delimiter;
+        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + "1" + delimiter;
+        exerciseNames += "Bizepsmaschine" + separator + "1" + delimiter;
+        exerciseNames += "Pushdown am Kabelzug" + separator + "1" + delimiter;
+        exerciseNames += "Rückenstrecker" + separator + "1" + delimiter;
+        exerciseNames += "Crunch Bauchbank" + separator + "1" + delimiter;
+        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseNames + "')");
     }
 
     private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)

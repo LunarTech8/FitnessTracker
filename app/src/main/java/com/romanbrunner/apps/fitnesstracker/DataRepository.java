@@ -1,5 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -277,8 +279,13 @@ public class DataRepository
             if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
             final int workoutId = currentWorkoutUnit.getId();
             // Create new entries:
+            Log.d("changeWorkout", "workout info name: " + newWorkoutInfo.getName());  // DEBUG:
+            Log.d("changeWorkout", "workout info version: " + newWorkoutInfo.getVersion());  // DEBUG:
             DataRepository.executeOnceForLiveData(getNewestWorkoutUnit(newWorkoutInfo.getName(), newWorkoutInfo.getVersion()), oldWorkoutUnit ->
             {
+                // FIXME: normally every workout info version should have at least one workout unit
+                // FIXME: -> there might be a problem with normal vs debug
+                // FIXME: -> there is a problem on new workouts with version 1 -> use default data than instead (AppDatabase.createDefaultExercise)
                 if (oldWorkoutUnit == null) throw new AssertionError("object cannot be null");
                 // Clone new entries:
                 final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, workoutId);
@@ -302,6 +309,6 @@ public class DataRepository
                 });
             });
         });
-        return observableWorkoutUnit; // TODO: think about if this is really the best way of returning the new workout unit
+        return observableWorkoutUnit;
     }
 }
