@@ -116,71 +116,60 @@ public abstract class AppDatabase extends RoomDatabase
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
     }
 
+    private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
+    {
+        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
+        final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Cross-Walker"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Negativ-Crunch"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Beinstrecker"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Beinbeuger"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Butterfly"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Wadenheben an der Beinpresse"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Duale Schrägband-Drückmaschine"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Bizepsmaschine"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Pushdown am Kabelzug"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Rückenstrecker"));
+        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Crunch Bauchbank"));
+        database.exerciseSetDao().insert(exerciseSetList);
+    }
+
     @SuppressWarnings("DuplicateBranchesInSwitch")
-    public static void createDefaultExercise(final List<ExerciseSetEntity> exerciseSetList, int workoutUnitId, String exerciseInfoName)
+    public static ExerciseSetEntity createDefaultExerciseSet(int workoutUnitId, String exerciseInfoName)
     {
         switch (exerciseInfoName)
         {
             case "Cross-Walker":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F);
             case "Negativ-Crunch":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 20, 0.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 20, 0.F);
             case "Klimmzug breit zur Brust":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F));
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 6, 0.F));
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 4, 0.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F);
             case "Beinstrecker":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 15, 40.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 15, 40.F);
             case "Beinbeuger":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 16, 40.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 16, 40.F);
             case "Butterfly":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F);
             case "Wadenheben an der Beinpresse":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 110.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 110.F);
             case "Duale Schrägband-Drückmaschine":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 30.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 30.F);
             case "Bizepsmaschine":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F);
             case "Pushdown am Kabelzug":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 20.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 20.F);
             case "Rückenstrecker":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 21, 0.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 21, 0.F);
             case "Crunch Bauchbank":
-                exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 0.F));
-                break;
+                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 0.F);
             default:
-                Log.e("createDefaultExerciseSets", "Unrecognized exerciseInfoName (" + exerciseInfoName + ")");
+                Log.e("createDefaultExercise", "Unrecognized exerciseInfoName (" + exerciseInfoName + ")");
         }
-    }
-
-    private static void createDefaultWorkout(final AppDatabase database, int workoutUnitId)
-    {
-        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
-        List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Cross-Walker");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Negativ-Crunch");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Klimmzug breit zur Brust");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Beinstrecker");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Beinbeuger");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Butterfly");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Wadenheben an der Beinpresse");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Duale Schrägband-Drückmaschine");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Bizepsmaschine");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Pushdown am Kabelzug");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Rückenstrecker");
-        createDefaultExercise(exerciseSetList, workoutUnitId, "Crunch Bauchbank");
-        database.exerciseSetDao().insert(exerciseSetList);
+        return null;
     }
 
 
@@ -217,11 +206,10 @@ public abstract class AppDatabase extends RoomDatabase
                         insertDefaultWorkoutInfo(db);
                         insertDefaultExerciseInfo(db);
 
-                        // Create first workout unit:
-                        createDefaultWorkout(database, 0);
-
-                        // Create first debugging workout unit:
-                        createDefaultWorkout(database, MainActivity.DEBUG_WORKOUT_MIN_ID);
+                        // Insert first workout unit:
+                        insertInitWorkoutUnit(database, 0);
+                        // Insert first debugging workout unit:
+                        insertInitWorkoutUnit(database, MainActivity.DEBUG_WORKOUT_MIN_ID);
                     });
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();

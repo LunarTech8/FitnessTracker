@@ -8,6 +8,7 @@ import androidx.room.Entity;
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,14 +79,15 @@ public class WorkoutInfoEntity implements WorkoutInfo
 
     WorkoutInfoEntity() {}
 
-    public static String[] exerciseNames2UniqueNamesArray(String exerciseNames)
+    public static List<Pair<String, Integer>> exerciseNames2DataList(String exerciseNames)
     {
-        String[] namesArray = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
-        for (int i = 0; i < namesArray.length; i++)
+        List<Pair<String, Integer>> dataList = new LinkedList<>();
+        for (String dataString : exerciseNames.split(EXERCISE_NAMES_DELIMITER))
         {
-            namesArray[i] = namesArray[i].split(EXERCISE_NAMES_COUNT_SEPARATOR)[0];
+            String[] dataStringParts = dataString.split(EXERCISE_NAMES_COUNT_SEPARATOR);
+            dataList.add(new Pair<>(dataStringParts[0], Integer.valueOf(dataStringParts[1])));
         }
-        return namesArray;
+        return dataList;
     }
 
     public static String exerciseSets2exerciseNames(List<ExerciseSetEntity> orderedExerciseSets)

@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker;
 
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,6 +62,19 @@ public class DataRepository
             workoutUnit.setDate(new Date());  // Set to current date
             observableWorkoutUnit.postValue(workoutUnit);
         });
+    }
+
+    private void replaceCurrentWorkoutUnit(final WorkoutUnitEntity currentWorkoutUnit, final WorkoutUnitEntity newWorkoutUnit, final List<ExerciseSetEntity> newExercises)
+    {
+        // Delete current entries and insert new entries:
+        executor.execute(() ->
+        {
+            database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
+            database.workoutUnitDao().insert(newWorkoutUnit);
+            database.exerciseSetDao().insert(newExercises);
+        });
+        // Adjust current workout unit:
+        observableWorkoutUnit.setValue(newWorkoutUnit);
     }
 
     static DataRepository getInstance(final AppDatabase database)
@@ -274,39 +288,44 @@ public class DataRepository
 
     public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
+        Log.d("changeWorkout", "workout info name: " + newWorkoutInfo.getName());  // DEBUG:
+        Log.d("changeWorkout", "workout info version: " + newWorkoutInfo.getVersion());  // DEBUG:
         DataRepository.executeOnceForLiveData(observableWorkoutUnit, currentWorkoutUnit ->
         {
             if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
             final int workoutId = currentWorkoutUnit.getId();
-            // Create new entries:
-            Log.d("changeWorkout", "workout info name: " + newWorkoutInfo.getName());  // DEBUG:
-            Log.d("changeWorkout", "workout info version: " + newWorkoutInfo.getVersion());  // DEBUG:
             DataRepository.executeOnceForLiveData(getNewestWorkoutUnit(newWorkoutInfo.getName(), newWorkoutInfo.getVersion()), oldWorkoutUnit ->
             {
-                // FIXME: normally every workout info version should have at least one workout unit
-                // FIXME: -> there might be a problem with normal vs debug
-                // FIXME: -> there is a problem on new workouts with version 1 -> use default data than instead (AppDatabase.createDefaultExercise)
-                if (oldWorkoutUnit == null) throw new AssertionError("object cannot be null");
-                // Clone new entries:
-                final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, workoutId);
-                DataRepository.executeOnceForLiveData(getExerciseSets(oldWorkoutUnit), oldExerciseSets ->
+                final WorkoutUnitEntity newWorkoutUnit;
+                final List<ExerciseSetEntity> newExercises = new ArrayList<>();
+                if (oldWorkoutUnit == null)
                 {
-                    if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
-                    List<ExerciseSetEntity> newExercises = new ArrayList<>();
-                    for (ExerciseSetEntity exercise : oldExerciseSets)
+                    Log.d("changeWorkout", "default entries created");  // DEBUG:
+                    // Create new entries by using default values:
+                    newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
+                    for (Pair<String, Integer> exerciseName : WorkoutInfoEntity.exerciseNames2DataList(newWorkoutInfo.getExerciseNames()))
                     {
-                        newExercises.add(new ExerciseSetEntity(exercise, workoutId));
+                        for (int i = 0; i < exerciseName.second; i++)
+                        {
+                            newExercises.add(AppDatabase.createDefaultExerciseSet(workoutId, exerciseName.first));
+                        }
                     }
-                    // Delete current workout and insert new entries:
-                    executor.execute(() ->
+                    replaceCurrentWorkoutUnit(currentWorkoutUnit, newWorkoutUnit, newExercises);
+                }
+                else
+                {
+                    // Create new entries by cloning last entries:
+                    newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, workoutId);
+                    DataRepository.executeOnceForLiveData(getExerciseSets(oldWorkoutUnit), oldExerciseSets ->
                     {
-                        database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
-                        database.workoutUnitDao().insert(newWorkoutUnit);
-                        database.exerciseSetDao().insert(newExercises);
+                        if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
+                        for (ExerciseSetEntity exercise : oldExerciseSets)
+                        {
+                            newExercises.add(new ExerciseSetEntity(exercise, workoutId));
+                        }
+                        replaceCurrentWorkoutUnit(currentWorkoutUnit, newWorkoutUnit, newExercises);
                     });
-                    // Adjust current workout unit:
-                    observableWorkoutUnit.setValue(newWorkoutUnit);
-                });
+                }
             });
         });
         return observableWorkoutUnit;
