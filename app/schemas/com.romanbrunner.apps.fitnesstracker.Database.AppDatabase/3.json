@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "257e3e0f68adcd42f7f3bc2989edb0c5",
+    "identityHash": "fbc601291a2f4a052287ed93eba6a707",
     "entities": [
       {
         "tableName": "workoutUnits",
@@ -197,7 +197,7 @@
       },
       {
         "tableName": "exerciseInfo",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, `defaultValues` TEXT, PRIMARY KEY(`name`))",
         "fields": [
           {
             "fieldPath": "name",
@@ -216,6 +216,12 @@
             "columnName": "remarks",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "defaultValues",
+            "columnName": "defaultValues",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -231,7 +237,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '257e3e0f68adcd42f7f3bc2989edb0c5')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'fbc601291a2f4a052287ed93eba6a707')"
     ]
   }
 }

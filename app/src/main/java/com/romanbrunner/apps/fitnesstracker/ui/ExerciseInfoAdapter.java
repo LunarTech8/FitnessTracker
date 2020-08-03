@@ -3,7 +3,6 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -157,15 +156,14 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     void setExercise(@NonNull final String exerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
-        Log.d("setExercise", "setExercise is called and reset");  // DEBUG:
         // Get ordered list:
         final List<ExerciseInfoEntity> orderedExerciseInfo = new ArrayList<>(getItemCount());
-        for (Pair<String, Integer> exerciseData : WorkoutInfoEntity.exerciseNames2DataList(exerciseInfoNames))
+        for (String exerciseName : WorkoutInfoEntity.exerciseNames2NameSet(exerciseInfoNames))
         {
             boolean targetNotFound = true;
             for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
             {
-                if (Objects.equals(exerciseInfoEntity.getName(), exerciseData.first))
+                if (Objects.equals(exerciseInfoEntity.getName(), exerciseName))
                 {
                     orderedExerciseInfo.add(exerciseInfoEntity);
                     targetNotFound = false;
@@ -174,7 +172,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             if (targetNotFound)
             {
-                Log.e("setExercise", "Could not find " + exerciseData.first + " in exerciseInfo");
+                Log.e("setExercise", "Could not find " + exerciseName + " in exerciseInfo");
             }
         }
         // Set exerciseInfo2SetsMap:

@@ -16,6 +16,7 @@ import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoDao;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
+import com.romanbrunner.apps.fitnesstracker.ui.ExerciseSetAdapter;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
@@ -66,6 +67,13 @@ public class DataRepository
 
     private void replaceCurrentWorkoutUnit(final WorkoutUnitEntity currentWorkoutUnit, final WorkoutUnitEntity newWorkoutUnit, final List<ExerciseSetEntity> newExercises)
     {
+        // Safeguard against empty new entries:
+        if (newWorkoutUnit == null || newExercises == null || newExercises.isEmpty())
+        {
+            Log.e("replaceCurrentWorkoutUnit", "Replacement aborted because one of the given new entries is null/empty");
+            return;
+        }
+
         // Delete current entries and insert new entries:
         executor.execute(() ->
         {
@@ -303,14 +311,28 @@ public class DataRepository
                     Log.d("changeWorkout", "default entries created");  // DEBUG:
                     // Create new entries by using default values:
                     newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
-                    for (Pair<String, Integer> exerciseName : WorkoutInfoEntity.exerciseNames2DataList(newWorkoutInfo.getExerciseNames()))
+                    DataRepository.executeOnceForLiveData(getExerciseInfo(WorkoutInfoEntity.exerciseNames2NameSet(newWorkoutInfo.getExerciseNames())), exerciseInfoList ->
                     {
-                        for (int i = 0; i < exerciseName.second; i++)
+                        if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
+                        for (ExerciseInfoEntity exerciseInfo : exerciseInfoList)
                         {
-                            newExercises.add(AppDatabase.createDefaultExerciseSet(workoutId, exerciseName.first));
+                            String exerciseInfoName = exerciseInfo.getName();
+                            String defaultValues = exerciseInfo.getDefaultValues();
+                            if (defaultValues.isEmpty())
+                            {
+                                Log.w("changeWorkout", "No default values for " + exerciseInfoName + " in exerciseInfo, using min values instead");
+                                newExercises.add(new ExerciseSetEntity(workoutId, exerciseInfoName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
+                            }
+                            else
+                            {
+                                for (Pair<Integer, Float> dataList: ExerciseInfoEntity.defaultValues2DataList(defaultValues))
+                                {
+                                    newExercises.add(new ExerciseSetEntity(workoutId, exerciseInfoName, dataList.first, dataList.second));
+                                }
+                            }
                         }
-                    }
-                    replaceCurrentWorkoutUnit(currentWorkoutUnit, newWorkoutUnit, newExercises);
+                        replaceCurrentWorkoutUnit(currentWorkoutUnit, newWorkoutUnit, newExercises);
+                    });
                 }
                 else
                 {

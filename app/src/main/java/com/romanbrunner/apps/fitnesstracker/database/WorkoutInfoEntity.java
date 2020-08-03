@@ -8,9 +8,10 @@ import androidx.room.Entity;
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 @Entity(primaryKeys = {"name", "version"}, tableName = "workoutInfo")
@@ -20,8 +21,8 @@ public class WorkoutInfoEntity implements WorkoutInfo
     // Functional code
     // --------------------
 
-    public static final String EXERCISE_NAMES_COUNT_SEPARATOR = ",";
-    public static final String EXERCISE_NAMES_DELIMITER = ";";
+    public static final String EXERCISE_NAMES_SEPARATOR = ",";  // Used for internal separation of data for each entry
+    public static final String EXERCISE_NAMES_DELIMITER = ";";  // Used for external separation between entries
 
     @NonNull
     private String name = "InitNonNullName";
@@ -79,18 +80,18 @@ public class WorkoutInfoEntity implements WorkoutInfo
 
     WorkoutInfoEntity() {}
 
-    public static List<Pair<String, Integer>> exerciseNames2DataList(String exerciseNames)
+    public static Set<String> exerciseNames2NameSet(final String exerciseNames)
     {
-        List<Pair<String, Integer>> dataList = new LinkedList<>();
-        for (String dataString : exerciseNames.split(EXERCISE_NAMES_DELIMITER))
+        final String[] dataStringEntries = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
+        final Set<String> nameList = new LinkedHashSet<>(dataStringEntries.length);
+        for (String dataString : dataStringEntries)
         {
-            String[] dataStringParts = dataString.split(EXERCISE_NAMES_COUNT_SEPARATOR);
-            dataList.add(new Pair<>(dataStringParts[0], Integer.valueOf(dataStringParts[1])));
+            nameList.add(dataString.split(EXERCISE_NAMES_SEPARATOR)[0]);
         }
-        return dataList;
+        return nameList;
     }
 
-    public static String exerciseSets2exerciseNames(List<ExerciseSetEntity> orderedExerciseSets)
+    public static String exerciseSets2exerciseNames(final List<ExerciseSetEntity> orderedExerciseSets)
     {
         // Condense ordered exercise sets into ordered exercise data with unique entry names and their occurrence count:
         List<Pair<String, Integer>> orderedExercises = new ArrayList<>();
@@ -115,7 +116,7 @@ public class WorkoutInfoEntity implements WorkoutInfo
         final StringBuilder exerciseNames = new StringBuilder();
         for (Pair<String, Integer> exercise : orderedExercises)
         {
-            exerciseNames.append(exercise.first).append(EXERCISE_NAMES_COUNT_SEPARATOR).append(exercise.second).append(EXERCISE_NAMES_DELIMITER);
+            exerciseNames.append(exercise.first).append(EXERCISE_NAMES_SEPARATOR).append(exercise.second).append(EXERCISE_NAMES_DELIMITER);
         }
         return String.valueOf(exerciseNames);
     }

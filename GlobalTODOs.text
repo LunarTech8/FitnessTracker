@@ -20,10 +20,10 @@ Work status:
 // Programming:
 // -------------
 
-!!>>- Implement next workout button
-!!>>>- Implement an "Add Exercise" button at bottom
-!!>>- Implement an "Next Exercise" button
+!!>>>- Implement an "Add Exercise" button
 !!- Increase performance when scrolling through exercises
+!!>- Using a different date doesn't seem to work, it always uses the current one
+!- Have an "Enter Edit Mode"/"Leave Edit Mode" button instead of "Switch Edit Mode"
 !- Add option to switch between colour themes
 
 

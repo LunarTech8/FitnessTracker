@@ -141,9 +141,14 @@ public class MainViewModel extends AndroidViewModel
         return repository.getAllWorkoutInfo();
     }
 
-    public LiveData<List<ExerciseInfoEntity>> getExerciseInfo(Set<String> names)
+    public LiveData<List<ExerciseInfoEntity>> getExerciseInfo(List<ExerciseSetEntity> exerciseSetList)
     {
-        return repository.getExerciseInfo(names);
+        final Set<String> exerciseInfoNames = new HashSet<>();
+        for (ExerciseSetEntity exerciseSet: exerciseSetList)
+        {
+            exerciseInfoNames.add(exerciseSet.getExerciseInfoName());
+        }
+        return repository.getExerciseInfo(exerciseInfoNames);
     }
 
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
@@ -184,6 +189,14 @@ public class MainViewModel extends AndroidViewModel
     public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
         return repository.changeWorkout(newWorkoutInfo);
+    }
+
+    public void updateExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo, final List<ExerciseSetEntity> orderedExerciseSets)
+    {
+        for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
+        {
+            exerciseInfoEntity.setDefaultValues(ExerciseInfoEntity.exerciseSets2defaultValues(exerciseInfoEntity.getName(), orderedExerciseSets));
+        }
     }
 
     public void printDebugLog()

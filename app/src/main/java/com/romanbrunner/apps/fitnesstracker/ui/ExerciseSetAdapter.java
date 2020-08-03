@@ -17,13 +17,13 @@ import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 import java.util.List;
 
 
-class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.ExerciseSetViewHolder>
+public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.ExerciseSetViewHolder>
 {
     // --------------------
     // Data code
     // --------------------
 
-    static final int WEIGHTED_EXERCISE_REPEATS_MIN = 15;
+    public static final int WEIGHTED_EXERCISE_REPEATS_MIN = 15;
     private static final int WEIGHTED_EXERCISE_REPEATS_MAX = 20;
     private static final float WEIGHTED_EXERCISE_WEIGHT_INCREMENT = 5F;
 

@@ -37,7 +37,7 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseInfoNames` TEXT, PRIMARY KEY(`name`, `version`))");
             insertDefaultWorkoutInfo(database);
 
-            database.execSQL("CREATE TABLE `exerciseInfo` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))");
+            database.execSQL("CREATE TABLE `exerciseInfo` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, `defaultValues` TEXT, PRIMARY KEY(`name`))");
             insertDefaultExerciseInfo(database);
 
             database.execSQL("CREATE TABLE `workoutUnits` (`id` INTEGER NOT NULL, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
@@ -62,7 +62,7 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
             database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`name`, `version`))");
             database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) SELECT `name`, `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old`");
-            database.execSQL("UPDATE `workoutInfo` SET `exerciseNames` = REPLACE(`exerciseNames`, '" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "', '" + WorkoutInfoEntity.EXERCISE_NAMES_COUNT_SEPARATOR + "1" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "')");
+            database.execSQL("UPDATE `workoutInfo` SET `exerciseNames` = REPLACE(`exerciseNames`, '" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "', '" + WorkoutInfoEntity.EXERCISE_NAMES_SEPARATOR + "1" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "')");
             database.execSQL("DROP TABLE `workoutInfo_old`");
         }
     };
@@ -70,106 +70,87 @@ public abstract class AppDatabase extends RoomDatabase
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
         final String delimiter = WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER;
-        final String separator = WorkoutInfoEntity.EXERCISE_NAMES_COUNT_SEPARATOR;
-        String exerciseNames = "";
-        exerciseNames += "Cross-Walker" + separator + "1" + delimiter;
-        exerciseNames += "Negativ-Crunch" + separator + "1" + delimiter;
-        exerciseNames += "Klimmzug breit zur Brust" + separator + "3" + delimiter;
-        exerciseNames += "Beinstrecker" + separator + "1" + delimiter;
-        exerciseNames += "Beinbeuger" + separator + "1" + delimiter;
-        exerciseNames += "Butterfly" + separator + "1" + delimiter;
-        exerciseNames += "Wadenheben an der Beinpresse" + separator + "1" + delimiter;
-        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + "1" + delimiter;
-        exerciseNames += "Bizepsmaschine" + separator + "1" + delimiter;
-        exerciseNames += "Pushdown am Kabelzug" + separator + "1" + delimiter;
-        exerciseNames += "Rückenstrecker" + separator + "1" + delimiter;
-        exerciseNames += "Crunch Bauchbank" + separator + "1" + delimiter;
+        final String separator = WorkoutInfoEntity.EXERCISE_NAMES_SEPARATOR;
+        String exerciseNames;
+        exerciseNames = "Cross-Walker" + separator + 1 + delimiter;
+        exerciseNames += "Negativ-Crunch" + separator + 1 + delimiter;
+        exerciseNames += "Klimmzug breit zur Brust" + separator + 3 + delimiter;
+        exerciseNames += "Beinstrecker" + separator + 1 + delimiter;
+        exerciseNames += "Beinbeuger" + separator + 1 + delimiter;
+        exerciseNames += "Butterfly" + separator + 1 + delimiter;
+        exerciseNames += "Wadenheben an der Beinpresse" + separator + 1 + delimiter;
+        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + 1 + delimiter;
+        exerciseNames += "Bizepsmaschine" + separator + 1 + delimiter;
+        exerciseNames += "Pushdown am Kabelzug" + separator + 1 + delimiter;
+        exerciseNames += "Rückenstrecker" + separator + 1 + delimiter;
+        exerciseNames += "Crunch Bauchbank" + separator + 1 + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseNames + "')");
-        exerciseNames = "";
-        exerciseNames += "Cross-Walker" + separator + "1" + delimiter;
-        exerciseNames += "Klimmzug breit zur Brust" + separator + "3" + delimiter;
-        exerciseNames += "Beinstrecker" + separator + "1" + delimiter;
-        exerciseNames += "Beinbeuger" + separator + "1" + delimiter;
-        exerciseNames += "Butterfly" + separator + "1" + delimiter;
-        exerciseNames += "Wadenheben an der Beinpresse" + separator + "1" + delimiter;
-        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + "1" + delimiter;
-        exerciseNames += "Bizepsmaschine" + separator + "1" + delimiter;
-        exerciseNames += "Pushdown am Kabelzug" + separator + "1" + delimiter;
-        exerciseNames += "Rückenstrecker" + separator + "1" + delimiter;
-        exerciseNames += "Crunch Bauchbank" + separator + "1" + delimiter;
+        exerciseNames = "Cross-Walker" + separator + 1 + delimiter;
+        exerciseNames += "Klimmzug breit zur Brust" + separator + 3 + delimiter;
+        exerciseNames += "Beinstrecker" + separator + 1 + delimiter;
+        exerciseNames += "Beinbeuger" + separator + 1 + delimiter;
+        exerciseNames += "Butterfly" + separator + 1 + delimiter;
+        exerciseNames += "Wadenheben an der Beinpresse" + separator + 1 + delimiter;
+        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + 1 + delimiter;
+        exerciseNames += "Bizepsmaschine" + separator + 1 + delimiter;
+        exerciseNames += "Pushdown am Kabelzug" + separator + 1 + delimiter;
+        exerciseNames += "Rückenstrecker" + separator + 1 + delimiter;
+        exerciseNames += "Crunch Bauchbank" + separator + 1 + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseNames + "')");
     }
 
     private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)
     {
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Cross-Walker', '', 'Laufwiderstand: 10; Repeats in Minuten')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Negativ-Crunch', '', '')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Klimmzug breit zur Brust', '', '')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinstrecker', 'E04', 'Fuß: 3; Beine: 11; Sitz: 1,5')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinbeuger', 'E05', 'Fuß: 6; Beine: 12')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Butterfly', 'A02', '')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Wadenheben an der Beinpresse', 'E01', 'Rücken: 2; Sitz: 5')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Duale Schrägband-Drückmaschine', 'C02', 'Sitz: 1')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Bizepsmaschine', 'D01', '')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Pushdown am Kabelzug', 'B06', '')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Rückenstrecker', 'B03', 'Beine: 4')");
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
+        final String delimiter = ExerciseInfoEntity.DEFAULT_VALUES_DELIMITER;
+        final String separator = ExerciseInfoEntity.DEFAULT_VALUES_SEPARATOR;
+        String defaultValues;
+        defaultValues = 8 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Cross-Walker', '', 'Laufwiderstand: 10; Repeats in Minuten', '" + defaultValues + "')");
+        defaultValues = 20 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Negativ-Crunch', '', '', '" + defaultValues + "')");
+        defaultValues = 8 + separator + 0.F + delimiter;
+        defaultValues += 6 + separator + 0.F + delimiter;
+        defaultValues += 4 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Klimmzug breit zur Brust', '', '', '" + defaultValues + "')");
+        defaultValues = 15 + separator + 40.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Beinstrecker', 'E04', 'Fuß: 3; Beine: 11; Sitz: 1,5', '" + defaultValues + "')");
+        defaultValues = 16 + separator + 40.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Beinbeuger', 'E05', 'Fuß: 6; Beine: 12', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 35.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Butterfly', 'A02', '', '" + defaultValues + "')");
+        defaultValues = 19 + separator + 110.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Wadenheben an der Beinpresse', 'E01', 'Rücken: 2; Sitz: 5', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 30.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Duale Schrägband-Drückmaschine', 'C02', 'Sitz: 1', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 35.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Bizepsmaschine', 'D01', '', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 20.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Pushdown am Kabelzug', 'B06', '', '" + defaultValues + "')");
+        defaultValues = 21 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Rückenstrecker', 'B03', 'Beine: 4', '" + defaultValues + "')");
+        defaultValues = 19 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3', '" + defaultValues + "')");
     }
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
     {
         database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
         final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Cross-Walker"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Negativ-Crunch"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Klimmzug breit zur Brust"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Beinstrecker"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Beinbeuger"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Butterfly"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Wadenheben an der Beinpresse"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Duale Schrägband-Drückmaschine"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Bizepsmaschine"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Pushdown am Kabelzug"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Rückenstrecker"));
-        exerciseSetList.add(createDefaultExerciseSet(workoutUnitId, "Crunch Bauchbank"));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Cross-Walker", 8, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Negativ-Crunch", 20, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 8, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 6, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Klimmzug breit zur Brust", 4, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Beinstrecker", 15, 40.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Beinbeuger", 16, 40.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Butterfly", 17, 35.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Wadenheben an der Beinpresse", 19, 110.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Duale Schrägband-Drückmaschine", 17, 30.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Bizepsmaschine", 17, 35.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Pushdown am Kabelzug", 17, 20.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Rückenstrecker", 21, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Crunch Bauchbank", 19, 0.F));
         database.exerciseSetDao().insert(exerciseSetList);
-    }
-
-    @SuppressWarnings("DuplicateBranchesInSwitch")
-    public static ExerciseSetEntity createDefaultExerciseSet(int workoutUnitId, String exerciseInfoName)
-    {
-        switch (exerciseInfoName)
-        {
-            case "Cross-Walker":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F);
-            case "Negativ-Crunch":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 20, 0.F);
-            case "Klimmzug breit zur Brust":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 8, 0.F);
-            case "Beinstrecker":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 15, 40.F);
-            case "Beinbeuger":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 16, 40.F);
-            case "Butterfly":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F);
-            case "Wadenheben an der Beinpresse":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 110.F);
-            case "Duale Schrägband-Drückmaschine":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 30.F);
-            case "Bizepsmaschine":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 35.F);
-            case "Pushdown am Kabelzug":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 17, 20.F);
-            case "Rückenstrecker":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 21, 0.F);
-            case "Crunch Bauchbank":
-                return new ExerciseSetEntity(workoutUnitId, exerciseInfoName, 19, 0.F);
-            default:
-                Log.e("createDefaultExercise", "Unrecognized exerciseInfoName (" + exerciseInfoName + ")");
-        }
-        return null;
     }
 
 
@@ -252,11 +233,5 @@ public abstract class AppDatabase extends RoomDatabase
     public LiveData<Boolean> getDatabaseCreated()
     {
         return isDatabaseCreated;
-    }
-
-    public void deleteDatabase(final Context context)  // TODO: maybe not needed
-    {
-        context.deleteDatabase(DATABASE_NAME);
-        isDatabaseCreated.postValue(false);
     }
 }

@@ -21,7 +21,6 @@ import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 
 import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -128,7 +127,6 @@ public class MainActivity extends AppCompatActivity
             {
                 WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
                 // Get newest workout info version:
-                // FIXME: after "change -> finish workout -> change" the version should have changed twice but seems to not always do so
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
                 {
                     final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
@@ -197,8 +195,11 @@ public class MainActivity extends AppCompatActivity
         });
         binding.finishButton.setOnClickListener((View view) ->
         {
-            viewModel.storeExerciseInfo(adapter.getExerciseInfo());
-            viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), adapter.getExerciseSets());
+            final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+            final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
+            viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
+            viewModel.storeExerciseInfo(exerciseInfo);
+            viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
         });
         subscribeUi(viewModel);
 
@@ -237,12 +238,7 @@ public class MainActivity extends AppCompatActivity
                     {
                         if (exerciseSetList == null) throw new AssertionError("object cannot be null");
                         Log.d("subscribeUi", "current getExerciseSets: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
-                        Set<String> exerciseInfoNames = new HashSet<>();
-                        for (ExerciseSetEntity exerciseSet: exerciseSetList)
-                        {
-                            exerciseInfoNames.add(exerciseSet.getExerciseInfoName());
-                        }
-                        DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseInfoNames), exerciseInfoList ->
+                        DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                         {
                             if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
                             Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
