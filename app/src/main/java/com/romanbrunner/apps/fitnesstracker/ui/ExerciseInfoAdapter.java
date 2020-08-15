@@ -230,6 +230,9 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         ExerciseInfoEntity exerciseInfoEntity = this.exerciseInfo.get(position);
         exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfoEntity);
         exerciseInfoViewHolder.binding.setIsEditModeActive(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.exerciseNameField.setFocusable(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.exerciseNameField.setEnabled(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.exerciseNameField.setFocusableInTouchMode(MainActivity.isEditModeActive);
         exerciseInfoViewHolder.binding.executePendingBindings();
         exerciseInfoViewHolder.isRecycled = false;
 

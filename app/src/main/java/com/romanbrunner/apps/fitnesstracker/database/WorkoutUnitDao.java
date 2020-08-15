@@ -38,16 +38,16 @@ public interface WorkoutUnitDao
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestDebug();
 
-    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY workoutInfoVersion DESC LIMIT 1")
+    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoNormal(String searchWorkoutInfoName, int searchWorkoutInfoVersion);
 
     @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoDebug(String searchWorkoutInfoName, int searchWorkoutInfoVersion);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits) ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadLastNormal();
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits) ORDER BY id DESC LIMIT 1")
+    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadLastDebug();
 
     @Insert

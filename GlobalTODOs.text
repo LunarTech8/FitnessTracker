@@ -17,21 +17,29 @@ Work status:
 
 
 // -------------
-// Programming:
+// Worklog:
 // -------------
 
 !!>>>- Implement an "Add Exercise" button
-!!- Increase performance when scrolling through exercises
-!!>- Using a different date doesn't seem to work, it always uses the current one
-!- Have an "Enter Edit Mode"/"Leave Edit Mode" button instead of "Switch Edit Mode"
-!- Add option to switch between colour themes
 
 
 // -------------
-// Application design:
+// Backlog:
+// -------------
+
+!!!- Having entries with their dates not ascending causes wrong info for average interval
+!!- Adjust design to fit to all screen sizes (e.g. smaller width)
+!- Increase performance when scrolling through exercises
+!- Have an "Enter Edit Mode"/"Leave Edit Mode" button instead of "Switch Edit Mode"
+!- Add option to switch between colour themes
+!- Make dark colour theme work
+
+
+// -------------
+// Ideas/Concepts:
 // -------------
 
 !!>- Have a separate window to change between workouts and modify them
-!!- Adjust design to fit to all screen sizes (e.g. smaller width)
-!- Make dark colour theme work
+!!- Have the option to change between lbs and kg
+!- Make workout info and exercise info dependable on fitness centre (eg. as additional primary key instead of using the name)
 !- Add different exercise types (one for cardio, etc.)

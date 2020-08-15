@@ -85,17 +85,17 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseNames += "Rückenstrecker" + separator + 1 + delimiter;
         exerciseNames += "Crunch Bauchbank" + separator + 1 + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseNames + "')");
-        exerciseNames = "Cross-Walker" + separator + 1 + delimiter;
-        exerciseNames += "Klimmzug breit zur Brust" + separator + 3 + delimiter;
-        exerciseNames += "Beinstrecker" + separator + 1 + delimiter;
-        exerciseNames += "Beinbeuger" + separator + 1 + delimiter;
-        exerciseNames += "Butterfly" + separator + 1 + delimiter;
-        exerciseNames += "Wadenheben an der Beinpresse" + separator + 1 + delimiter;
-        exerciseNames += "Duale Schrägband-Drückmaschine" + separator + 1 + delimiter;
-        exerciseNames += "Bizepsmaschine" + separator + 1 + delimiter;
-        exerciseNames += "Pushdown am Kabelzug" + separator + 1 + delimiter;
-        exerciseNames += "Rückenstrecker" + separator + 1 + delimiter;
-        exerciseNames += "Crunch Bauchbank" + separator + 1 + delimiter;
+        exerciseNames = "CROSS WALKER" + separator + 1 + delimiter;
+        exerciseNames += "KLIMMZUG BREIT ZUR BRUST" + separator + 3 + delimiter;
+        exerciseNames += "BEINSTRECKER" + separator + 1 + delimiter;
+        exerciseNames += "BEINBEUGER LIEGEND" + separator + 1 + delimiter;
+        exerciseNames += "BUTTERFLY" + separator + 1 + delimiter;
+        exerciseNames += "BEINPRESSE" + separator + 1 + delimiter;
+        exerciseNames += "OVERHEAD PRESS" + separator + 1 + delimiter;
+        exerciseNames += "BIZEPSMASCHINE" + separator + 1 + delimiter;
+        exerciseNames += "PUSHDOWN AM KABELZUG" + separator + 1 + delimiter;
+        exerciseNames += "RUECKENSTRECKER" + separator + 1 + delimiter;
+        exerciseNames += "CRUNCH BAUCHBANK" + separator + 1 + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseNames + "')");
     }
 
@@ -130,6 +130,30 @@ public abstract class AppDatabase extends RoomDatabase
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Rückenstrecker', 'B03', 'Beine: 4', '" + defaultValues + "')");
         defaultValues = 19 + separator + 0.F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3', '" + defaultValues + "')");
+        defaultValues = 8 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('CROSS WALKER', '', 'Laufwiderstand: 10; Repeats in Minuten', '" + defaultValues + "')");
+        defaultValues = 8 + separator + 0.F + delimiter;
+        defaultValues += 6 + separator + 0.F + delimiter;
+        defaultValues += 4 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('KLIMMZUG BREIT ZUR BRUST', '', '', '" + defaultValues + "')");
+        defaultValues = 15 + separator + 39.4F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINSTRECKER', '151', 'Fuß: 1', '" + defaultValues + "')");
+        defaultValues = 16 + separator + 39.4F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINBEUGER LIEGEND', '153', 'Fuß: 1; Beine: 5', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 34.3F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BUTTERFLY', '141', 'Sitz: 5; Arme: 1', '" + defaultValues + "')");
+        defaultValues = 19 + separator + 108.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINPRESSE', '150', 'Sitz: 8', '" + defaultValues + "')");
+        defaultValues = 16 + separator + 31.5F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('OVERHEAD PRESS', '40', 'Sitz: 3', '" + defaultValues + "')");
+        defaultValues = 15 + separator + 34.3F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BIZEPSMASCHINE', '145', 'Sitz: 5', '" + defaultValues + "')");
+        defaultValues = 17 + separator + 18.1F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('PUSHDOWN AM KABELZUG', '', '', '" + defaultValues + "')");
+        defaultValues = 21 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('RUECKENSTRECKER', '34', 'Beine: 4', '" + defaultValues + "')");
+        defaultValues = 19 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('CRUNCH BAUCHBANK', '58', 'Beine: 3', '" + defaultValues + "')");
     }
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
