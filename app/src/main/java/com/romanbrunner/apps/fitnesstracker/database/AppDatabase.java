@@ -1,7 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -20,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 3)
+@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 4)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -66,6 +65,28 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("DROP TABLE `workoutInfo_old`");
         }
     };
+    private static final Migration MIGRATION_3_4 = new Migration(3, 4)
+    {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
+            database.execSQL("ALTER TABLE `workoutUnits` RENAME TO `workoutUnits_old`");
+
+            database.execSQL("CREATE TABLE `workoutInfo` (`studio` TEXT NOT NULL, `name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`studio`, `name`, `version`))");
+            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'McFit', 'HIT full-body', `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (McFit)'");
+            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'Body+Souls', 'HIT full-body', `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (Body+Souls)'");
+
+            database.execSQL("CREATE TABLE `workoutUnits` (`id` INTEGER NOT NULL, `workoutInfoStudio` TEXT, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`studio`, `name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
+            database.execSQL("CREATE INDEX `index_workoutUnits_workoutInfoStudio_workoutInfoName_workoutInfoVersion` ON `workoutUnits` (`workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`)");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'McFit', 'HIT full-body', `version`, `date` FROM `workoutUnits_old` WHERE `name` = 'HIT full-body (McFit)'");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'Body+Souls', 'HIT full-body', `version`, `date` FROM `workoutUnits_old` WHERE `name` = 'HIT full-body (Body+Souls)'");
+
+            database.execSQL("DROP TABLE `workoutInfo_old`");
+            database.execSQL("DROP TABLE `workoutUnits_old`");
+        }
+    };
+
 
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
@@ -84,7 +105,7 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseNames += "Pushdown am Kabelzug" + separator + 1 + delimiter;
         exerciseNames += "Rückenstrecker" + separator + 1 + delimiter;
         exerciseNames += "Crunch Bauchbank" + separator + 1 + delimiter;
-        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (McFit)', 1, 'High intensity training full-body at McFit', '" + exerciseNames + "')");
+        database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) VALUES('McFit', 'HIT full-body', 1, 'High intensity training full-body', '" + exerciseNames + "')");
         exerciseNames = "CROSS WALKER" + separator + 1 + delimiter;
         exerciseNames += "KLIMMZUG BREIT ZUR BRUST" + separator + 3 + delimiter;
         exerciseNames += "BEINSTRECKER" + separator + 1 + delimiter;
@@ -96,7 +117,7 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseNames += "PUSHDOWN AM KABELZUG" + separator + 1 + delimiter;
         exerciseNames += "RUECKENSTRECKER" + separator + 1 + delimiter;
         exerciseNames += "CRUNCH BAUCHBANK" + separator + 1 + delimiter;
-        database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) VALUES('HIT full-body (Body+Souls)', 1, 'High intensity training full-body at Body+Souls', '" + exerciseNames + "')");
+        database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) VALUES('Body+Souls', 'HIT full-body', 1, 'High intensity training full-body', '" + exerciseNames + "')");
     }
 
     private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)
@@ -158,7 +179,7 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
     {
-        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "HIT full-body (McFit)", 1));
+        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "McFit", "HIT full-body", 1));
         final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(14);
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Cross-Walker", 8, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "Negativ-Crunch", 20, 0.F));
@@ -221,7 +242,7 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build();
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build();
     }
 
     public static AppDatabase getInstance(final Context context, final AppExecutors executors)

@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 
 
-@Entity(primaryKeys = {"name", "version"}, tableName = "workoutInfo")
+@Entity(primaryKeys = {"studio", "name", "version"}, tableName = "workoutInfo")
 public class WorkoutInfoEntity implements WorkoutInfo
 {
     // --------------------
@@ -24,11 +24,17 @@ public class WorkoutInfoEntity implements WorkoutInfo
     public static final String EXERCISE_NAMES_SEPARATOR = ",";  // Used for internal separation of data for each entry
     public static final String EXERCISE_NAMES_DELIMITER = ";";  // Used for external separation between entries
 
-    @NonNull
-    private String name = "InitNonNullName";
+    @NonNull private String studio = "InitNonNullStudio";
+    @NonNull private String name = "InitNonNullName";
     private int version;
     private String description;
     private String exerciseNames;  // Stores exercise names, count and order
+
+    @Override
+    public @NonNull String getStudio()
+    {
+        return studio;
+    }
 
     @Override
     public @NonNull String getName()
@@ -52,6 +58,12 @@ public class WorkoutInfoEntity implements WorkoutInfo
     public String getExerciseNames()
     {
         return exerciseNames;
+    }
+
+    @Override
+    public void setStudio(@NonNull String studio)
+    {
+        this.studio = studio;
     }
 
     @Override
@@ -123,8 +135,9 @@ public class WorkoutInfoEntity implements WorkoutInfo
 
     public static boolean isContentTheSame(WorkoutInfo workoutInfoA, WorkoutInfo workoutInfoB)
     {
-        return Objects.equals(workoutInfoA.getName(), workoutInfoB.getName())
+        return Objects.equals(workoutInfoA.getStudio(), workoutInfoB.getStudio())
             && workoutInfoA.getVersion() == workoutInfoB.getVersion()
+            && Objects.equals(workoutInfoA.getName(), workoutInfoB.getName())
             && Objects.equals(workoutInfoA.getDescription(), workoutInfoB.getDescription())
             && Objects.equals(workoutInfoA.getExerciseNames(), workoutInfoB.getExerciseNames());
     }

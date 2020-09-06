@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity
         binding.setIsTopBoxMinimized(true);
         binding.setIsEditModeActive(isEditModeActive);
         binding.setIsDebugModeActive(DEBUG_MODE_ACTIVE);
+        binding.nextStudioButton.setOnClickListener((View view) -> {});  // TODO: implement
         binding.workoutInfoButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.nextWorkoutButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutInfo(), allWorkoutInfo ->
         {
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity
             }
             Log.d("onCreate", "new workout info name: " + newWorkoutName);  // DEBUG:
             // Change to new workout:
-            DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(newWorkoutName), newWorkoutInfo ->
+            DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(currentWorkoutInfo.getStudio(), newWorkoutName), newWorkoutInfo ->
             {
                 if (newWorkoutInfo == null) throw new AssertionError("object cannot be null");
                 DataRepository.executeOnceForLiveData(viewModel.changeWorkout(newWorkoutInfo), newWorkoutUnit ->
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
             {
                 WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
                 // Get newest workout info version:
-                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
+                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName()), newestWorkoutInfo ->
                 {
                     final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
                     // Check for requirement of a new version:
@@ -214,7 +215,8 @@ public class MainActivity extends AppCompatActivity
         binding.debugResetWorkoutButton.setOnClickListener((View view) ->
         {
             viewModel.removeDebugWorkoutUnits();
-            viewModel.resetWorkoutInfo(((WorkoutInfoEntity) binding.getWorkoutInfo()).getName());
+            final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
+            viewModel.resetWorkoutInfo(workoutInfo.getStudio(), workoutInfo.getName());
         });
     }
 
@@ -229,7 +231,7 @@ public class MainActivity extends AppCompatActivity
                 Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName() + " V" + workoutUnit.getWorkoutInfoVersion());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);
 
-                DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
+                DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
                 {
                     if (workoutInfo == null) throw new AssertionError("object cannot be null");
                     Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:

@@ -20,6 +20,9 @@ Work status:
 // Worklog:
 // -------------
 
+!!>>- Implement studio as separate primary field for workout info
+    >- Implement nextStudioButton
+    >- Test MIGRATION_3_4
 !!>>>- Implement an "Add Exercise" button
 
 

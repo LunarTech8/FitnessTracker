@@ -38,11 +38,11 @@ public interface WorkoutUnitDao
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestDebug();
 
-    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoNormal(String searchWorkoutInfoName, int searchWorkoutInfoVersion);
+    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoStudio = :searchWorkoutInfoStudio AND workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoNormal(String searchWorkoutInfoStudio, String searchWorkoutInfoName, int searchWorkoutInfoVersion);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoDebug(String searchWorkoutInfoName, int searchWorkoutInfoVersion);
+    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoStudio = :searchWorkoutInfoStudio AND workoutInfoName = :searchWorkoutInfoName AND workoutInfoVersion = :searchWorkoutInfoVersion AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadNewestByWorkoutInfoDebug(String searchWorkoutInfoStudio, String searchWorkoutInfoName, int searchWorkoutInfoVersion);
 
     @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadLastNormal();

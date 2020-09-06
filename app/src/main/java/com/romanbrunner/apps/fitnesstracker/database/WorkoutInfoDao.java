@@ -27,11 +27,11 @@ public interface WorkoutInfoDao
     @Query("SELECT * FROM WorkoutInfo")
     LiveData<List<WorkoutInfoEntity>> loadAll();
 
-    @Query("SELECT * FROM WorkoutInfo WHERE name = :searchName AND version = :searchVersion")
-    LiveData<WorkoutInfoEntity> loadByNameAndVersion(String searchName, int searchVersion);
+    @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio AND name = :searchName AND version = :searchVersion")
+    LiveData<WorkoutInfoEntity> loadByStudioAndNameAndVersion(String searchStudio, String searchName, int searchVersion);
 
-    @Query("SELECT * FROM WorkoutInfo WHERE name = :searchName ORDER BY version DESC LIMIT 1")
-    LiveData<WorkoutInfoEntity> loadNewestByName(String searchName);
+    @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio AND name = :searchName ORDER BY version DESC LIMIT 1")
+    LiveData<WorkoutInfoEntity> loadNewestByStudioAndName(String searchStudio, String searchName);
 
     @Insert
     void insert(List<WorkoutInfoEntity> workoutInfo);
@@ -42,6 +42,6 @@ public interface WorkoutInfoDao
     @Update
     void update(WorkoutInfoEntity... workoutInfo);
 
-    @Query("DELETE FROM WorkoutInfo WHERE name = :searchName AND version > :searchVersion")
-    void deleteNewerVersions(String searchName, int searchVersion);
+    @Query("DELETE FROM WorkoutInfo WHERE studio = :searchStudio AND name = :searchName AND version > :searchVersion")
+    void deleteNewerVersions(String searchStudio, String searchName, int searchVersion);
 }

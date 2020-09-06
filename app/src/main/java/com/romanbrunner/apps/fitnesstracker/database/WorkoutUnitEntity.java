@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.Objects;
 
 
-@Entity(tableName = "workoutUnits", foreignKeys = @ForeignKey(entity = WorkoutInfoEntity.class, parentColumns = {"name", "version"}, childColumns = {"workoutInfoName", "workoutInfoVersion"}, onDelete = ForeignKey.CASCADE), indices = @Index(value = {"workoutInfoName", "workoutInfoVersion"}))
+@Entity(tableName = "workoutUnits", foreignKeys = @ForeignKey(entity = WorkoutInfoEntity.class, parentColumns = {"studio", "name", "version"}, childColumns = {"workoutInfoStudio", "workoutInfoName", "workoutInfoVersion"}, onDelete = ForeignKey.CASCADE), indices = @Index(value = {"workoutInfoStudio", "workoutInfoName", "workoutInfoVersion"}))
 public class WorkoutUnitEntity implements WorkoutUnit
 {
     // --------------------
@@ -21,6 +21,7 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     @PrimaryKey
     private int id;
+    private String workoutInfoStudio;
     private String workoutInfoName;
     private int workoutInfoVersion;
     private Date date;
@@ -29,6 +30,12 @@ public class WorkoutUnitEntity implements WorkoutUnit
     public int getId()
     {
         return id;
+    }
+
+    @Override
+    public String getWorkoutInfoStudio()
+    {
+        return workoutInfoStudio;
     }
 
     @Override
@@ -56,6 +63,12 @@ public class WorkoutUnitEntity implements WorkoutUnit
     }
 
     @Override
+    public void setWorkoutInfoStudio(String workoutInfoStudio)
+    {
+        this.workoutInfoStudio = workoutInfoStudio;
+    }
+
+    @Override
     public void setWorkoutInfoName(String workoutInfoName)
     {
         this.workoutInfoName = workoutInfoName;
@@ -75,9 +88,10 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     WorkoutUnitEntity() {}
     @Ignore
-    public WorkoutUnitEntity(int id, String workoutInfoName, int workoutInfoVersion)
+    public WorkoutUnitEntity(int id, String workoutInfoStudio, String workoutInfoName, int workoutInfoVersion)
     {
         this.id = id;
+        this.workoutInfoStudio = workoutInfoStudio;
         this.workoutInfoName = workoutInfoName;
         this.workoutInfoVersion = workoutInfoVersion;
         date = new Date();  // Current date
@@ -85,12 +99,13 @@ public class WorkoutUnitEntity implements WorkoutUnit
     @Ignore
     public WorkoutUnitEntity(WorkoutUnit workoutUnit, int workoutId)
     {
-        this(workoutId, workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion());
+        this(workoutId, workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion());
     }
 
     public static boolean isContentTheSame(WorkoutUnit workoutUnitA, WorkoutUnit workoutUnitB)
     {
         return workoutUnitA.getId() == workoutUnitB.getId()
+            && Objects.equals(workoutUnitA.getWorkoutInfoStudio(), workoutUnitB.getWorkoutInfoStudio())
             && Objects.equals(workoutUnitA.getWorkoutInfoName(), workoutUnitB.getWorkoutInfoName())
             && workoutUnitA.getWorkoutInfoVersion() == workoutUnitB.getWorkoutInfoVersion()
             && workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0;

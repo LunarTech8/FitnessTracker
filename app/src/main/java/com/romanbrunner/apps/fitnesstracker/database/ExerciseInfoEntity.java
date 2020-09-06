@@ -24,8 +24,7 @@ public class ExerciseInfoEntity implements ExerciseInfo
     public static final String DEFAULT_VALUES_SEPARATOR = ",";  // Used for internal separation of data for each entry
     public static final String DEFAULT_VALUES_DELIMITER = ";";  // Used for external separation between entries
 
-    @PrimaryKey @NonNull
-    private String name = "InitNonNullName";
+    @PrimaryKey @NonNull private String name = "InitNonNullName";
     private String token;
     private String remarks;
     private String defaultValues;  // Stores repeats, weight, count (indirectly) and order

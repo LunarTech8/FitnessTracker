@@ -54,18 +54,29 @@
                     app:visibleGone="@{isWorkoutLoading}"
                     />
 
-                <Button
-                    android:id="@+id/workoutInfoButton"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
+                <TextView
+                    android:id="@+id/studioText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="0dp"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
+                    android:text="@{workoutInfo.studio}"
                     android:textAllCaps="false"
                     android:textSize="@dimen/comment_text_size"
-                    app:layout_constraintEnd_toStartOf="@+id/dateField"
+                    app:layout_constraintEnd_toStartOf="@+id/nextStudioButton"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
+
+                <Button
+                    android:id="@+id/nextStudioButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_nextStudioButton"
+                    app:layout_constraintEnd_toStartOf="@+id/dateField"
                     app:layout_constraintTop_toTopOf="parent"
                     app:visibleGone="@{!isWorkoutLoading}"
                     />
@@ -84,6 +95,17 @@
                     app:visibleGone="@{!isWorkoutLoading}" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <Button
+                android:id="@+id/workoutInfoButton"
+                style="@android:style/Widget.Material.Light.Button.Inset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
+                android:textAllCaps="false"
+                android:textSize="@dimen/comment_text_size"
+                app:visibleGone="@{!isWorkoutLoading}"
+                />
 
             <LinearLayout
                 android:id="@+id/infoBox"
@@ -169,8 +191,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_editModeButton"
-                app:visibleGone="@{!isTopBoxMinimized}"
-                />
+                app:visibleGone="@{!isTopBoxMinimized}" />
 
             <Button
                 android:id="@+id/nextWorkoutButton"

@@ -130,14 +130,14 @@ public class DataRepository
         });
     }
 
-    public LiveData<WorkoutInfoEntity> getWorkoutInfo(String name, int version)
+    public LiveData<WorkoutInfoEntity> getWorkoutInfo(String studio, String name, int version)
     {
-        return database.workoutInfoDao().loadByNameAndVersion(name, version);
+        return database.workoutInfoDao().loadByStudioAndNameAndVersion(studio, name, version);
     }
 
-    public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String name)
+    public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String studio, String name)
     {
-        return database.workoutInfoDao().loadNewestByName(name);
+        return database.workoutInfoDao().loadNewestByStudioAndName(studio, name);
     }
 
     public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
@@ -166,15 +166,15 @@ public class DataRepository
             return database.workoutUnitDao().loadNewestNormal();
         }
     }
-    private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit(String workoutInfoName, int workoutInfoVersion)
+    private LiveData<WorkoutUnitEntity> getNewestWorkoutUnit(String workoutInfoStudio, String workoutInfoName, int workoutInfoVersion)
     {
         if (MainActivity.DEBUG_MODE_ACTIVE)
         {
-            return database.workoutUnitDao().loadNewestByWorkoutInfoDebug(workoutInfoName, workoutInfoVersion);
+            return database.workoutUnitDao().loadNewestByWorkoutInfoDebug(workoutInfoStudio, workoutInfoName, workoutInfoVersion);
         }
         else
         {
-            return database.workoutUnitDao().loadNewestByWorkoutInfoNormal(workoutInfoName, workoutInfoVersion);
+            return database.workoutUnitDao().loadNewestByWorkoutInfoNormal(workoutInfoStudio, workoutInfoName, workoutInfoVersion);
         }
     }
 
@@ -258,9 +258,9 @@ public class DataRepository
         observableWorkoutUnit.setValue(workoutUnitEntity);
     }
 
-    public void deleteNewerWorkoutInfoVersions(String name, int version)
+    public void deleteNewerWorkoutInfoVersions(String studio, String name, int version)
     {
-        executor.execute(() -> database.workoutInfoDao().deleteNewerVersions(name, version));
+        executor.execute(() -> database.workoutInfoDao().deleteNewerVersions(studio, name, version));
     }
 
     public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)
@@ -296,13 +296,14 @@ public class DataRepository
 
     public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
     {
+        Log.d("changeWorkout", "workout info studio: " + newWorkoutInfo.getStudio());  // DEBUG:
         Log.d("changeWorkout", "workout info name: " + newWorkoutInfo.getName());  // DEBUG:
         Log.d("changeWorkout", "workout info version: " + newWorkoutInfo.getVersion());  // DEBUG:
         DataRepository.executeOnceForLiveData(observableWorkoutUnit, currentWorkoutUnit ->
         {
             if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
             final int workoutId = currentWorkoutUnit.getId();
-            DataRepository.executeOnceForLiveData(getNewestWorkoutUnit(newWorkoutInfo.getName(), newWorkoutInfo.getVersion()), oldWorkoutUnit ->
+            DataRepository.executeOnceForLiveData(getNewestWorkoutUnit(newWorkoutInfo.getStudio(), newWorkoutInfo.getName(), newWorkoutInfo.getVersion()), oldWorkoutUnit ->
             {
                 final WorkoutUnitEntity newWorkoutUnit;
                 final List<ExerciseSetEntity> newExercises = new ArrayList<>();
@@ -310,7 +311,7 @@ public class DataRepository
                 {
                     Log.d("changeWorkout", "default entries created");  // DEBUG:
                     // Create new entries by using default values:
-                    newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
+                    newWorkoutUnit = new WorkoutUnitEntity(workoutId, newWorkoutInfo.getStudio(), newWorkoutInfo.getName(), newWorkoutInfo.getVersion());
                     DataRepository.executeOnceForLiveData(getExerciseInfo(WorkoutInfoEntity.exerciseNames2NameSet(newWorkoutInfo.getExerciseNames())), exerciseInfoList ->
                     {
                         if (exerciseInfoList == null) throw new AssertionError("object cannot be null");

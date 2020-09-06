@@ -126,14 +126,14 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public LiveData<WorkoutInfoEntity> getWorkoutInfo(String name, int version)
+    public LiveData<WorkoutInfoEntity> getWorkoutInfo(String studio, String name, int version)
     {
-        return repository.getWorkoutInfo(name, version);
+        return repository.getWorkoutInfo(studio, name, version);
     }
 
-    public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String name)
+    public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String studio, String name)
     {
-        return repository.getNewestWorkoutInfo(name);
+        return repository.getNewestWorkoutInfo(studio, name);
     }
 
     public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
@@ -234,7 +234,7 @@ public class MainViewModel extends AndroidViewModel
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
                 if (workoutUnit == null) throw new AssertionError("object cannot be null");
-                DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo -> printWorkoutInfoData("Current workout info:", "No current workout info", Collections.singletonList(workoutInfo)));
+                DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo -> printWorkoutInfoData("Current workout info:", "No current workout info", Collections.singletonList(workoutInfo)));
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSetList ->
                 {
                     if (exerciseSetList == null) throw new AssertionError("object cannot be null");
@@ -275,8 +275,8 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public void resetWorkoutInfo(String name)
+    public void resetWorkoutInfo(String studio, String name)
     {
-        repository.deleteNewerWorkoutInfoVersions(name, 1);
+        repository.deleteNewerWorkoutInfoVersions(studio, name, 1);
     }
 }
