@@ -24,14 +24,20 @@ public interface WorkoutInfoDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM WorkoutInfo")
-    LiveData<List<WorkoutInfoEntity>> loadAll();
-
     @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio AND name = :searchName AND version = :searchVersion")
     LiveData<WorkoutInfoEntity> loadByStudioAndNameAndVersion(String searchStudio, String searchName, int searchVersion);
 
+    @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio")
+    LiveData<List<WorkoutInfoEntity>> loadByStudio(String searchStudio);
+
     @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio AND name = :searchName ORDER BY version DESC LIMIT 1")
     LiveData<WorkoutInfoEntity> loadNewestByStudioAndName(String searchStudio, String searchName);
+
+    @Query("SELECT * FROM WorkoutInfo WHERE studio = :searchStudio ORDER BY name ASC, version DESC LIMIT 1")
+    LiveData<WorkoutInfoEntity> loadFirstByStudio(String searchStudio);
+
+    @Query("SELECT * FROM WorkoutInfo")
+    LiveData<List<WorkoutInfoEntity>> loadAll();
 
     @Insert
     void insert(List<WorkoutInfoEntity> workoutInfo);

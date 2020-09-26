@@ -26,12 +26,6 @@ public interface WorkoutUnitDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllNormal();
-
-    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllDebug();
-
     @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadNewestNormal();
 
@@ -49,6 +43,18 @@ public interface WorkoutUnitDao
 
     @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
     LiveData<WorkoutUnitEntity> loadLastDebug();
+
+    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoStudio = :searchWorkoutInfoStudio AND workoutInfoName = :searchWorkoutInfoName AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
+    LiveData<List<WorkoutUnitEntity>> loadAllByWorkoutInfoNormal(String searchWorkoutInfoStudio, String searchWorkoutInfoName);
+
+    @Query("SELECT * FROM WorkoutUnits WHERE workoutInfoStudio = :searchWorkoutInfoStudio AND workoutInfoName = :searchWorkoutInfoName AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
+    LiveData<List<WorkoutUnitEntity>> loadAllByWorkoutInfoDebug(String searchWorkoutInfoStudio, String searchWorkoutInfoName);
+
+    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
+    LiveData<List<WorkoutUnitEntity>> loadAllNormal();
+
+    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
+    LiveData<List<WorkoutUnitEntity>> loadAllDebug();
 
     @Insert
     void insert(WorkoutUnitEntity... workoutUnits);

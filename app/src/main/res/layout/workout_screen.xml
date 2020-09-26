@@ -54,21 +54,6 @@
                     app:visibleGone="@{isWorkoutLoading}"
                     />
 
-                <TextView
-                    android:id="@+id/studioText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="0dp"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@{workoutInfo.studio}"
-                    android:textAllCaps="false"
-                    android:textSize="@dimen/comment_text_size"
-                    app:layout_constraintEnd_toStartOf="@+id/nextStudioButton"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isWorkoutLoading}"
-                    />
-
                 <Button
                     android:id="@+id/nextStudioButton"
                     style="@android:style/Widget.Material.Light.Button.Inset"
@@ -76,6 +61,29 @@
                     android:layout_height="@dimen/increment_button_size"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
                     android:text="@string/t_nextStudioButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
+
+                <EditText
+                    android:id="@+id/studioText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:autofillHints="text"
+                    android:hint="@string/h_emptyHint"
+                    android:inputType="textNoSuggestions"
+                    android:text="@{workoutInfo.studio}"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/comment_text_size"
+                    android:focusable="false"
+                    android:enabled="false"
+                    android:focusableInTouchMode="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/nextStudioButton"
                     app:layout_constraintEnd_toStartOf="@+id/dateField"
                     app:layout_constraintTop_toTopOf="parent"
                     app:visibleGone="@{!isWorkoutLoading}"
@@ -92,7 +100,8 @@
                     android:text="@={workoutUnit.date}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isWorkoutLoading}" />
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

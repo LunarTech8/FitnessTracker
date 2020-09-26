@@ -20,9 +20,6 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>- Implement studio as separate primary field for workout info
-    >- Implement nextStudioButton
-    >- Test MIGRATION_3_4
 !!>>>- Implement an "Add Exercise" button
 
 
@@ -30,6 +27,7 @@ Work status:
 // Backlog:
 // -------------
 
+!!!- Description changes should be saved
 !!!- Having entries with their dates not ascending causes wrong info for average interval
 !!- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Increase performance when scrolling through exercises

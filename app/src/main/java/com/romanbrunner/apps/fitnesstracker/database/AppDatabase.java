@@ -74,13 +74,15 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("ALTER TABLE `workoutUnits` RENAME TO `workoutUnits_old`");
 
             database.execSQL("CREATE TABLE `workoutInfo` (`studio` TEXT NOT NULL, `name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`studio`, `name`, `version`))");
-            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'McFit', 'HIT full-body', `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (McFit)'");
-            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'Body+Souls', 'HIT full-body', `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (Body+Souls)'");
+            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'McFit', 'HIT full-body', `version`, 'High intensity training full-body', `exerciseNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (McFit)'");
+            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'Body+Souls', 'HIT full-body', 1, 'High intensity training full-body', `exerciseNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (Body+Souls)' AND `version` = 1");
+            database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) SELECT 'Body+Souls', 'HIT full-body Bicycle', 1, 'High intensity training full-body with a bicycle tour as warm-up', `exerciseNames` FROM `workoutInfo_old` WHERE `name` = 'HIT full-body (Body+Souls)' AND `version` = 2");
 
             database.execSQL("CREATE TABLE `workoutUnits` (`id` INTEGER NOT NULL, `workoutInfoStudio` TEXT, `workoutInfoName` TEXT, `workoutInfoVersion` INTEGER NOT NULL, `date` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`) REFERENCES `workoutInfo`(`studio`, `name`, `version`) ON UPDATE NO ACTION ON DELETE CASCADE)");
             database.execSQL("CREATE INDEX `index_workoutUnits_workoutInfoStudio_workoutInfoName_workoutInfoVersion` ON `workoutUnits` (`workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`)");
-            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'McFit', 'HIT full-body', `version`, `date` FROM `workoutUnits_old` WHERE `name` = 'HIT full-body (McFit)'");
-            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'Body+Souls', 'HIT full-body', `version`, `date` FROM `workoutUnits_old` WHERE `name` = 'HIT full-body (Body+Souls)'");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'McFit', 'HIT full-body', `workoutInfoVersion`, `date` FROM `workoutUnits_old` WHERE `workoutInfoName` = 'HIT full-body (McFit)'");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'Body+Souls', 'HIT full-body', 1, `date` FROM `workoutUnits_old` WHERE `workoutInfoName` = 'HIT full-body (Body+Souls)' AND `workoutInfoVersion` = 1");
+            database.execSQL("INSERT INTO `workoutUnits` (`id`, `workoutInfoStudio`, `workoutInfoName`, `workoutInfoVersion`, `date`) SELECT `id`, 'Body+Souls', 'HIT full-body Bicycle', 1, `date` FROM `workoutUnits_old` WHERE `workoutInfoName` = 'HIT full-body (Body+Souls)' AND `workoutInfoVersion` = 2");
 
             database.execSQL("DROP TABLE `workoutInfo_old`");
             database.execSQL("DROP TABLE `workoutUnits_old`");
@@ -118,6 +120,18 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseNames += "RUECKENSTRECKER" + separator + 1 + delimiter;
         exerciseNames += "CRUNCH BAUCHBANK" + separator + 1 + delimiter;
         database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) VALUES('Body+Souls', 'HIT full-body', 1, 'High intensity training full-body', '" + exerciseNames + "')");
+        exerciseNames = "BICYCLE" + separator + 1 + delimiter;
+        exerciseNames += "KLIMMZUG BREIT ZUR BRUST" + separator + 3 + delimiter;
+        exerciseNames += "BEINSTRECKER" + separator + 1 + delimiter;
+        exerciseNames += "BEINBEUGER LIEGEND" + separator + 1 + delimiter;
+        exerciseNames += "BUTTERFLY" + separator + 1 + delimiter;
+        exerciseNames += "BEINPRESSE" + separator + 1 + delimiter;
+        exerciseNames += "OVERHEAD PRESS" + separator + 1 + delimiter;
+        exerciseNames += "BIZEPSMASCHINE" + separator + 1 + delimiter;
+        exerciseNames += "PUSHDOWN AM KABELZUG" + separator + 1 + delimiter;
+        exerciseNames += "RUECKENSTRECKER" + separator + 1 + delimiter;
+        exerciseNames += "CRUNCH BAUCHBANK" + separator + 1 + delimiter;
+        database.execSQL("INSERT INTO `workoutInfo` (`studio`, `name`, `version`, `description`, `exerciseNames`) VALUES('Body+Souls', 'HIT full-body Bicycle', 1, 'High intensity training full-body with a bicycle tour as warm-up', '" + exerciseNames + "')");
     }
 
     private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)
@@ -164,17 +178,19 @@ public abstract class AppDatabase extends RoomDatabase
         defaultValues = 17 + separator + 34.3F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BUTTERFLY', '141', 'Sitz: 5; Arme: 1', '" + defaultValues + "')");
         defaultValues = 19 + separator + 108.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINPRESSE', '150', 'Sitz: 8', '" + defaultValues + "')");
-        defaultValues = 16 + separator + 31.5F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINPRESSE', '150', 'Sitz: 6', '" + defaultValues + "')");
+        defaultValues = 15 + separator + 31.5F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('OVERHEAD PRESS', '40', 'Sitz: 3', '" + defaultValues + "')");
         defaultValues = 15 + separator + 34.3F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BIZEPSMASCHINE', '145', 'Sitz: 5', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 18.1F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BIZEPSMASCHINE', '145', 'Sitz: 7', '" + defaultValues + "')");
+        defaultValues = 18 + separator + 18.1F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('PUSHDOWN AM KABELZUG', '', '', '" + defaultValues + "')");
         defaultValues = 21 + separator + 0.F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('RUECKENSTRECKER', '34', 'Beine: 4', '" + defaultValues + "')");
-        defaultValues = 19 + separator + 0.F + delimiter;
+        defaultValues = 21 + separator + 0.F + delimiter;
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('CRUNCH BAUCHBANK', '58', 'Beine: 3', '" + defaultValues + "')");
+        defaultValues = 40 + separator + 0.F + delimiter;
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BICYCLE', '', 'Repeats in Minuten', '" + defaultValues + "')");
     }
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)

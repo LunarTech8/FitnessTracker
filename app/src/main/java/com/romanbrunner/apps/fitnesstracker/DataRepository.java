@@ -134,10 +134,19 @@ public class DataRepository
     {
         return database.workoutInfoDao().loadByStudioAndNameAndVersion(studio, name, version);
     }
+    public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo(String studio)
+    {
+        return database.workoutInfoDao().loadByStudio(studio);
+    }
 
     public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String studio, String name)
     {
         return database.workoutInfoDao().loadNewestByStudioAndName(studio, name);
+    }
+
+    public LiveData<WorkoutInfoEntity> getFirstWorkoutInfo(String studio)
+    {
+        return database.workoutInfoDao().loadFirstByStudio(studio);
     }
 
     public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
@@ -190,16 +199,34 @@ public class DataRepository
         }
     }
 
-    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits(String workoutInfoStudio, String workoutInfoName)
     {
         if (MainActivity.DEBUG_MODE_ACTIVE)
         {
-            return database.workoutUnitDao().loadAllDebug();
+            if (workoutInfoStudio == null && workoutInfoName == null)
+            {
+                return database.workoutUnitDao().loadAllDebug();
+            }
+            else
+            {
+                return database.workoutUnitDao().loadAllByWorkoutInfoDebug(workoutInfoStudio, workoutInfoName);
+            }
         }
         else
         {
-            return database.workoutUnitDao().loadAllNormal();
+            if (workoutInfoStudio == null && workoutInfoName == null)
+            {
+                return database.workoutUnitDao().loadAllNormal();
+            }
+            else
+            {
+                return database.workoutUnitDao().loadAllByWorkoutInfoNormal(workoutInfoStudio, workoutInfoName);
+            }
         }
+    }
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
+    {
+        return getAllWorkoutUnits(null, null);
     }
 
     public LiveData<List<ExerciseSetEntity>> getExerciseSets(WorkoutUnitEntity workoutUnit)

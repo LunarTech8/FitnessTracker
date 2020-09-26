@@ -130,10 +130,19 @@ public class MainViewModel extends AndroidViewModel
     {
         return repository.getWorkoutInfo(studio, name, version);
     }
+    public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo(String studio)
+    {
+        return repository.getWorkoutInfo(studio);
+    }
 
     public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String studio, String name)
     {
         return repository.getNewestWorkoutInfo(studio, name);
+    }
+
+    public LiveData<WorkoutInfoEntity> getFirstWorkoutInfo(String studio)
+    {
+        return repository.getFirstWorkoutInfo(studio);
     }
 
     public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
@@ -260,19 +269,20 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public void removeDebugWorkoutUnits()
+    public void removeWorkoutUnits(String workoutInfoStudio, String workoutInfoName)
     {
-        if (MainActivity.DEBUG_MODE_ACTIVE)
+        DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(workoutInfoStudio, workoutInfoName), workoutUnits ->
         {
-            DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits ->
+            if (workoutUnits != null && workoutUnits.size() > 1)
             {
-                if (workoutUnits != null && workoutUnits.size() > 1)
-                {
-                    repository.setCurrentWorkout(workoutUnits.remove(0));
-                    repository.deleteWorkoutUnits(workoutUnits);
-                }
-            });
-        }
+                repository.setCurrentWorkout(workoutUnits.remove(0));
+                repository.deleteWorkoutUnits(workoutUnits);
+            }
+        });
+    }
+    public void removeWorkoutUnits()
+    {
+        removeWorkoutUnits(null, null);
     }
 
     public void resetWorkoutInfo(String studio, String name)
