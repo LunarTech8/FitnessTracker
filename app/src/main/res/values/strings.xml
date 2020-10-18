@@ -3,7 +3,8 @@
     <string name="l_appName">Fitness Tracker</string>
     <string name="t_loadingText">Loading data&#x2026;</string>
 
-    <string name="t_nextStudioButton">&gt;&gt;</string>
+    <string name="t_nextButton">&gt;&gt;</string>
+    <string name="t_optionsButton">&#9881;</string>
     <string name="t_workoutInfoButtonText">%s V%s</string>
     <string name="t_workoutNameLabel">Name:</string>
     <string name="t_workoutVersionText">V%s</string>
@@ -12,14 +13,13 @@
     <string name="t_averageIntervalText">Average interval (\u00D8): %s days</string>
     <string name="t_lastWorkoutDateText">Last workout unit: %s</string>
 
-    <string name="t_nextWorkoutButton">Next workout</string>
     <string name="t_editModeButton">Switch edit mode</string>
     <string name="t_debugPrintLogButton">Print debug log</string>
     <string name="t_debugNextLogModeButton">Next debug log mode</string>
     <string name="t_debugRemoveWorkoutUnitsButton">Remove debug workout units</string>
     <string name="t_debugResetWorkoutButton">Reset current workout</string>
     <string name="t_addExerciseButton">Add new exercise</string>
-    <string name="t_finishButton">Finish workout</string>
+    <string name="t_finishButton">Finish workout (%s)</string>
 
     <string name="h_emptyHint">-</string>
     <string name="h_exerciseName">Exercise Name</string>

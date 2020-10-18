@@ -103,6 +103,17 @@ public class WorkoutInfoEntity implements WorkoutInfo
         return nameList;
     }
 
+    public static int exerciseNames2Amount(final String exerciseNames)
+    {
+        final String[] dataStringEntries = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
+        int amount = 0;
+        for (String dataString : dataStringEntries)
+        {
+            amount += Integer.parseInt(dataString.split(EXERCISE_NAMES_SEPARATOR)[1]);
+        }
+        return amount;
+    }
+
     public static String exerciseSets2exerciseNames(final List<ExerciseSetEntity> orderedExerciseSets)
     {
         // Condense ordered exercise sets into ordered exercise data with unique entry names and their occurrence count:

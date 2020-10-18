@@ -38,6 +38,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap;
     private List<ExerciseInfoEntity> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
+    private ExerciseSetAdapter.CallbackStatus changeExerciseStatus;
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
@@ -112,10 +113,11 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
     }
 
-    ExerciseInfoAdapter()
+    ExerciseInfoAdapter(ExerciseSetAdapter.CallbackStatus changeExerciseStatus)
     {
         exerciseInfo = null;
         adapters = null;
+        this.changeExerciseStatus = changeExerciseStatus;
     }
 
     private void checkForEmptyExercises()
@@ -197,7 +199,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = new ArrayList<>(exerciseInfoCount);
         for (int i = 0; i < exerciseInfoCount; i++)
         {
-            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises));
+            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises, changeExerciseStatus));
         }
         // Load/Reload all views:
         notifyDataSetChanged();

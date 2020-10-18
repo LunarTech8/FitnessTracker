@@ -37,8 +37,14 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
         void execute();
     }
 
+    public interface CallbackStatus
+    {
+        void set(boolean done);
+    }
+
     private List<? extends ExerciseSet> exerciseSets;
     private CallbackAction checkForEmptyExercisesAction;
+    private CallbackStatus changeExerciseStatus;
 
     static class ExerciseSetViewHolder extends RecyclerView.ViewHolder
     {
@@ -50,7 +56,11 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.exerciseIncrementButton.setOnClickListener((View view) ->
             {
-                binding.exerciseDoneCheckbox.setChecked(true);
+                if (!binding.exerciseDoneCheckbox.isChecked())
+                {
+                    binding.exerciseDoneCheckbox.setChecked(true);
+                    exerciseSetAdapter.changeExerciseStatus.set(true);
+                }
                 int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
                 float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
                 if (repeats > WEIGHTED_EXERCISE_REPEATS_MAX && weight > 0F)
@@ -60,6 +70,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 }
                 binding.exerciseRepeatsField.setText(String.valueOf(repeats));
             });
+            binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.changeExerciseStatus.set(binding.exerciseDoneCheckbox.isChecked()));
             binding.removeExerciseSetButton.setOnClickListener((View view) ->
             {
                 final int position = getAdapterPosition();
@@ -74,10 +85,11 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
         }
     }
 
-    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesAction)
+    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesAction, CallbackStatus changeExerciseStatus)
     {
         exerciseSets = null;
         this.checkForEmptyExercisesAction = checkForEmptyExercisesAction;
+        this.changeExerciseStatus = changeExerciseStatus;
     }
 
     @Override

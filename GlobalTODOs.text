@@ -21,6 +21,7 @@ Work status:
 // -------------
 
 !!>>>- Implement an "Add Exercise" button
+!!!>- Have a separate window (separate activity) to create and modify new workouts
 
 
 // -------------
@@ -29,9 +30,11 @@ Work status:
 
 !!!- Description changes should be saved
 !!!- Having entries with their dates not ascending causes wrong info for average interval
-!!- Adjust design to fit to all screen sizes (e.g. smaller width)
+!!- Find a better button style (centered like check box and no cutoffs)
+!- If not all workouts are done and finish button is pressed add a confirmation check
+!- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Increase performance when scrolling through exercises
-!- Have an "Enter Edit Mode"/"Leave Edit Mode" button instead of "Switch Edit Mode"
+!- Display "Enter Edit Mode"/"Leave Edit Mode" on the button instead of "Switch Edit Mode"
 !- Add option to switch between colour themes
 !- Make dark colour theme work
 
@@ -40,7 +43,6 @@ Work status:
 // Ideas/Concepts:
 // -------------
 
-!!>- Have a separate window to change between workouts and modify them
-!!- Have the option to change between lbs and kg
-!- Make workout info and exercise info dependable on fitness centre (eg. as additional primary key instead of using the name)
+!!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
+!!- Have a button to change between lbs and kg
 !- Add different exercise types (one for cardio, etc.)

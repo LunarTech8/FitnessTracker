@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
-    public static final boolean DEBUG_MODE_ACTIVE = true;
+    public static final boolean DEBUG_MODE_ACTIVE = false;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
     public static final int DEBUG_LOG_MAX_MODES = 5;
 
@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     public static boolean isEditModeActive = false;
     public static int debugLogMode = 4;
 
+    private int exercisesDone = 0;
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup recycle view adapter:
-        adapter = new ExerciseInfoAdapter();
+        adapter = new ExerciseInfoAdapter(this::changeExerciseStatus);
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
@@ -116,7 +117,7 @@ public class MainActivity extends AppCompatActivity
                 });
             });
         }));
-        binding.workoutInfoButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.nextWorkoutButton.setOnClickListener((View view) ->
         {
             final WorkoutInfoEntity currentWorkoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
@@ -262,10 +263,33 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void updateFinishedExercises()
+    {
+        final int exercisesTotal = WorkoutInfoEntity.exerciseNames2Amount(binding.getWorkoutInfo().getExerciseNames());
+        if (exercisesDone < 0 || exercisesDone > exercisesTotal)
+        {
+            Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
+        }
+        binding.setFinishedExercises(String.format(Locale.getDefault(), "%d/%d", exercisesDone, exercisesTotal));
+    }
+
+    private void changeExerciseStatus(boolean done)
+    {
+        if (done)
+        {
+            exercisesDone += 1;
+        }
+        else
+        {
+            exercisesDone -= 1;
+        }
+        updateFinishedExercises();
+    }
+
     // Update the layout binding when the data in the view model changes:
     private void subscribeUi(final MainViewModel viewModel)
     {
-        // Current entry:
+        // Current workout entry:
         viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
         {
             if (workoutUnit != null)
@@ -289,6 +313,8 @@ public class MainActivity extends AppCompatActivity
                             adapter.setExercise(binding.getWorkoutInfo().getExerciseNames(), exerciseInfoList, exerciseSetList);
                             binding.setIsWorkoutLoading(false);
                             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                            exercisesDone = 0;
+                            updateFinishedExercises();
                         });
                     });
                 });

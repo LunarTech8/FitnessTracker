@@ -12,6 +12,7 @@
         <variable name="isEditModeActive" type="boolean" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
+        <variable name="finishedExercises" type="String" />
         <variable name="workoutInfo" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo" />
         <variable name="workoutUnit" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutUnit" />
     </data>
@@ -36,7 +37,7 @@
             >
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/headerRow"
+                android:id="@+id/headerRowOne"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -60,7 +61,7 @@
                     android:layout_width="@dimen/increment_button_size"
                     android:layout_height="@dimen/increment_button_size"
                     android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
-                    android:text="@string/t_nextStudioButton"
+                    android:text="@string/t_nextButton"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -105,16 +106,64 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <Button
-                android:id="@+id/workoutInfoButton"
-                style="@android:style/Widget.Material.Light.Button.Inset"
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/headerRowTwo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
-                android:textAllCaps="false"
-                android:textSize="@dimen/comment_text_size"
-                app:visibleGone="@{!isWorkoutLoading}"
-                />
+                android:orientation="horizontal"
+                >
+
+                <Button
+                    android:id="@+id/nextWorkoutButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_nextButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
+                    />
+
+                <EditText
+                    android:id="@+id/workoutText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:autofillHints="text"
+                    android:hint="@string/h_emptyHint"
+                    android:inputType="textNoSuggestions"
+                    android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/comment_text_size"
+                    android:focusable="false"
+                    android:enabled="false"
+                    android:focusableInTouchMode="false"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/nextWorkoutButton"
+                    app:layout_constraintEnd_toStartOf="@+id/optionsButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
+
+                <Button
+                    android:id="@+id/optionsButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:text="@string/t_optionsButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:textAllCaps="false"
+                    android:textSize="@dimen/options_button_size"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
                 android:id="@+id/infoBox"
@@ -203,14 +252,6 @@
                 app:visibleGone="@{!isTopBoxMinimized}" />
 
             <Button
-                android:id="@+id/nextWorkoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_nextWorkoutButton"
-                app:visibleGone="@{!isTopBoxMinimized ? !isEditModeActive : false}"
-                />
-
-            <Button
                 android:id="@+id/debugPrintLogButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -292,7 +333,7 @@
                 android:id="@+id/finishButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/t_finishButton"
+                android:text="@{@string/t_finishButton(finishedExercises)}"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"

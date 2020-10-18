@@ -32,6 +32,8 @@
                     android:layout_width="@dimen/increment_button_size"
                     android:layout_height="@dimen/increment_button_size"
                     android:checked="@={exerciseSet.done}"
+                    android:scaleX="@dimen/done_checkbox_scale"
+                    android:scaleY="@dimen/done_checkbox_scale"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
