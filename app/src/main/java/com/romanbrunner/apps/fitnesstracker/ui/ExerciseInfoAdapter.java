@@ -36,9 +36,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     // --------------------
 
     private static Map<String, List<ExerciseSetEntity>> exerciseInfo2SetsMap;
+    private final ExerciseSetAdapter.CallbackStatus exerciseStatusCb;
+    private final ExerciseSetAdapter.CallbackFocus editTextFocusCb;
     private List<ExerciseInfoEntity> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
-    private ExerciseSetAdapter.CallbackStatus changeExerciseStatus;
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
@@ -48,6 +49,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         ExerciseInfoViewHolder(ExerciseCardBinding binding, ExerciseInfoAdapter exerciseInfoAdapter)
         {
             super(binding.getRoot());
+            this.binding = binding;
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.setsBoard.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
             binding.addSetButton.setOnClickListener((View view) ->
@@ -65,8 +67,9 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
                 exerciseInfoAdapter.notifyItemChanged(getAdapterPosition());
             });
-            this.binding = binding;
-
+            binding.exerciseNameField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
+            binding.exerciseRemarksField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
+            binding.exerciseTokenField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
             // Create and add a text watcher to the name field:
             binding.exerciseNameField.addTextChangedListener(new TextWatcher()
             {
@@ -89,12 +92,15 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                             final String afterTextChanged = s.toString();
                             // Remove old data:
                             exerciseInfo2SetsMap.remove(beforeTextChanged);
+                            Log.d("onTextChanged", beforeTextChanged);  // DEBUG: crash after renaming (eg. Beinbeugerff, Beinbeuger) -> other entry probably gets removed when having same text
                             // Adjust exercise info name of linked exercise sets:
                             for (ExerciseSetEntity exerciseSet : exerciseSets)
                             {
                                 exerciseSet.setExerciseInfoName(afterTextChanged);
                             }
                             // Merge exercise sets list if new exercise info name already existed:
+                            // FIXME: avoid removing other entries than the current (even when shortly having the same name)
+                            // FIXME: maybe only adjust the database if user is "finished" with renaming and not on each key press -> setOnFocusChangeListener
                             final List<ExerciseSetEntity> exerciseSetsWithNewName = exerciseInfo2SetsMap.getOrDefault(afterTextChanged, null);
                             if (exerciseSetsWithNewName != null)
                             {
@@ -113,11 +119,12 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
     }
 
-    ExerciseInfoAdapter(ExerciseSetAdapter.CallbackStatus changeExerciseStatus)
+    ExerciseInfoAdapter(ExerciseSetAdapter.CallbackStatus exerciseStatusCb, ExerciseSetAdapter.CallbackFocus editTextFocusCb)
     {
+        this.exerciseStatusCb = exerciseStatusCb;
+        this.editTextFocusCb = editTextFocusCb;
         exerciseInfo = null;
         adapters = null;
-        this.changeExerciseStatus = changeExerciseStatus;
     }
 
     private void checkForEmptyExercises()
@@ -151,6 +158,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         List<ExerciseSetEntity> orderedExerciseSets = new LinkedList<>();
         for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
         {
+            Log.d("getExerciseSets", exerciseInfoEntity.getName());  // DEBUG: crash when trying to get second entry with same name start (eg. Beinbeugerff, Beinbeuger) -> exerciseInfo2SetsMap.get must return null
             orderedExerciseSets.addAll(Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfoEntity.getName())));
         }
         return orderedExerciseSets;
@@ -199,7 +207,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = new ArrayList<>(exerciseInfoCount);
         for (int i = 0; i < exerciseInfoCount; i++)
         {
-            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises, changeExerciseStatus));
+            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises, exerciseStatusCb, editTextFocusCb));
         }
         // Load/Reload all views:
         notifyDataSetChanged();

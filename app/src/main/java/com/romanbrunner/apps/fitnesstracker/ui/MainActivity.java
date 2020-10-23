@@ -1,8 +1,10 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup recycle view adapter:
-        adapter = new ExerciseInfoAdapter(this::changeExerciseStatus);
+        adapter = new ExerciseInfoAdapter(this::changeExerciseStatus, this::setEditTextFocusInExercisesBoard);
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
@@ -117,7 +119,6 @@ public class MainActivity extends AppCompatActivity
                 });
             });
         }));
-        binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.nextWorkoutButton.setOnClickListener((View view) ->
         {
             final WorkoutInfoEntity currentWorkoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
@@ -162,6 +163,9 @@ public class MainActivity extends AppCompatActivity
                 });
             });
         });
+        binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.dateField.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
+        binding.workoutDescriptionText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
@@ -245,6 +249,7 @@ public class MainActivity extends AppCompatActivity
             viewModel.storeExerciseInfo(exerciseInfo);
             viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
         });
+
         subscribeUi(viewModel);
 
         // Add debugging button listeners:
@@ -263,6 +268,12 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void hideKeyboard(View view)
+    {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(inputMethodManager).hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
     private void updateFinishedExercises()
     {
         final int exercisesTotal = WorkoutInfoEntity.exerciseNames2Amount(binding.getWorkoutInfo().getExerciseNames());
@@ -271,6 +282,29 @@ public class MainActivity extends AppCompatActivity
             Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
         }
         binding.setFinishedExercises(String.format(Locale.getDefault(), "%d/%d", exercisesDone, exercisesTotal));
+    }
+
+    private void setEditTextFocusInTopBox(View view, boolean hasFocus)
+    {
+        if (!hasFocus)
+        {
+            // Hide keyboard when tapping out of edit text:
+            hideKeyboard(view);
+        }
+    }
+
+    private void setEditTextFocusInExercisesBoard(View view, boolean hasFocus)
+    {
+        if (!hasFocus)
+        {
+            // Hide keyboard when tapping out of edit text:
+            hideKeyboard(view);
+        }
+        else
+        {
+            // Minimize top box to have enough space for keyboard and edit text:
+            binding.setIsTopBoxMinimized(true);
+        }
     }
 
     private void changeExerciseStatus(boolean done)

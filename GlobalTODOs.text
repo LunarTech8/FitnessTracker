@@ -21,6 +21,9 @@ Work status:
 // -------------
 
 !!>>>- Implement an "Add Exercise" button
+!!!!>- Crash when trying to get second entry with same name start (eg. Beinbeugerff, Beinbeuger) after switch out of edit mode
+    - exerciseInfo2SetsMap.get(...) must return null
+    - Other entry probably gets removed when having same text in onTextChanged during edit
 !!!>- Have a separate window (separate activity) to create and modify new workouts
 
 
@@ -32,6 +35,7 @@ Work status:
 !!!- Having entries with their dates not ascending causes wrong info for average interval
 !!- Find a better button style (centered like check box and no cutoffs)
 !- If not all workouts are done and finish button is pressed add a confirmation check
+!- Find a solution to lose focus of an edit text when clicking on a disabled edit text
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Increase performance when scrolling through exercises
 !- Display "Enter Edit Mode"/"Leave Edit Mode" on the button instead of "Switch Edit Mode"

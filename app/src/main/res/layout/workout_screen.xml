@@ -23,6 +23,8 @@
         android:orientation="vertical"
         android:background="?attr/bgColor"
         android:padding="4dp"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
         tools:context=".ui.MainActivity"
         >
 
@@ -65,7 +67,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isWorkoutLoading}"
+                    app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
                     />
 
                 <EditText

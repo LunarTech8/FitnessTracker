@@ -39,12 +39,18 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
 
     public interface CallbackStatus
     {
-        void set(boolean done);
+        void change(boolean done);
     }
 
+    public interface CallbackFocus
+    {
+        void set(View view, boolean hasFocus);
+    }
+
+    private final CallbackAction checkForEmptyExercisesCb;
+    private final CallbackStatus exerciseStatusCb;
+    private final CallbackFocus editTextFocusCb;
     private List<? extends ExerciseSet> exerciseSets;
-    private CallbackAction checkForEmptyExercisesAction;
-    private CallbackStatus changeExerciseStatus;
 
     static class ExerciseSetViewHolder extends RecyclerView.ViewHolder
     {
@@ -59,7 +65,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 if (!binding.exerciseDoneCheckbox.isChecked())
                 {
                     binding.exerciseDoneCheckbox.setChecked(true);
-                    exerciseSetAdapter.changeExerciseStatus.set(true);
+                    exerciseSetAdapter.exerciseStatusCb.change(true);
                 }
                 int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
                 float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
@@ -70,7 +76,9 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 }
                 binding.exerciseRepeatsField.setText(String.valueOf(repeats));
             });
-            binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.changeExerciseStatus.set(binding.exerciseDoneCheckbox.isChecked()));
+            binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.exerciseStatusCb.change(binding.exerciseDoneCheckbox.isChecked()));
+            binding.exerciseRepeatsField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
+            binding.exerciseWeightField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
             binding.removeExerciseSetButton.setOnClickListener((View view) ->
             {
                 final int position = getAdapterPosition();
@@ -78,18 +86,19 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 exerciseSetAdapter.notifyItemRemoved(position);
                 if (exerciseSetAdapter.exerciseSets.size() <= 0)
                 {
-                    exerciseSetAdapter.checkForEmptyExercisesAction.execute();
+                    exerciseSetAdapter.checkForEmptyExercisesCb.execute();
                 }
             });
             this.binding = binding;
         }
     }
 
-    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesAction, CallbackStatus changeExerciseStatus)
+    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesCb, CallbackStatus exerciseStatusCb, CallbackFocus editTextFocusCb)
     {
+        this.checkForEmptyExercisesCb = checkForEmptyExercisesCb;
+        this.exerciseStatusCb = exerciseStatusCb;
+        this.editTextFocusCb = editTextFocusCb;
         exerciseSets = null;
-        this.checkForEmptyExercisesAction = checkForEmptyExercisesAction;
-        this.changeExerciseStatus = changeExerciseStatus;
     }
 
     @Override
