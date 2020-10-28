@@ -1,6 +1,7 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -239,15 +240,24 @@ public class MainActivity extends AppCompatActivity
             workoutInfo.setExerciseNames(WorkoutInfoEntity.exerciseSets2exerciseNames(newExerciseSetsList));
             adapter.setExercise(workoutInfo.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
             Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseNames());  // DEBUG:
-            // TODO: the view should be scrolled to the bottom so that the new exercise entry is shown
+            binding.exercisesBoard.smoothScrollToPosition(adapter.getItemCount());
         });
         binding.finishButton.setOnClickListener((View view) ->
         {
-            final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
-            final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
-            viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
-            viewModel.storeExerciseInfo(exerciseInfo);
-            viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
+            if (exercisesDone < WorkoutInfoEntity.exerciseNames2Amount(binding.getWorkoutInfo().getExerciseNames()))
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Incomplete workout!");
+                builder.setMessage("Do you really want to finish the incomplete workout?");
+                builder.setIcon(android.R.drawable.ic_dialog_alert);
+                builder.setPositiveButton(android.R.string.yes, (dialog, whichButton) -> finishWorkout());
+                builder.setNegativeButton(android.R.string.no, null);
+                builder.show();
+            }
+            else
+            {
+                finishWorkout();
+            }
         });
 
         subscribeUi(viewModel);
@@ -266,6 +276,15 @@ public class MainActivity extends AppCompatActivity
             viewModel.removeWorkoutUnits(workoutInfo.getStudio(), workoutInfo.getName());
             viewModel.resetWorkoutInfo(workoutInfo.getStudio(), workoutInfo.getName());
         });
+    }
+
+    private void finishWorkout()
+    {
+        final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+        final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
+        viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
+        viewModel.storeExerciseInfo(exerciseInfo);
+        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
     }
 
     private void hideKeyboard(View view)
