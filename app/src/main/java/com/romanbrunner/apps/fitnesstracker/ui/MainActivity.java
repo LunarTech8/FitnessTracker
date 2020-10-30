@@ -236,10 +236,8 @@ public class MainActivity extends AppCompatActivity
             newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getId(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout info and exercise adapter:
             final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
-            Log.d("onCreate", "old exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
             workoutInfo.setExerciseNames(WorkoutInfoEntity.exerciseSets2exerciseNames(newExerciseSetsList));
             adapter.setExercise(workoutInfo.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
-            Log.d("onCreate", "new exercise info names: " + binding.getWorkoutInfo().getExerciseNames());  // DEBUG:
             binding.exercisesBoard.smoothScrollToPosition(adapter.getItemCount());
         });
         binding.finishButton.setOnClickListener((View view) ->

@@ -20,10 +20,6 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>>- Implement an "Add Exercise" button
-!!!!>- Crash when trying to get second entry with same name start (eg. Beinbeugerff, Beinbeuger) after switch out of edit mode
-    - exerciseInfo2SetsMap.get(...) must return null
-    - Other entry probably gets removed when having same text in onTextChanged during edit
 !!!>- Have a separate window (separate activity) to create and modify new workouts
 
 

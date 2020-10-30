@@ -1,7 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,7 +42,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
         private final ExerciseCardBinding binding;
-        private boolean isRecycled = true;
+        private String oldExerciseInfoName = null;
 
         ExerciseInfoViewHolder(ExerciseCardBinding binding, ExerciseInfoAdapter exerciseInfoAdapter)
         {
@@ -67,55 +65,42 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
                 exerciseInfoAdapter.notifyItemChanged(getAdapterPosition());
             });
-            binding.exerciseNameField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
+            binding.exerciseNameField.setOnFocusChangeListener((view, hasFocus) ->
+            {
+                if (hasFocus)
+                {
+                    // Memorise current name when tapping into name field:
+                    oldExerciseInfoName = binding.getExerciseInfo().getName();
+                }
+                else if (oldExerciseInfoName != null)
+                {
+                    // Adjust name when tapping out of name field:
+                    final String newExerciseInfoName = binding.getExerciseInfo().getName();
+                    final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(oldExerciseInfoName);
+                    if (exerciseSets != null)
+                    {
+                        // Remove old data:
+                        exerciseInfo2SetsMap.remove(oldExerciseInfoName);
+                        // Adjust exercise info name of linked exercise sets:
+                        for (ExerciseSetEntity exerciseSet : exerciseSets)
+                        {
+                            exerciseSet.setExerciseInfoName(newExerciseInfoName);
+                        }
+                        // Merge exercise sets list if new exercise info name already existed:
+                        final List<ExerciseSetEntity> exerciseSetsWithNewName = exerciseInfo2SetsMap.getOrDefault(newExerciseInfoName, null);
+                        if (exerciseSetsWithNewName != null)
+                        {
+                            exerciseSets.addAll(exerciseSetsWithNewName);
+                        }
+                        // Add adjusted data:
+                        exerciseInfo2SetsMap.put(newExerciseInfoName, exerciseSets);
+                    }
+                    oldExerciseInfoName = null;
+                }
+                exerciseInfoAdapter.editTextFocusCb.set(view, hasFocus);
+            });
             binding.exerciseRemarksField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
             binding.exerciseTokenField.setOnFocusChangeListener(exerciseInfoAdapter.editTextFocusCb::set);
-            // Create and add a text watcher to the name field:
-            binding.exerciseNameField.addTextChangedListener(new TextWatcher()
-            {
-                private String beforeTextChanged = null;
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after)
-                {
-                    beforeTextChanged = s.toString();
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count)
-                {
-                    if (!isRecycled)
-                    {
-                        final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(beforeTextChanged);
-                        if (exerciseSets != null)
-                        {
-                            final String afterTextChanged = s.toString();
-                            // Remove old data:
-                            exerciseInfo2SetsMap.remove(beforeTextChanged);
-                            Log.d("onTextChanged", beforeTextChanged);  // DEBUG: crash after renaming (eg. Beinbeugerff, Beinbeuger) -> other entry probably gets removed when having same text
-                            // Adjust exercise info name of linked exercise sets:
-                            for (ExerciseSetEntity exerciseSet : exerciseSets)
-                            {
-                                exerciseSet.setExerciseInfoName(afterTextChanged);
-                            }
-                            // Merge exercise sets list if new exercise info name already existed:
-                            // FIXME: avoid removing other entries than the current (even when shortly having the same name)
-                            // FIXME: maybe only adjust the database if user is "finished" with renaming and not on each key press -> setOnFocusChangeListener
-                            final List<ExerciseSetEntity> exerciseSetsWithNewName = exerciseInfo2SetsMap.getOrDefault(afterTextChanged, null);
-                            if (exerciseSetsWithNewName != null)
-                            {
-                                exerciseSets.addAll(exerciseSetsWithNewName);
-                            }
-                            // Add adjusted data:
-                            exerciseInfo2SetsMap.put(afterTextChanged, exerciseSets);
-                        }
-                    }
-                    beforeTextChanged = null;
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {}
-            });
         }
     }
 
@@ -129,7 +114,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
     private void checkForEmptyExercises()
     {
-        Log.d("removeEmptyExercise", "removeEmptyExercise called");
         Set<Integer> removableExercisePositions = new HashSet<>();
         for (int i = 0; i < exerciseInfo.size(); i++)
         {
@@ -140,7 +124,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
         for (int position : removableExercisePositions)
         {
-            Log.d("removeEmptyExercise", "Empty exerciseSets in position " + position);
             exerciseInfo2SetsMap.remove(exerciseInfo.get(position).getName());
             exerciseInfo.remove(position);
             adapters.remove(position);
@@ -158,7 +141,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         List<ExerciseSetEntity> orderedExerciseSets = new LinkedList<>();
         for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
         {
-            Log.d("getExerciseSets", exerciseInfoEntity.getName());  // DEBUG: crash when trying to get second entry with same name start (eg. Beinbeugerff, Beinbeuger) -> exerciseInfo2SetsMap.get must return null
             orderedExerciseSets.addAll(Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfoEntity.getName())));
         }
         return orderedExerciseSets;
@@ -244,7 +226,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         exerciseInfoViewHolder.binding.exerciseNameField.setEnabled(MainActivity.isEditModeActive);
         exerciseInfoViewHolder.binding.exerciseNameField.setFocusableInTouchMode(MainActivity.isEditModeActive);
         exerciseInfoViewHolder.binding.executePendingBindings();
-        exerciseInfoViewHolder.isRecycled = false;
 
         // Adjust adapter for exercise sets of targeted exercise info:
         ExerciseSetAdapter adapter = adapters.get(position);
@@ -256,7 +237,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     public void onViewRecycled(@NonNull ExerciseInfoViewHolder exerciseInfoViewHolder)
     {
         super.onViewRecycled(exerciseInfoViewHolder);
-        exerciseInfoViewHolder.isRecycled = true;
     }
 
     @Override
