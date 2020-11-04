@@ -30,5 +30,7 @@
     <string name="t_exerciseWeightLabel">Weight:</string>
     <string name="t_exerciseIncrement">+</string>
     <string name="t_exerciseRemarksLabel">Remarks:</string>
+    <string name="t_moveUpButton">&#8679;</string>
+    <string name="t_moveDownButton">&#8681;</string>
     <string name="t_exerciseAddSetButton">Add new set</string>
 </resources>

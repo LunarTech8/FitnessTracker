@@ -50,6 +50,22 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             this.binding = binding;
             binding.setIsEditModeActive(MainActivity.isEditModeActive);
             binding.setsBoard.setLayoutManager(new LinearLayoutManager(binding.getRoot().getContext()));
+            binding.moveUpButton.setOnClickListener((View view) ->
+            {
+                final int currentPosition = getAdapterPosition();
+                if (currentPosition > 0)
+                {
+                    exerciseInfoAdapter.swapExercisePositions(currentPosition, currentPosition - 1);
+                }
+            });
+            binding.moveDownButton.setOnClickListener((View view) ->
+            {
+                final int currentPosition = getAdapterPosition();
+                if (currentPosition < exerciseInfoAdapter.getItemCount() - 1)
+                {
+                    exerciseInfoAdapter.swapExercisePositions(currentPosition, currentPosition + 1);
+                }
+            });
             binding.addSetButton.setOnClickListener((View view) ->
             {
                 final String exerciseInfoName = binding.getExerciseInfo().getName();
@@ -129,6 +145,12 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             adapters.remove(position);
             notifyItemRemoved(position);
         }
+    }
+
+    private void swapExercisePositions(int oldPosition, int newPosition)
+    {
+        Collections.swap(exerciseInfo, oldPosition, newPosition);
+        notifyItemMoved(oldPosition, newPosition);
     }
 
     List<ExerciseInfoEntity> getExerciseInfo()

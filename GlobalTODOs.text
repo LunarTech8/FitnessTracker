@@ -20,6 +20,7 @@ Work status:
 // Worklog:
 // -------------
 
+!!- Find a better button style (centered like check box and no cutoffs)
 !!!>- Have a separate window (separate activity) to create and modify new workouts
 
 
@@ -29,7 +30,6 @@ Work status:
 
 !!!- Description changes should be saved
 !!!- Having entries with their dates not ascending causes wrong info for average interval
-!!- Find a better button style (centered like check box and no cutoffs)
 !- Find a solution to lose focus of an edit text when clicking on a disabled edit text
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Increase performance when scrolling through exercises
@@ -44,4 +44,4 @@ Work status:
 
 !!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
 !!- Have a button to change between lbs and kg
-!- Add different exercise types (one for cardio, etc.)
+!- Maybe add different exercise types (one for cardio, etc.)

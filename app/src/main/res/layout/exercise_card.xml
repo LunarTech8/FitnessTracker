@@ -96,13 +96,50 @@
                 app:layoutManager="LinearLayoutManager"
                 />
 
-            <Button
-                android:id="@+id/addSetButton"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/editRow"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/t_exerciseAddSetButton"
+                android:orientation="horizontal"
                 app:visibleGone="@{isEditModeActive}"
-                />
+                >
+
+                <Button
+                    android:id="@+id/moveUpButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:text="@string/t_moveUpButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
+                <Button
+                    android:id="@+id/moveDownButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/increment_button_size"
+                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_moveDownButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/moveUpButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
+                <Button
+                    android:id="@+id/addSetButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:text="@string/t_exerciseAddSetButton"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/moveDownButton"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 
