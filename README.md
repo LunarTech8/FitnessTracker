@@ -10,7 +10,7 @@ More in-depth data, settings and edit options can be accessed via an expandable 
     <td>Expanded top box</td>
   </tr>
   <tr>
-    <td><img src="app/src/main/res/pics/Showcase01.jpg" width=384></td>
-    <td><img src="app/src/main/res/pics/Showcase02.jpg" width=384></td>
+    <td><img src="app/src/main/pics/Showcase01.jpg" width=384></td>
+    <td><img src="app/src/main/pics/Showcase02.jpg" width=384></td>
   </tr>
 </table>
