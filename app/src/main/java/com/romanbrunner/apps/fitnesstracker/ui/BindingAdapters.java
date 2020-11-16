@@ -1,6 +1,5 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
