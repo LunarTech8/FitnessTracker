@@ -49,13 +49,137 @@ public class MainActivity extends AppCompatActivity
     // Functional code
     // --------------------
 
-    public static boolean isEditModeActive = false;
-    public static int debugLogMode = 4;
-
     private int exercisesDone = 0;
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
+
+    public static boolean isEditModeActive = false;
+    public static int debugLogMode = 4;
+
+    private void finishWorkout()
+    {
+        final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
+        final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
+        viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
+        viewModel.storeExerciseInfo(exerciseInfo);
+        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
+    }
+
+    private void hideKeyboard(View view)
+    {
+        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
+        Objects.requireNonNull(inputMethodManager).hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    private void updateFinishedExercises()
+    {
+        final int exercisesTotal = WorkoutInfoEntity.exerciseNames2Amount(binding.getWorkoutInfo().getExerciseNames());
+        if (exercisesDone < 0 || exercisesDone > exercisesTotal)
+        {
+            Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
+        }
+        binding.setFinishedExercises(String.format(Locale.getDefault(), "%d/%d", exercisesDone, exercisesTotal));
+    }
+
+    private void setEditTextFocusInTopBox(View view, boolean hasFocus)
+    {
+        if (!hasFocus)
+        {
+            // Hide keyboard when tapping out of edit text:
+            hideKeyboard(view);
+        }
+    }
+
+    private void setEditTextFocusInExercisesBoard(View view, boolean hasFocus)
+    {
+        if (!hasFocus)
+        {
+            // Hide keyboard when tapping out of edit text:
+            hideKeyboard(view);
+        }
+        else
+        {
+            // Minimize top box to have enough space for keyboard and edit text:
+            binding.setIsTopBoxMinimized(true);
+        }
+    }
+
+    private void changeExerciseStatus(boolean done)
+    {
+        if (done)
+        {
+            exercisesDone += 1;
+        }
+        else
+        {
+            exercisesDone -= 1;
+        }
+        updateFinishedExercises();
+    }
+
+    // Update the layout binding when the data in the view model changes:
+    private void subscribeUi(final MainViewModel viewModel)
+    {
+        // Current workout entry:
+        viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
+        {
+            if (workoutUnit != null)
+            {
+                Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName() + " V" + workoutUnit.getWorkoutInfoVersion());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
+                binding.setWorkoutUnit(workoutUnit);
+
+                DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
+                {
+                    if (workoutInfo == null) throw new AssertionError("object cannot be null");
+                    Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
+                    binding.setWorkoutInfo(workoutInfo);
+                    DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
+                    {
+                        if (exerciseSetList == null) throw new AssertionError("object cannot be null");
+                        Log.d("subscribeUi", "current getExerciseSets: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
+                        DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
+                        {
+                            if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
+                            Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
+                            adapter.setExercise(binding.getWorkoutInfo().getExerciseNames(), exerciseInfoList, exerciseSetList);
+                            binding.setIsWorkoutLoading(false);
+                            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                            exercisesDone = 0;
+                            updateFinishedExercises();
+                        });
+                    });
+                });
+            }
+            else
+            {
+                binding.setIsWorkoutLoading(true);
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            }
+        });
+        // Entries for statistics:
+        viewModel.getLastWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
+        {
+            if (workoutUnit != null)
+            {
+                binding.setLastWorkoutDate(SimpleDateFormat.getDateInstance().format(workoutUnit.getDate()));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            }
+        });
+        viewModel.getAllWorkoutUnits().observe(this, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
+        {
+            if (workoutUnits != null)
+            {
+                float averageInterval = 0F;
+                for (int i = 1; i < workoutUnits.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
+                {
+                    averageInterval += TimeUnit.DAYS.convert(workoutUnits.get(i).getDate().getTime() - workoutUnits.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
+                }
+                binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workoutUnits.size() - 2)));
+                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            }
+        });
+    }
 
     /* Is called every time the activity is recreated (eg. when rotating the screen) */
     @Override
@@ -273,130 +397,6 @@ public class MainActivity extends AppCompatActivity
             final WorkoutInfoEntity workoutInfo = (WorkoutInfoEntity)binding.getWorkoutInfo();
             viewModel.removeWorkoutUnits(workoutInfo.getStudio(), workoutInfo.getName());
             viewModel.resetWorkoutInfo(workoutInfo.getStudio(), workoutInfo.getName());
-        });
-    }
-
-    private void finishWorkout()
-    {
-        final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
-        final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
-        viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
-        viewModel.storeExerciseInfo(exerciseInfo);
-        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
-    }
-
-    private void hideKeyboard(View view)
-    {
-        InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
-        Objects.requireNonNull(inputMethodManager).hideSoftInputFromWindow(view.getWindowToken(), 0);
-    }
-
-    private void updateFinishedExercises()
-    {
-        final int exercisesTotal = WorkoutInfoEntity.exerciseNames2Amount(binding.getWorkoutInfo().getExerciseNames());
-        if (exercisesDone < 0 || exercisesDone > exercisesTotal)
-        {
-            Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
-        }
-        binding.setFinishedExercises(String.format(Locale.getDefault(), "%d/%d", exercisesDone, exercisesTotal));
-    }
-
-    private void setEditTextFocusInTopBox(View view, boolean hasFocus)
-    {
-        if (!hasFocus)
-        {
-            // Hide keyboard when tapping out of edit text:
-            hideKeyboard(view);
-        }
-    }
-
-    private void setEditTextFocusInExercisesBoard(View view, boolean hasFocus)
-    {
-        if (!hasFocus)
-        {
-            // Hide keyboard when tapping out of edit text:
-            hideKeyboard(view);
-        }
-        else
-        {
-            // Minimize top box to have enough space for keyboard and edit text:
-            binding.setIsTopBoxMinimized(true);
-        }
-    }
-
-    private void changeExerciseStatus(boolean done)
-    {
-        if (done)
-        {
-            exercisesDone += 1;
-        }
-        else
-        {
-            exercisesDone -= 1;
-        }
-        updateFinishedExercises();
-    }
-
-    // Update the layout binding when the data in the view model changes:
-    private void subscribeUi(final MainViewModel viewModel)
-    {
-        // Current workout entry:
-        viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
-        {
-            if (workoutUnit != null)
-            {
-                Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getWorkoutInfoName() + " V" + workoutUnit.getWorkoutInfoVersion());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
-                binding.setWorkoutUnit(workoutUnit);
-
-                DataRepository.executeOnceForLiveData(viewModel.getWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo ->
-                {
-                    if (workoutInfo == null) throw new AssertionError("object cannot be null");
-                    Log.d("subscribeUi", "current getWorkoutInfo exercise info names: " + workoutInfo.getExerciseNames());  // DEBUG:
-                    binding.setWorkoutInfo(workoutInfo);
-                    DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
-                    {
-                        if (exerciseSetList == null) throw new AssertionError("object cannot be null");
-                        Log.d("subscribeUi", "current getExerciseSets: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
-                        DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
-                        {
-                            if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
-                            Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
-                            adapter.setExercise(binding.getWorkoutInfo().getExerciseNames(), exerciseInfoList, exerciseSetList);
-                            binding.setIsWorkoutLoading(false);
-                            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-                            exercisesDone = 0;
-                            updateFinishedExercises();
-                        });
-                    });
-                });
-            }
-            else
-            {
-                binding.setIsWorkoutLoading(true);
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-            }
-        });
-        // Entries for statistics:
-        viewModel.getLastWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
-        {
-            if (workoutUnit != null)
-            {
-                binding.setLastWorkoutDate(SimpleDateFormat.getDateInstance().format(workoutUnit.getDate()));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-            }
-        });
-        viewModel.getAllWorkoutUnits().observe(this, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
-        {
-            if (workoutUnits != null)
-            {
-                float averageInterval = 0F;
-                for (int i = 1; i < workoutUnits.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
-                {
-                    averageInterval += TimeUnit.DAYS.convert(workoutUnits.get(i).getDate().getTime() - workoutUnits.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
-                }
-                binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workoutUnits.size() - 2)));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-            }
         });
     }
 }

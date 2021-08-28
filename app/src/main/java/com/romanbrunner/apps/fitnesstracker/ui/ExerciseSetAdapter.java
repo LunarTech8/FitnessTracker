@@ -14,6 +14,7 @@ import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
 import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseSetCardBinding;
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -136,12 +137,12 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
         super.onAttachedToRecyclerView(recyclerView);
     }
 
-    public void setExerciseSets(@NonNull final List<? extends ExerciseSet> exerciseSets)
+    public void setExerciseSets(@NonNull final List<? extends ExerciseSet> newExerciseSets)
     {
         if (this.exerciseSets == null)
         {
             // Add all entries:
-            this.exerciseSets = exerciseSets;
+            exerciseSets = new ArrayList<>(newExerciseSets);
             notifyItemRangeInserted(0, this.exerciseSets.size());
         }
         else
@@ -152,28 +153,28 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 @Override
                 public int getOldListSize()
                 {
-                    return ExerciseSetAdapter.this.exerciseSets.size();
+                    return exerciseSets.size();
                 }
 
                 @Override
                 public int getNewListSize()
                 {
-                    return exerciseSets.size();
+                    return newExerciseSets.size();
                 }
 
                 @Override
                 public boolean areItemsTheSame(int oldItemPosition, int newItemPosition)
                 {
-                    return ExerciseSetAdapter.this.exerciseSets.get(oldItemPosition).getId() == exerciseSets.get(newItemPosition).getId();
+                    return exerciseSets.get(oldItemPosition).getId() == newExerciseSets.get(newItemPosition).getId();
                 }
 
                 @Override
                 public boolean areContentsTheSame(int oldItemPosition, int newItemPosition)
                 {
-                    return ExerciseSetEntity.isContentTheSame(exerciseSets.get(newItemPosition), ExerciseSetAdapter.this.exerciseSets.get(oldItemPosition));
+                    return ExerciseSetEntity.isContentTheSame(newExerciseSets.get(newItemPosition), exerciseSets.get(oldItemPosition));
                 }
             });
-            this.exerciseSets = exerciseSets;
+            exerciseSets = new ArrayList<>(newExerciseSets);
             result.dispatchUpdatesTo(this);
         }
     }

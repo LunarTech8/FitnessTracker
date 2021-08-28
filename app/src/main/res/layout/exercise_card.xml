@@ -12,8 +12,6 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/item_horizontal_margin"
-        android:layout_marginEnd="@dimen/item_horizontal_margin"
         >
 
         <LinearLayout
@@ -37,7 +35,7 @@
                     android:id="@+id/exerciseNameField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginEnd="@dimen/item_margin_large"
                     android:autofillHints="text"
                     android:hint="@string/h_exerciseName"
                     android:inputType="textCapWords|textNoSuggestions"
@@ -72,8 +70,8 @@
                     android:id="@+id/exerciseRemarksLabel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_small"
-                    android:layout_marginEnd="@dimen/comment_horizontal_margin_small"
+                    android:layout_marginStart="@dimen/item_margin_small"
+                    android:layout_marginEnd="@dimen/item_margin_small"
                     android:text="@string/t_exerciseRemarksLabel"
                     android:textSize="@dimen/comment_text_size"
                     />
@@ -107,9 +105,10 @@
                 <Button
                     android:id="@+id/moveUpButton"
                     style="@android:style/Widget.Material.Light.Button.Inset"
-                    android:layout_width="@dimen/increment_button_size"
-                    android:layout_height="@dimen/increment_button_size"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
                     android:text="@string/t_moveUpButton"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -118,10 +117,11 @@
                 <Button
                     android:id="@+id/moveDownButton"
                     style="@android:style/Widget.Material.Light.Button.Inset"
-                    android:layout_width="@dimen/increment_button_size"
-                    android:layout_height="@dimen/increment_button_size"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:layout_marginStart="@dimen/item_margin_large"
                     android:text="@string/t_moveDownButton"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/moveUpButton"
                     app:layout_constraintTop_toTopOf="parent"
@@ -131,7 +131,7 @@
                     android:id="@+id/addSetButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/comment_horizontal_margin_large"
+                    android:layout_marginStart="@dimen/item_margin_large"
                     android:text="@string/t_exerciseAddSetButton"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/moveDownButton"
