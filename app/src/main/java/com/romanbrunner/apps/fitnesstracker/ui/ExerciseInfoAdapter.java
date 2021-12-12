@@ -133,6 +133,8 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         Set<Integer> removableExercisePositions = new HashSet<>();
         for (int i = 0; i < exerciseInfo.size(); i++)
         {
+            Log.d("checkForEmptyExercises", "exerciseInfo name: " + exerciseInfo.get(i).getName());  // DEBUG:
+            Log.d("checkForEmptyExercises", "exerciseSets size: " + Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfo.get(i).getName())).size());  // FIXME: sizes aren't reduced
             if (Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfo.get(i).getName())).size() <= 0)
             {
                 removableExercisePositions.add(i);
@@ -140,6 +142,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
         for (int position : removableExercisePositions)
         {
+            Log.d("checkForEmptyExercises", "removableExercisePositions: " + position);  // DEBUG:
             exerciseInfo2SetsMap.remove(exerciseInfo.get(position).getName());
             exerciseInfo.remove(position);
             adapters.remove(position);
