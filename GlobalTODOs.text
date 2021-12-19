@@ -20,7 +20,7 @@ Work status:
 // Worklog:
 // -------------
 
-!!!!>- When removing last set of an exercise it isn't removed properly
+!!!>- When removing last set of an exercise it isn't removed properly
 !!!>- Have a separate window (separate activity) to create and modify new workouts
 
 
@@ -30,11 +30,9 @@ Work status:
 
 !!!- Description changes should be saved
 !!!- Having entries with their dates not ascending causes wrong info for average interval
+!!- Make dark colour theme work
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
-!- Increase performance when scrolling through exercises
 !- Display "Enter Edit Mode"/"Leave Edit Mode" on the button instead of "Switch Edit Mode"
-!- Add option to switch between colour themes
-!- Make dark colour theme work
 !- Find a solution to lose focus of an edit text when clicking on a disabled edit text
 
 
@@ -44,4 +42,5 @@ Work status:
 
 !!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
 !!- Have a button to change between lbs and kg
+!- Maybe have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
 !- Maybe add different exercise types (one for cardio, etc.)

@@ -253,6 +253,13 @@
                 app:visibleGone="@{!isTopBoxMinimized}" />
 
             <Button
+                android:id="@+id/themeButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/t_themeButton"
+                app:visibleGone="@{!isTopBoxMinimized}" />
+
+            <Button
                 android:id="@+id/debugPrintLogButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

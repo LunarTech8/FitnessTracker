@@ -2,6 +2,7 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
+    private static final int[] THEMES = {R.style.LightTheme, R.style.DarkTheme};
     public static final boolean DEBUG_MODE_ACTIVE = false;
     public static final int DEBUG_WORKOUT_MIN_ID = 10000;
     public static final int DEBUG_LOG_MAX_MODES = 5;
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
 
+    private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
     public static int debugLogMode = 4;
 
@@ -80,6 +84,11 @@ public class MainActivity extends AppCompatActivity
             Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
         }
         binding.setFinishedExercises(String.format(Locale.getDefault(), "%d/%d", exercisesDone, exercisesTotal));
+        binding.finishButton.getBackground().clearColorFilter();
+        if (exercisesDone == exercisesTotal)
+        {
+            binding.finishButton.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+        }
     }
 
     private void setEditTextFocusInTopBox(View view, boolean hasFocus)
@@ -186,7 +195,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setTheme(R.style.LightTheme);  // TODO: make "R.style.DarkTheme" work
+        setTheme(THEMES[currentThemeId]);
         binding = DataBindingUtil.setContentView(this, R.layout.workout_screen);
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
@@ -333,6 +342,15 @@ public class MainActivity extends AppCompatActivity
                 });
             }
             binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+        });
+        binding.themeButton.setOnClickListener((View view) ->
+        {
+            currentThemeId += 1;
+            if (currentThemeId >= THEMES.length)
+            {
+                currentThemeId = 0;
+            }
+            recreate();
         });
         binding.addExerciseButton.setOnClickListener((View view) ->
         {
