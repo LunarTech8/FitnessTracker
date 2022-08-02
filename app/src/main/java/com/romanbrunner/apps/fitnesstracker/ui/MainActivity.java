@@ -1,5 +1,6 @@
 package com.romanbrunner.apps.fitnesstracker.ui;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.PorterDuff;
@@ -191,6 +192,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /* Is called every time the activity is recreated (eg. when rotating the screen) */
+    @SuppressLint("NotifyDataSetChanged")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
