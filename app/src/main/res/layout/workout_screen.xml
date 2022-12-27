@@ -95,11 +95,25 @@
                     android:id="@+id/dateField"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/item_margin_large"
                     android:autofillHints="date"
                     android:ems="@dimen/date_ems_size"
                     android:hint="@string/h_emptyHint"
                     android:inputType="date"
                     android:text="@={workoutUnit.date}"
+                    app:layout_constraintEnd_toStartOf="@+id/editModeButton"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:visibleGone="@{!isWorkoutLoading}"
+                    />
+
+                <Button
+                    android:id="@+id/editModeButton"
+                    style="@android:style/Widget.Material.Light.Button.Inset"
+                    android:layout_width="@dimen/button_size"
+                    android:layout_height="@dimen/button_size"
+                    android:text="@string/t_editButton"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:visibleGone="@{!isWorkoutLoading}"
@@ -244,13 +258,6 @@
                     />
 
             </LinearLayout>
-
-            <Button
-                android:id="@+id/editModeButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_editModeButton"
-                app:visibleGone="@{!isTopBoxMinimized}" />
 
             <Button
                 android:id="@+id/themeButton"
