@@ -20,12 +20,15 @@ Work status:
 // Worklog:
 // -------------
 
+!!>>- Rework database model
+    - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
+        - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
+    - Drop the version and instead have the workout units separated by the unique date
+    - Implement MIGRATION_4_5
+!!- Implement a drop down menu for changing the workout and studio instead of the next buttons
+!!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise
 !!!>- When removing last set of an exercise it isn't removed properly
     - When removing an exercise set and scroll away or add a new set the removal isn't stored
-!!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise
-!!>- Have a separate window (separate activity) to create and modify new workouts
-    - Maybe instead drop workout info completely and only have workout units with all the information
-    - Maybe also drop the version and instead have the workout units separated by the unique dates
 
 
 // -------------

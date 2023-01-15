@@ -13,7 +13,6 @@ import com.romanbrunner.apps.fitnesstracker.BasicApp;
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.ExerciseSetEntity;
-import com.romanbrunner.apps.fitnesstracker.database.WorkoutInfoEntity;
 import com.romanbrunner.apps.fitnesstracker.database.WorkoutUnitEntity;
 import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
@@ -46,26 +45,6 @@ public class MainViewModel extends AndroidViewModel
         observableWorkoutUnit.addSource(repository.getCurrentWorkoutUnit(), observableWorkoutUnit::postValue);
     }
 
-    private void printWorkoutInfoData(@NonNull String headerMessage, @Nullable String nullMessage, List<WorkoutInfoEntity> workoutInfoList)
-    {
-        if (workoutInfoList != null)
-        {
-            Log.i("printWorkoutInfoData", headerMessage);
-            for (WorkoutInfoEntity workout : workoutInfoList)
-            {
-
-                Log.i("printWorkoutInfoData", "WorkoutInfo -> Name: " + workout.getName() + ", ");
-                Log.i("printWorkoutInfoData", "Version: " + workout.getVersion() + ", ");
-                Log.i("printWorkoutInfoData", "Description: " + workout.getDescription() + ", ");
-                Log.i("printWorkoutInfoData", "ExerciseInfoNames: " + workout.getExerciseNames() + "\n");
-            }
-        }
-        else if (nullMessage != null)
-        {
-            Log.i("printWorkoutInfoData", nullMessage);
-        }
-    }
-
     private void printExerciseInfoData(@NonNull String headerMessage, @Nullable String nullMessage, List<ExerciseInfoEntity> exerciseInfoList)
     {
         if (exerciseInfoList != null)
@@ -93,9 +72,11 @@ public class MainViewModel extends AndroidViewModel
             for (WorkoutUnitEntity workout : workoutUnits)
             {
                 Log.i("printWorkoutUnitsData", "WorkoutUnit -> Id: " + workout.getId() + ", ");
-                Log.i("printWorkoutUnitsData", "WorkoutInfoName: " + workout.getWorkoutInfoName() + ", ");
-                Log.i("printWorkoutUnitsData", "WorkoutInfoVersion: " + workout.getWorkoutInfoVersion() + ", ");
-                Log.i("printWorkoutUnitsData", "Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + "\n");
+                Log.i("printWorkoutUnitsData", "Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
+                Log.i("printWorkoutUnitsData", "Studio: " + workout.getStudio() + ", ");
+                Log.i("printWorkoutUnitsData", "Name: " + workout.getName() + ", ");
+                Log.i("printWorkoutUnitsData", "Description: " + workout.getDescription() + ", ");
+                Log.i("printWorkoutUnitsData", "ExerciseInfoNames: " + workout.getExerciseNames() + "\n");
             }
         }
         else if (nullMessage != null)
@@ -126,30 +107,6 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public LiveData<WorkoutInfoEntity> getWorkoutInfo(String studio, String name, int version)
-    {
-        return repository.getWorkoutInfo(studio, name, version);
-    }
-    public LiveData<List<WorkoutInfoEntity>> getWorkoutInfo(String studio)
-    {
-        return repository.getWorkoutInfo(studio);
-    }
-
-    public LiveData<WorkoutInfoEntity> getNewestWorkoutInfo(String studio, String name)
-    {
-        return repository.getNewestWorkoutInfo(studio, name);
-    }
-
-    public LiveData<WorkoutInfoEntity> getFirstWorkoutInfo(String studio)
-    {
-        return repository.getFirstWorkoutInfo(studio);
-    }
-
-    public LiveData<List<WorkoutInfoEntity>> getAllWorkoutInfo()
-    {
-        return repository.getAllWorkoutInfo();
-    }
-
     public LiveData<List<ExerciseInfoEntity>> getExerciseInfo(List<ExerciseSetEntity> exerciseSetList)
     {
         final Set<String> exerciseInfoNames = new HashSet<>();
@@ -165,9 +122,17 @@ public class MainViewModel extends AndroidViewModel
         return observableWorkoutUnit;
     }
 
-    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
+    public LiveData<WorkoutUnitEntity> getNewestWorkoutUnit()
     {
-        return repository.getAllWorkoutUnits();
+        return repository.getNewestWorkoutUnit();
+    }
+    public LiveData<WorkoutUnitEntity> getNewestWorkoutUnit(String studio)
+    {
+        return repository.getNewestWorkoutUnit(studio);
+    }
+    public LiveData<WorkoutUnitEntity> getNewestWorkoutUnit(String studio, String name)
+    {
+        return repository.getNewestWorkoutUnit(studio, name);
     }
 
     public LiveData<WorkoutUnitEntity> getLastWorkoutUnit()
@@ -175,14 +140,22 @@ public class MainViewModel extends AndroidViewModel
         return repository.getLastWorkoutUnit();
     }
 
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits()
+    {
+        return repository.getAllWorkoutUnits();
+    }
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits(String studio)
+    {
+        return repository.getAllWorkoutUnits(studio);
+    }
+    public LiveData<List<WorkoutUnitEntity>> getAllWorkoutUnits(String studio, String name)
+    {
+        return repository.getAllWorkoutUnits(studio, name);
+    }
+
     public LiveData<List<ExerciseSetEntity>> getExerciseSets(WorkoutUnitEntity workoutUnit)
     {
         return repository.getExerciseSets(workoutUnit);
-    }
-
-    public void storeWorkoutInfo(final List<WorkoutInfoEntity> workoutInfoList)
-    {
-        repository.storeWorkoutInfo(workoutInfoList);
     }
 
     public void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo)
@@ -195,9 +168,9 @@ public class MainViewModel extends AndroidViewModel
         repository.finishWorkout(oldWorkoutUnit, oldExerciseSets);
     }
 
-    public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutInfoEntity newWorkoutInfo)
+    public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutUnitEntity baseWorkoutUnit)
     {
-        return repository.changeWorkout(newWorkoutInfo);
+        return repository.changeWorkout(baseWorkoutUnit);
     }
 
     public void updateExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo, final List<ExerciseSetEntity> orderedExerciseSets)
@@ -238,12 +211,11 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
         }
-        else if (MainActivity.debugLogMode == 4)  // Current workout info and exercise info
+        else if (MainActivity.debugLogMode == 4)  // Current exercise info
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
                 if (workoutUnit == null) throw new AssertionError("object cannot be null");
-                DataRepository.executeOnceForLiveData(repository.getWorkoutInfo(workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion()), workoutInfo -> printWorkoutInfoData("Current workout info:", "No current workout info", Collections.singletonList(workoutInfo)));
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSetList ->
                 {
                     if (exerciseSetList == null) throw new AssertionError("object cannot be null");
@@ -269,9 +241,9 @@ public class MainViewModel extends AndroidViewModel
         }
     }
 
-    public void removeWorkoutUnits(String workoutInfoStudio, String workoutInfoName)
+    public void removeAllWorkoutUnits()
     {
-        DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(workoutInfoStudio, workoutInfoName), workoutUnits ->
+        DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits ->
         {
             if (workoutUnits != null && workoutUnits.size() > 1)
             {
@@ -279,14 +251,5 @@ public class MainViewModel extends AndroidViewModel
                 repository.deleteWorkoutUnits(workoutUnits);
             }
         });
-    }
-    public void removeWorkoutUnits()
-    {
-        removeWorkoutUnits(null, null);
-    }
-
-    public void resetWorkoutInfo(String studio, String name)
-    {
-        repository.deleteNewerWorkoutInfoVersions(studio, name, 1);
     }
 }

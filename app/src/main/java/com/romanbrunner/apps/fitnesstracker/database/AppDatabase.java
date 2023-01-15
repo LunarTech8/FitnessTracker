@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Database(entities = {WorkoutUnitEntity.class, WorkoutInfoEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 4)
+@Database(entities = {WorkoutUnitEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 5)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -61,7 +61,7 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
             database.execSQL("CREATE TABLE `workoutInfo` (`name` TEXT NOT NULL, `version` INTEGER NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`name`, `version`))");
             database.execSQL("INSERT INTO `workoutInfo` (`name`, `version`, `description`, `exerciseNames`) SELECT `name`, `version`, `description`, `exerciseInfoNames` FROM `workoutInfo_old`");
-            database.execSQL("UPDATE `workoutInfo` SET `exerciseNames` = REPLACE(`exerciseNames`, '" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "', '" + WorkoutInfoEntity.EXERCISE_NAMES_SEPARATOR + "1" + WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER + "')");
+            database.execSQL("UPDATE `workoutInfo` SET `exerciseNames` = REPLACE(`exerciseNames`, '" + WorkoutUnitEntity.EXERCISE_NAMES_DELIMITER + "', '" + WorkoutUnitEntity.EXERCISE_NAMES_SEPARATOR + "1" + WorkoutUnitEntity.EXERCISE_NAMES_DELIMITER + "')");
             database.execSQL("DROP TABLE `workoutInfo_old`");
         }
     };
@@ -88,12 +88,20 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("DROP TABLE `workoutUnits_old`");
         }
     };
-
-
-    private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
+    private static final Migration MIGRATION_4_5 = new Migration(4, 5)
     {
-        final String delimiter = WorkoutInfoEntity.EXERCISE_NAMES_DELIMITER;
-        final String separator = WorkoutInfoEntity.EXERCISE_NAMES_SEPARATOR;
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            // TODO: move data from workoutInfo into workoutUnits
+        }
+    };
+
+
+    private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)  // TODO: move data into insertDefaultExerciseInfo
+    {
+        final String delimiter = WorkoutUnitEntity.EXERCISE_NAMES_DELIMITER;
+        final String separator = WorkoutUnitEntity.EXERCISE_NAMES_SEPARATOR;
         String exerciseNames;
         exerciseNames = "Cross-Walker" + separator + 1 + delimiter;
         exerciseNames += "Negativ-Crunch" + separator + 1 + delimiter;
@@ -195,7 +203,7 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
     {
-        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "Body+Souls", "HIT full-body", 1));
+        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "Body+Souls", "HIT full-body"));
         final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(13);
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "CROSS WALKER", 8, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "KLIMMZUG BREIT ZUR BRUST", 7, 0.F));
@@ -220,7 +228,6 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static AppDatabase instance;
 
-    public abstract WorkoutInfoDao workoutInfoDao();
     public abstract WorkoutUnitDao workoutUnitDao();
     public abstract ExerciseInfoDao exerciseInfoDao();
     public abstract ExerciseSetDao exerciseSetDao();
@@ -244,7 +251,6 @@ public abstract class AppDatabase extends RoomDatabase
                     database.runInTransaction(() ->
                     {
                         // Insert default info data:
-                        insertDefaultWorkoutInfo(db);
                         insertDefaultExerciseInfo(db);
 
                         // Insert first workout unit:
@@ -257,7 +263,7 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build();
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build();
     }
 
     public static AppDatabase getInstance(final Context context, final AppExecutors executors)

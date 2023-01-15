@@ -13,7 +13,6 @@
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
         <variable name="finishedExercises" type="String" />
-        <variable name="workoutInfo" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutInfo" />
         <variable name="workoutUnit" type="com.romanbrunner.apps.fitnesstracker.model.WorkoutUnit" />
     </data>
 
@@ -78,7 +77,7 @@
                     android:autofillHints="text"
                     android:hint="@string/h_emptyHint"
                     android:inputType="textNoSuggestions"
-                    android:text="@{workoutInfo.studio}"
+                    android:text="@{workoutUnit.studio}"
                     android:textAllCaps="false"
                     android:textSize="@dimen/comment_text_size"
                     android:focusable="false"
@@ -152,7 +151,7 @@
                     android:autofillHints="text"
                     android:hint="@string/h_emptyHint"
                     android:inputType="textNoSuggestions"
-                    android:text="@{@string/t_workoutInfoButtonText(workoutInfo.name, workoutInfo.version)}"
+                    android:text="@{workoutUnit.name}"
                     android:textAllCaps="false"
                     android:textSize="@dimen/comment_text_size"
                     android:focusable="false"
@@ -218,7 +217,7 @@
                         android:autofillHints="text"
                         android:hint="@string/h_emptyHint"
                         android:inputType="textMultiLine"
-                        android:text="@={workoutInfo.description}"
+                        android:text="@={workoutUnit.description}"
                         android:textSize="@dimen/comment_text_size"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -289,15 +288,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/t_debugRemoveWorkoutUnitsButton"
-                android:visible="@bool/DEBUG"
-                app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
-                />
-
-            <Button
-                android:id="@+id/debugResetWorkoutButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/t_debugResetWorkoutButton"
                 android:visible="@bool/DEBUG"
                 app:visibleGone="@{!isTopBoxMinimized ? isDebugModeActive : false}"
                 />

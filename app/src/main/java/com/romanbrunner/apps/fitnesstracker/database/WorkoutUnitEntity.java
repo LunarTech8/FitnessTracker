@@ -1,53 +1,43 @@
 package com.romanbrunner.apps.fitnesstracker.database;
 
+import android.util.Pair;
+
+import androidx.annotation.NonNull;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
-import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.WorkoutUnit;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
-@Entity(tableName = "workoutUnits", foreignKeys = @ForeignKey(entity = WorkoutInfoEntity.class, parentColumns = {"studio", "name", "version"}, childColumns = {"workoutInfoStudio", "workoutInfoName", "workoutInfoVersion"}, onDelete = ForeignKey.CASCADE), indices = @Index(value = {"workoutInfoStudio", "workoutInfoName", "workoutInfoVersion"}))
+@Entity(tableName = "workoutUnits")
 public class WorkoutUnitEntity implements WorkoutUnit
 {
     // --------------------
     // Functional code
     // --------------------
 
-    @PrimaryKey
-    private int id;
-    private String workoutInfoStudio;
-    private String workoutInfoName;
-    private int workoutInfoVersion;
-    private Date date;
+    public static final String EXERCISE_NAMES_SEPARATOR = ",";  // Used for internal separation of data for each entry
+    public static final String EXERCISE_NAMES_DELIMITER = ";";  // Used for external separation between entries
+
+    @PrimaryKey private int id;
+    private Date date;  // TODO: replace id with date as PrimaryKey
+    @NonNull private String studio = "InitNonNullStudio";
+    @NonNull private String name = "InitNonNullName";
+    private String description;
+    private String exerciseNames;  // Stores exercise names, count and order
 
     @Override
     public int getId()
     {
         return id;
-    }
-
-    @Override
-    public String getWorkoutInfoStudio()
-    {
-        return workoutInfoStudio;
-    }
-
-    @Override
-    public String getWorkoutInfoName()
-    {
-        return workoutInfoName;
-    }
-
-    @Override
-    public int getWorkoutInfoVersion()
-    {
-        return workoutInfoVersion;
     }
 
     @Override
@@ -57,27 +47,45 @@ public class WorkoutUnitEntity implements WorkoutUnit
     }
 
     @Override
+    public @NonNull String getStudio()
+    {
+        return studio;
+    }
+
+    @Override
+    public @NonNull String getName()
+    {
+        return name;
+    }
+
+    @Override
+    public String getDescription()
+    {
+        return description;
+    }
+
+    @Override
+    public String getExerciseNames()
+    {
+        return exerciseNames;
+    }
+
+    @Override
     public void setId(int id)
     {
         this.id = id;
     }
 
     @Override
-    public void setWorkoutInfoStudio(String workoutInfoStudio)
+    public void setStudio(@NonNull String studio)
     {
-        this.workoutInfoStudio = workoutInfoStudio;
+        this.studio = studio;
     }
 
     @Override
-    public void setWorkoutInfoName(String workoutInfoName)
+    public void setName(@NonNull String name)
     {
-        this.workoutInfoName = workoutInfoName;
-    }
-
-    @Override
-    public void setWorkoutInfoVersion(int workoutInfoVersion)
-    {
-        this.workoutInfoVersion = workoutInfoVersion;
+        this.name = name;
     }
 
     @Override
@@ -86,28 +94,92 @@ public class WorkoutUnitEntity implements WorkoutUnit
         if (date != null) this.date = date;
     }
 
+    @Override
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+
+    @Override
+    public void setExerciseNames(String exerciseNames)
+    {
+        this.exerciseNames = exerciseNames;
+    }
+
     WorkoutUnitEntity() {}
     @Ignore
-    public WorkoutUnitEntity(int id, String workoutInfoStudio, String workoutInfoName, int workoutInfoVersion)
+    public WorkoutUnitEntity(int id, @NonNull String studio, @NonNull String name)
     {
         this.id = id;
-        this.workoutInfoStudio = workoutInfoStudio;
-        this.workoutInfoName = workoutInfoName;
-        this.workoutInfoVersion = workoutInfoVersion;
         date = new Date();  // Current date
+        this.studio = studio;
+        this.name = name;
     }
     @Ignore
     public WorkoutUnitEntity(WorkoutUnit workoutUnit, int workoutId)
     {
-        this(workoutId, workoutUnit.getWorkoutInfoStudio(), workoutUnit.getWorkoutInfoName(), workoutUnit.getWorkoutInfoVersion());
+        this(workoutId, workoutUnit.getStudio(), workoutUnit.getName());
+    }
+
+    public static Set<String> exerciseNames2NameSet(final String exerciseNames)
+    {
+        final String[] dataStringEntries = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
+        final Set<String> nameList = new LinkedHashSet<>(dataStringEntries.length);
+        for (String dataString : dataStringEntries)
+        {
+            nameList.add(dataString.split(EXERCISE_NAMES_SEPARATOR)[0]);
+        }
+        return nameList;
+    }
+
+    public static int exerciseNames2Amount(final String exerciseNames)
+    {
+        final String[] dataStringEntries = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
+        int amount = 0;
+        for (String dataString : dataStringEntries)
+        {
+            amount += Integer.parseInt(dataString.split(EXERCISE_NAMES_SEPARATOR)[1]);
+        }
+        return amount;
+    }
+
+    public static String exerciseSets2exerciseNames(final List<ExerciseSetEntity> orderedExerciseSets)
+    {
+        // Condense ordered exercise sets into ordered exercise data with unique entry names and their occurrence count:
+        List<Pair<String, Integer>> orderedExercises = new ArrayList<>();
+        for (ExerciseSetEntity exerciseSet : orderedExerciseSets)
+        {
+            String name = exerciseSet.getExerciseInfoName();
+            int index = 0;
+            while (index < orderedExercises.size() && !Objects.equals(orderedExercises.get(index).first, name))
+            {
+                index++;
+            }
+            if (index < orderedExercises.size())
+            {
+                orderedExercises.set(index, new Pair<>(name, orderedExercises.get(index).second + 1));
+            }
+            else
+            {
+                orderedExercises.add(new Pair<>(name, 1));
+            }
+        }
+        // Transform ordered exercise data into exerciseNames string:
+        final StringBuilder exerciseNames = new StringBuilder();
+        for (Pair<String, Integer> exercise : orderedExercises)
+        {
+            exerciseNames.append(exercise.first).append(EXERCISE_NAMES_SEPARATOR).append(exercise.second).append(EXERCISE_NAMES_DELIMITER);
+        }
+        return String.valueOf(exerciseNames);
     }
 
     public static boolean isContentTheSame(WorkoutUnit workoutUnitA, WorkoutUnit workoutUnitB)
     {
         return workoutUnitA.getId() == workoutUnitB.getId()
-            && Objects.equals(workoutUnitA.getWorkoutInfoStudio(), workoutUnitB.getWorkoutInfoStudio())
-            && Objects.equals(workoutUnitA.getWorkoutInfoName(), workoutUnitB.getWorkoutInfoName())
-            && workoutUnitA.getWorkoutInfoVersion() == workoutUnitB.getWorkoutInfoVersion()
-            && workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0;
+            && workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0
+            && Objects.equals(workoutUnitA.getStudio(), workoutUnitB.getStudio())
+            && Objects.equals(workoutUnitA.getName(), workoutUnitB.getName())
+            && Objects.equals(workoutUnitA.getDescription(), workoutUnitB.getDescription())
+            && Objects.equals(workoutUnitA.getExerciseNames(), workoutUnitB.getExerciseNames());
     }
 }

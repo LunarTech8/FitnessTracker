@@ -29,8 +29,7 @@ public class ExerciseSetEntity implements ExerciseSet
     // Functional code
     // --------------------
 
-    @PrimaryKey(autoGenerate = true)
-    private int id;
+    @PrimaryKey(autoGenerate = true) private int id;
     private int workoutUnitId;
     private String exerciseInfoName;
     private int repeats;

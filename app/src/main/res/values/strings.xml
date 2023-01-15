@@ -6,9 +6,7 @@
     <string name="t_nextButton">&#8680;</string>
     <string name="t_optionsButton">&#9881;</string>
     <string name="t_editButton">&#9998;</string>
-    <string name="t_workoutInfoButtonText">%1$s V%2$s</string>
     <string name="t_workoutNameLabel">Name:</string>
-    <string name="t_workoutVersionText">V%1$s</string>
     <string name="t_workoutDescriptionLabel">Description:</string>
     <string name="t_workoutCounterText">Total workout units (\u03A3): %1$s</string>
     <string name="t_averageIntervalText">Average interval (\u00D8): %1$s days</string>
@@ -18,7 +16,6 @@
     <string name="t_debugPrintLogButton">Print debug log</string>
     <string name="t_debugNextLogModeButton">Next debug log mode</string>
     <string name="t_debugRemoveWorkoutUnitsButton">Remove debug workout units</string>
-    <string name="t_debugResetWorkoutButton">Reset current workout</string>
     <string name="t_addExerciseButton">Add new exercise</string>
     <string name="t_finishButton">Finish workout (%s)</string>
 

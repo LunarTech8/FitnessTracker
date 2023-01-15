@@ -27,7 +27,7 @@ public class ExerciseInfoEntity implements ExerciseInfo
     @PrimaryKey @NonNull private String name = "InitNonNullName";
     private String token;
     private String remarks;
-    private String defaultValues;  // Stores repeats, weight, count (indirectly) and order
+    private String defaultValues;  // Stores repeats, weight, count (indirectly) and order  // TODO: obsolete, instead newest exercise set values should be used
 
     @Override
     public @NonNull String getName()
