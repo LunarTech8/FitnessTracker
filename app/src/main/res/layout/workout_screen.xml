@@ -10,6 +10,7 @@
         <variable name="isTopBoxMinimized" type="boolean" />
         <variable name="isWorkoutLoading" type="boolean" />
         <variable name="isEditModeActive" type="boolean" />
+        <variable name="totalWorkoutCount" type="String" />
         <variable name="averageInterval" type="String" />
         <variable name="lastWorkoutDate" type="String" />
         <variable name="finishedExercises" type="String" />
@@ -232,7 +233,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/item_margin_small"
                     android:layout_marginBottom="@dimen/item_margin_small"
-                    android:text="@{@string/t_workoutCounterText(workoutUnit.id)}"
+                    android:text="@{@string/t_totalWorkoutCountText(totalWorkoutCount)}"
                     android:textSize="@dimen/comment_text_size"
                     />
 

@@ -14,8 +14,6 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
-
 import java.util.List;
 
 
@@ -26,47 +24,26 @@ public interface WorkoutUnitDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestNormal();
+    @Query("SELECT * FROM WorkoutUnits ORDER BY date DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadNewest();
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestDebug();
+    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio ORDER BY date DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadNewestByStudio(String searchStudio);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByStudioNormal(String searchStudio);
+    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName ORDER BY date DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadNewestByStudioAndName(String searchStudio, String searchName);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByStudioDebug(String searchStudio);
+    @Query("SELECT * FROM WorkoutUnits WHERE date < (SELECT MAX(date) FROM WorkoutUnits) ORDER BY date DESC LIMIT 1")
+    LiveData<WorkoutUnitEntity> loadLast();
 
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByStudioAndNameNormal(String searchStudio, String searchName);
+    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio")
+    LiveData<List<WorkoutUnitEntity>> loadAllByStudio(String searchStudio);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadNewestByStudioAndNameDebug(String searchStudio, String searchName);
+    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName")
+    LiveData<List<WorkoutUnitEntity>> loadAllByStudioAndName(String searchStudio, String searchName);
 
-    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadLastNormal();
-
-    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + " AND id < (SELECT MAX(id) FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID + ") ORDER BY id DESC LIMIT 1")
-    LiveData<WorkoutUnitEntity> loadLastDebug();
-
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllByStudioNormal(String searchStudio);
-
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllByStudioDebug(String searchStudio);
-
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName AND id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllByStudioAndNameNormal(String searchStudio, String searchName);
-
-    @Query("SELECT * FROM WorkoutUnits WHERE studio = :searchStudio AND name = :searchName AND id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllByStudioAndNameDebug(String searchStudio, String searchName);
-
-    @Query("SELECT * FROM WorkoutUnits WHERE id < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllNormal();
-
-    @Query("SELECT * FROM WorkoutUnits WHERE id >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<WorkoutUnitEntity>> loadAllDebug();
+    @Query("SELECT * FROM WorkoutUnits")
+    LiveData<List<WorkoutUnitEntity>> loadAll();
 
     @Insert
     void insert(WorkoutUnitEntity... workoutUnits);

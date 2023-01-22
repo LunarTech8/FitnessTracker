@@ -27,18 +27,11 @@ public class WorkoutUnitEntity implements WorkoutUnit
     public static final String EXERCISE_NAMES_SEPARATOR = ",";  // Used for internal separation of data for each entry
     public static final String EXERCISE_NAMES_DELIMITER = ";";  // Used for external separation between entries
 
-    @PrimaryKey private int id;
-    private Date date;  // TODO: replace id with date as PrimaryKey
+    @PrimaryKey private Date date;
     @NonNull private String studio = "InitNonNullStudio";
     @NonNull private String name = "InitNonNullName";
     private String description;
     private String exerciseNames;  // Stores exercise names, count and order
-
-    @Override
-    public int getId()
-    {
-        return id;
-    }
 
     @Override
     public Date getDate()
@@ -68,12 +61,6 @@ public class WorkoutUnitEntity implements WorkoutUnit
     public String getExerciseNames()
     {
         return exerciseNames;
-    }
-
-    @Override
-    public void setId(int id)
-    {
-        this.id = id;
     }
 
     @Override
@@ -108,17 +95,28 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     WorkoutUnitEntity() {}
     @Ignore
-    public WorkoutUnitEntity(int id, @NonNull String studio, @NonNull String name)
+    public WorkoutUnitEntity(@NonNull Date date, @NonNull String studio, @NonNull String name)
     {
-        this.id = id;
+        this.date = date;
+        this.studio = studio;
+        this.name = name;
+    }
+    @Ignore
+    public WorkoutUnitEntity(@NonNull Date date, @NonNull WorkoutUnit workoutUnit)
+    {
+        this(date, workoutUnit.getStudio(), workoutUnit.getName());
+    }
+    @Ignore
+    public WorkoutUnitEntity(@NonNull String studio, @NonNull String name)
+    {
         date = new Date();  // Current date
         this.studio = studio;
         this.name = name;
     }
     @Ignore
-    public WorkoutUnitEntity(WorkoutUnit workoutUnit, int workoutId)
+    public WorkoutUnitEntity(@NonNull WorkoutUnit workoutUnit)
     {
-        this(workoutId, workoutUnit.getStudio(), workoutUnit.getName());
+        this(workoutUnit.getStudio(), workoutUnit.getName());
     }
 
     public static Set<String> exerciseNames2NameSet(final String exerciseNames)
@@ -175,8 +173,7 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     public static boolean isContentTheSame(WorkoutUnit workoutUnitA, WorkoutUnit workoutUnitB)
     {
-        return workoutUnitA.getId() == workoutUnitB.getId()
-            && workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0
+        return workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0
             && Objects.equals(workoutUnitA.getStudio(), workoutUnitB.getStudio())
             && Objects.equals(workoutUnitA.getName(), workoutUnitB.getName())
             && Objects.equals(workoutUnitA.getDescription(), workoutUnitB.getDescription())

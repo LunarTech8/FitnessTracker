@@ -77,7 +77,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                     Log.e("ExerciseInfoViewHolder", "No exercise sets for " + exerciseInfoName + " stored");
                 }
                 final ExerciseSetEntity lastExerciseSet = exerciseSets.get(lastExerciseSetIndex);
-                exerciseSets.add(new ExerciseSetEntity(lastExerciseSet.getWorkoutUnitId(), exerciseInfoName, lastExerciseSet.getRepeats(), lastExerciseSet.getWeight()));
+                exerciseSets.add(new ExerciseSetEntity(lastExerciseSet.getWorkoutUnitDate(), exerciseInfoName, lastExerciseSet.getRepeats(), lastExerciseSet.getWeight()));
                 exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
                 exerciseInfoAdapter.notifyItemChanged(getAdapterPosition());
             });

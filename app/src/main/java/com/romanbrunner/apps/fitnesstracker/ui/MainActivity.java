@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity
 
     private static final int[] THEMES = {R.style.LightTheme, R.style.DarkTheme};
     public static final boolean DEBUG_MODE_ACTIVE = false;
-    public static final int DEBUG_WORKOUT_MIN_ID = 10000;
     public static final int DEBUG_LOG_MAX_MODES = 5;
 
 
@@ -132,7 +131,9 @@ public class MainActivity extends AppCompatActivity
         // Current workout entry:
         viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
         {
-            if (workoutUnit != null)
+            debugLogMode = 1;  // DEBUG:
+            viewModel.printDebugLog();  // DEBUG: two workout units from the past and their exercise sets are migrated correctly but there is no current one?
+            if (workoutUnit != null)  // FIXME: workoutUnit seems to be null after migration
             {
                 Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getName());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity
         {
             if (workoutUnits != null)
             {
+                binding.setTotalWorkoutCount(String.valueOf(workoutUnits.size() - 1));
                 float averageInterval = 0F;
                 for (int i = 1; i < workoutUnits.size() - 1; i++)  // Start with second entry for diff and skip last entry because it isn't finished
                 {
@@ -334,7 +336,7 @@ public class MainActivity extends AppCompatActivity
             newExerciseName += namePostfixCounter;
             newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));
             final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
-            newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getId(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
+            newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout unit and exercise adapter:
             final WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
             workoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(newExerciseSetsList));

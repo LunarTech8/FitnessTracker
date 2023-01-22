@@ -71,8 +71,7 @@ public class MainViewModel extends AndroidViewModel
             Log.i("printWorkoutUnitsData", headerMessage);
             for (WorkoutUnitEntity workout : workoutUnits)
             {
-                Log.i("printWorkoutUnitsData", "WorkoutUnit -> Id: " + workout.getId() + ", ");
-                Log.i("printWorkoutUnitsData", "Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
+                Log.i("printWorkoutUnitsData", "WorkoutUnit -> Date: " + SimpleDateFormat.getDateTimeInstance().format(workout.getDate()) + ", ");
                 Log.i("printWorkoutUnitsData", "Studio: " + workout.getStudio() + ", ");
                 Log.i("printWorkoutUnitsData", "Name: " + workout.getName() + ", ");
                 Log.i("printWorkoutUnitsData", "Description: " + workout.getDescription() + ", ");
@@ -94,7 +93,7 @@ public class MainViewModel extends AndroidViewModel
             {
 
                 Log.i("printExerciseSetsData", "ExerciseSet -> Id: " + exercise.getId() + ", ");
-                Log.i("printExerciseSetsData", "WorkoutId: " + exercise.getWorkoutUnitId() + ", ");
+                Log.i("printExerciseSetsData", "WorkoutDate: " + SimpleDateFormat.getDateTimeInstance().format(exercise.getWorkoutUnitDate()) + ", ");
                 Log.i("printExerciseSetsData", "ExerciseInfoName: " + exercise.getExerciseInfoName() + ", ");
                 Log.i("printExerciseSetsData", "Repeats: " + exercise.getRepeats() + ", ");
                 Log.i("printExerciseSetsData", "Weight: " + exercise.getWeight() + ", ");

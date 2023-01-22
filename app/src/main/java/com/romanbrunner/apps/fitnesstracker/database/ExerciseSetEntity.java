@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey;
 
 import com.romanbrunner.apps.fitnesstracker.model.ExerciseSet;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,12 +16,12 @@ import java.util.Objects;
 @Entity(tableName = "exerciseSets",
         foreignKeys =
         {
-            @ForeignKey(entity = WorkoutUnitEntity.class, parentColumns = "id", childColumns = "workoutUnitId", onDelete = ForeignKey.CASCADE),
+            @ForeignKey(entity = WorkoutUnitEntity.class, parentColumns = "date", childColumns = "workoutUnitDate", onDelete = ForeignKey.CASCADE),
             @ForeignKey(entity = ExerciseInfoEntity.class, parentColumns = "name", childColumns = "exerciseInfoName", onDelete = ForeignKey.RESTRICT)
         },
         indices =
         {
-            @Index(value = "workoutUnitId"),
+            @Index(value = "workoutUnitDate"),
             @Index(value = "exerciseInfoName")
         })
 public class ExerciseSetEntity implements ExerciseSet
@@ -30,7 +31,7 @@ public class ExerciseSetEntity implements ExerciseSet
     // --------------------
 
     @PrimaryKey(autoGenerate = true) private int id;
-    private int workoutUnitId;
+    private Date workoutUnitDate;
     private String exerciseInfoName;
     private int repeats;
     private float weight;
@@ -43,9 +44,9 @@ public class ExerciseSetEntity implements ExerciseSet
     }
 
     @Override
-    public int getWorkoutUnitId()
+    public Date getWorkoutUnitDate()
     {
-        return workoutUnitId;
+        return workoutUnitDate;
     }
 
     @Override
@@ -79,9 +80,9 @@ public class ExerciseSetEntity implements ExerciseSet
     }
 
     @Override
-    public void setWorkoutUnitId(int workoutUnitId)
+    public void setWorkoutUnitDate(Date workoutUnitDate)
     {
-        this.workoutUnitId = workoutUnitId;
+        this.workoutUnitDate = workoutUnitDate;
     }
 
     @Override
@@ -110,18 +111,18 @@ public class ExerciseSetEntity implements ExerciseSet
 
     ExerciseSetEntity() {}
     @Ignore
-    public ExerciseSetEntity(int workoutUnitId, String exerciseInfoName, int repeats, float weight)
+    public ExerciseSetEntity(Date workoutUnitDate, String exerciseInfoName, int repeats, float weight)
     {
-        this.workoutUnitId = workoutUnitId;
+        this.workoutUnitDate = workoutUnitDate;
         this.exerciseInfoName = exerciseInfoName;
         this.repeats = repeats;
         this.weight = weight;
         done = false;
     }
     @Ignore
-    public ExerciseSetEntity(ExerciseSet exerciseSet, int workoutUnitId)
+    public ExerciseSetEntity(ExerciseSet exerciseSet, Date workoutUnitDate)
     {
-        this(workoutUnitId, exerciseSet.getExerciseInfoName(), exerciseSet.getRepeats(), exerciseSet.getWeight());
+        this(workoutUnitDate, exerciseSet.getExerciseInfoName(), exerciseSet.getRepeats(), exerciseSet.getWeight());
     }
 
     public static boolean isContentTheSame(ExerciseSet exerciseSetA, ExerciseSet exerciseSetB)
@@ -130,7 +131,7 @@ public class ExerciseSetEntity implements ExerciseSet
             && exerciseSetA.isDone() == exerciseSetB.isDone()
             && exerciseSetA.getRepeats() == exerciseSetB.getRepeats()
             && Float.compare(exerciseSetA.getWeight(), exerciseSetB.getWeight()) == 0
-            && exerciseSetA.getWorkoutUnitId() == exerciseSetB.getWorkoutUnitId()
+            && exerciseSetA.getWorkoutUnitDate().compareTo(exerciseSetB.getWorkoutUnitDate()) == 0
             && Objects.equals(exerciseSetA.getExerciseInfoName(), exerciseSetB.getExerciseInfoName());
     }
     public static boolean isContentTheSame(List<ExerciseSetEntity> exerciseSetListA, List<ExerciseSetEntity> exerciseSetListB)

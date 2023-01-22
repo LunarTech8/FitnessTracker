@@ -13,8 +13,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
-
+import java.util.Date;
 import java.util.List;
 
 
@@ -25,14 +24,11 @@ public interface ExerciseSetDao
     // Functional code
     // --------------------
 
-    @Query("SELECT * FROM exerciseSets WHERE workoutUnitId < " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<ExerciseSetEntity>> loadAllNormal();
+    @Query("SELECT * FROM exerciseSets")
+    LiveData<List<ExerciseSetEntity>> loadAll();
 
-    @Query("SELECT * FROM exerciseSets WHERE workoutUnitId >= " + MainActivity.DEBUG_WORKOUT_MIN_ID)
-    LiveData<List<ExerciseSetEntity>> loadAllDebug();
-
-    @Query("SELECT * FROM exerciseSets WHERE workoutUnitId = :searchWorkoutUnitId")
-    LiveData<List<ExerciseSetEntity>> loadByWorkoutUnitId(int searchWorkoutUnitId);
+    @Query("SELECT * FROM exerciseSets WHERE workoutUnitDate = :searchWorkoutUnitDate")
+    LiveData<List<ExerciseSetEntity>> loadByWorkoutUnitDate(Date searchWorkoutUnitDate);
 
     @Insert
     void insert(List<ExerciseSetEntity> exercises);

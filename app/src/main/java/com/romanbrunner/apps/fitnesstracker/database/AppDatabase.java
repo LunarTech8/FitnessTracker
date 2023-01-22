@@ -13,9 +13,9 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.romanbrunner.apps.fitnesstracker.AppExecutors;
-import com.romanbrunner.apps.fitnesstracker.ui.MainActivity;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -93,7 +93,24 @@ public abstract class AppDatabase extends RoomDatabase
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database)
         {
-            // TODO: move data from workoutInfo into workoutUnits
+            database.execSQL("ALTER TABLE `workoutInfo` RENAME TO `workoutInfo_old`");
+            database.execSQL("ALTER TABLE `workoutUnits` RENAME TO `workoutUnits_old`");
+            database.execSQL("ALTER TABLE `exerciseSets` RENAME TO `exerciseSets_old`");
+
+            database.execSQL("CREATE TABLE `workoutUnits` (`date` INTEGER NOT NULL, `studio` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `exerciseNames` TEXT, PRIMARY KEY(`date`))");
+            database.execSQL("INSERT INTO `workoutUnits` (`date`, `studio`, `name`, `description`, `exerciseNames`) SELECT `date`, `workoutInfoStudio`, `workoutInfoName`, '', '' FROM `workoutUnits_old`");
+            database.execSQL("UPDATE `workoutUnits` SET `description` = (SELECT `description` FROM `workoutInfo_old` AS workoutInfo WHERE workoutInfo.`studio` = `studio` AND workoutInfo.`name` = `name`)");
+            database.execSQL("UPDATE `workoutUnits` SET `exerciseNames` = (SELECT `exerciseNames` FROM `workoutInfo_old` AS workoutInfo WHERE workoutInfo.`studio` = `studio` AND workoutInfo.`name` = `name`)");
+
+            database.execSQL("DROP INDEX `index_exerciseSets_exerciseInfoName`");
+            database.execSQL("CREATE TABLE `exerciseSets` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutUnitDate` INTEGER NOT NULL, `exerciseInfoName` TEXT NOT NULL, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutUnitDate`) REFERENCES `workoutUnits`(`date`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
+            database.execSQL("CREATE INDEX `index_exerciseSets_workoutUnitDate` ON `exerciseSets` (`workoutUnitDate`)");
+            database.execSQL("CREATE INDEX `index_exerciseSets_exerciseInfoName` ON `exerciseSets` (`exerciseInfoName`)");
+            database.execSQL("INSERT INTO `exerciseSets` (`id`, `workoutUnitDate`, `exerciseInfoName`, `repeats`, `weight`, `done`) SELECT `id`, (SELECT `date` FROM `workoutUnits_old` AS workoutUnits WHERE workoutUnits.`id` = `workoutUnitId`), `exerciseInfoName`, `repeats`, `weight`, `done` FROM `exerciseSets_old`");
+
+            database.execSQL("DROP TABLE `workoutInfo_old`");
+            database.execSQL("DROP TABLE `workoutUnits_old`");
+            database.execSQL("DROP TABLE `exerciseSets_old`");
         }
     };
 
@@ -201,23 +218,23 @@ public abstract class AppDatabase extends RoomDatabase
         database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BICYCLE', '', 'Repeats in Minuten', '" + defaultValues + "')");
     }
 
-    private static void insertInitWorkoutUnit(final AppDatabase database, final int workoutUnitId)
+    private static void insertInitWorkoutUnit(final AppDatabase database, final Date workoutUnitDate)
     {
-        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitId, "Body+Souls", "HIT full-body"));
+        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitDate, "Body+Souls", "HIT full-body"));
         final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(13);
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "CROSS WALKER", 8, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "KLIMMZUG BREIT ZUR BRUST", 7, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "KLIMMZUG BREIT ZUR BRUST", 6, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "KLIMMZUG BREIT ZUR BRUST", 5, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "PUSHDOWN AM KABELZUG", 20, 21.25F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "BEINSTRECKER", 15, 39.4F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "BEINBEUGER LIEGEND", 16, 39.4F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "BUTTERFLY", 17, 34.3F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "BIZEPSMASCHINE", 15, 34.3F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "BEINPRESSE", 17, 112.5F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "RUECKENSTRECKER", 23, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "CRUNCH BAUCHBANK", 28, 0.F));
-        exerciseSetList.add(new ExerciseSetEntity(workoutUnitId, "OVERHEAD PRESS", 16, 31.5F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "CROSS WALKER", 8, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "KLIMMZUG BREIT ZUR BRUST", 7, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "KLIMMZUG BREIT ZUR BRUST", 6, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "KLIMMZUG BREIT ZUR BRUST", 5, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "PUSHDOWN AM KABELZUG", 20, 21.25F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "BEINSTRECKER", 15, 39.4F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "BEINBEUGER LIEGEND", 16, 39.4F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "BUTTERFLY", 17, 34.3F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "BIZEPSMASCHINE", 15, 34.3F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "BEINPRESSE", 17, 112.5F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "RUECKENSTRECKER", 23, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "CRUNCH BAUCHBANK", 28, 0.F));
+        exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "OVERHEAD PRESS", 16, 31.5F));
         database.exerciseSetDao().insert(exerciseSetList);
     }
 
@@ -254,9 +271,7 @@ public abstract class AppDatabase extends RoomDatabase
                         insertDefaultExerciseInfo(db);
 
                         // Insert first workout unit:
-                        insertInitWorkoutUnit(database, 0);
-                        // Insert first debugging workout unit:
-                        insertInitWorkoutUnit(database, MainActivity.DEBUG_WORKOUT_MIN_ID);
+                        insertInitWorkoutUnit(database, new Date());
                     });
                     // Notify that the database was created and is ready to be used:
                     database.setDatabaseCreated();
