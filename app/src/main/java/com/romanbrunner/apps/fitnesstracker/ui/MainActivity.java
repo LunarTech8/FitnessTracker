@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity
         final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
         viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
         viewModel.storeExerciseInfo(exerciseInfo);
-        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
+        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);  // FIXME: binding.getWorkoutUnit() seems sometimes to have cut off the precision of it's date (no hours, minutes, seconds)
     }
 
     private void hideKeyboard(View view)
@@ -131,9 +131,7 @@ public class MainActivity extends AppCompatActivity
         // Current workout entry:
         viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
         {
-            debugLogMode = 1;  // DEBUG:
-            viewModel.printDebugLog();  // DEBUG: two workout units from the past and their exercise sets are migrated correctly but there is no current one?
-            if (workoutUnit != null)  // FIXME: workoutUnit seems to be null after migration
+            if (workoutUnit != null)  // workoutUnit will be null at first as long as observableWorkoutUnit isn't loaded from the database yet
             {
                 Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getName());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);

@@ -52,11 +52,23 @@ public class DataRepository
         executor = Executors.newSingleThreadExecutor();
 
         // Load newest workout unit and post its value into its observable as soon as the database is ready:
-        executeOnceForLiveData(getNewestWorkoutUnit(), workoutUnit -> database.getDatabaseCreated().getValue() != null, workoutUnit ->
+        executeOnceForLiveData(getNewestWorkoutUnit(), oldWorkoutUnit -> database.getDatabaseCreated().getValue() != null, oldWorkoutUnit ->
         {
-            if (workoutUnit == null) throw new AssertionError("object cannot be null");
-            workoutUnit.setDate(new Date());  // Set to current date
-            observableWorkoutUnit.postValue(workoutUnit);
+            if (oldWorkoutUnit == null) throw new AssertionError("object cannot be null");
+            // Create new entries by cloning last entries:
+            final List<ExerciseSetEntity> newExercises = new ArrayList<>();
+            DataRepository.executeOnceForLiveData(getExerciseSets(oldWorkoutUnit), oldExerciseSets ->
+            {
+                if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
+                final Date newWorkoutDate = new Date();  // Set to current date
+                final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, newWorkoutDate);
+                for (ExerciseSetEntity exercise : oldExerciseSets)
+                {
+                    newExercises.add(new ExerciseSetEntity(exercise, newWorkoutDate));
+                }
+                replaceCurrentWorkoutUnit(oldWorkoutUnit, newWorkoutUnit, newExercises);  // TODO: maybe instead of replacing the dates can be updated via database.<...>Dao().update
+                observableWorkoutUnit.postValue(newWorkoutUnit);
+            });
         });
     }
 
@@ -73,6 +85,11 @@ public class DataRepository
         executor.execute(() ->
         {
             database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
+            if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
+            {
+                Log.d("finishWorkout", "cut off workout detected");  // DEBUG:
+                newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
+            }
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });
@@ -212,8 +229,8 @@ public class DataRepository
             database.exerciseSetDao().update(oldExerciseSets);
         });
         // Clone new entries:
-        WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
-        List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
+        final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
+        final List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
         final Date newWorkoutDate = newWorkoutUnit.getDate();
         for (ExerciseSetEntity exercise : oldExerciseSets)
         {
@@ -222,6 +239,11 @@ public class DataRepository
         // Insert new entries:
         executor.execute(() ->
         {
+            if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
+            {
+                Log.d("finishWorkout", "cut off workout detected");  // DEBUG:
+                newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
+            }
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });
@@ -237,7 +259,7 @@ public class DataRepository
         {
             if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
             final Date workoutDate = currentWorkoutUnit.getDate();
-            final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(workoutDate, baseWorkoutUnit);
+            final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(baseWorkoutUnit, workoutDate);
             // Create new entries by cloning last entries:
             final List<ExerciseSetEntity> newExercises = new ArrayList<>();
             DataRepository.executeOnceForLiveData(getExerciseSets(baseWorkoutUnit), oldExerciseSets ->

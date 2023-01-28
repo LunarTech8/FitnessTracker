@@ -95,28 +95,32 @@ public class WorkoutUnitEntity implements WorkoutUnit
 
     WorkoutUnitEntity() {}
     @Ignore
-    public WorkoutUnitEntity(@NonNull Date date, @NonNull String studio, @NonNull String name)
+    public WorkoutUnitEntity(@NonNull String studio, @NonNull String name, String description, String exerciseNames, @NonNull Date date)
     {
         this.date = date;
         this.studio = studio;
         this.name = name;
+        this.description = description;
+        this.exerciseNames = exerciseNames;
     }
     @Ignore
-    public WorkoutUnitEntity(@NonNull Date date, @NonNull WorkoutUnit workoutUnit)
-    {
-        this(date, workoutUnit.getStudio(), workoutUnit.getName());
-    }
-    @Ignore
-    public WorkoutUnitEntity(@NonNull String studio, @NonNull String name)
+    public WorkoutUnitEntity(@NonNull String studio, @NonNull String name, String description, String exerciseNames)
     {
         date = new Date();  // Current date
         this.studio = studio;
         this.name = name;
+        this.description = description;
+        this.exerciseNames = exerciseNames;
+    }
+    @Ignore
+    public WorkoutUnitEntity(@NonNull WorkoutUnit workoutUnit, @NonNull Date date)
+    {
+        this(workoutUnit.getStudio(), workoutUnit.getName(), workoutUnit.getDescription(), workoutUnit.getExerciseNames(), date);
     }
     @Ignore
     public WorkoutUnitEntity(@NonNull WorkoutUnit workoutUnit)
     {
-        this(workoutUnit.getStudio(), workoutUnit.getName());
+        this(workoutUnit.getStudio(), workoutUnit.getName(), workoutUnit.getDescription(), workoutUnit.getExerciseNames());
     }
 
     public static Set<String> exerciseNames2NameSet(final String exerciseNames)

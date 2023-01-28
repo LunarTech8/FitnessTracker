@@ -115,7 +115,7 @@ public abstract class AppDatabase extends RoomDatabase
     };
 
 
-    private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)  // TODO: move data into insertDefaultExerciseInfo
+    private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
     {
         final String delimiter = WorkoutUnitEntity.EXERCISE_NAMES_DELIMITER;
         final String separator = WorkoutUnitEntity.EXERCISE_NAMES_SEPARATOR;
@@ -220,7 +220,6 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final Date workoutUnitDate)
     {
-        database.workoutUnitDao().insert(new WorkoutUnitEntity(workoutUnitDate, "Body+Souls", "HIT full-body"));
         final List<ExerciseSetEntity> exerciseSetList = new ArrayList<>(13);
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "CROSS WALKER", 8, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "KLIMMZUG BREIT ZUR BRUST", 7, 0.F));
@@ -235,6 +234,7 @@ public abstract class AppDatabase extends RoomDatabase
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "RUECKENSTRECKER", 23, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "CRUNCH BAUCHBANK", 28, 0.F));
         exerciseSetList.add(new ExerciseSetEntity(workoutUnitDate, "OVERHEAD PRESS", 16, 31.5F));
+        database.workoutUnitDao().insert(new WorkoutUnitEntity("Body+Souls", "HIT full-body", "High intensity training full-body", WorkoutUnitEntity.exerciseSets2exerciseNames(exerciseSetList), workoutUnitDate));
         database.exerciseSetDao().insert(exerciseSetList);
     }
 

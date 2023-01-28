@@ -21,7 +21,7 @@ Work status:
 // -------------
 
 !!>>- Rework database model
-    >>>- Debug and fix why there is no current workout unit after start up
+    >>>- Debug and fix why sometimes date precision is lost (no hours, minutes, seconds)
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
         - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed
