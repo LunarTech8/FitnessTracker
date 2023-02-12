@@ -32,7 +32,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 public class MainActivity extends AppCompatActivity
@@ -42,8 +41,8 @@ public class MainActivity extends AppCompatActivity
     // --------------------
 
     private static final int[] THEMES = {R.style.LightTheme, R.style.DarkTheme};
-    public static final boolean DEBUG_MODE_ACTIVE = false;
-    public static final int DEBUG_LOG_MAX_MODES = 5;
+    public static final boolean DEBUG_MODE_ACTIVE = true;
+    public static final int DEBUG_LOG_MAX_MODES = 7;
 
 
     // --------------------
@@ -57,7 +56,7 @@ public class MainActivity extends AppCompatActivity
 
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
-    public static int debugLogMode = 4;
+    public static int debugLogMode = 5;
 
     private void finishWorkout()
     {
@@ -65,7 +64,7 @@ public class MainActivity extends AppCompatActivity
         final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
         viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
         viewModel.storeExerciseInfo(exerciseInfo);
-        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);  // FIXME: binding.getWorkoutUnit() seems sometimes to have cut off the precision of it's date (no hours, minutes, seconds)
+        viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
     }
 
     private void hideKeyboard(View view)
@@ -133,16 +132,13 @@ public class MainActivity extends AppCompatActivity
         {
             if (workoutUnit != null)  // workoutUnit will be null at first as long as observableWorkoutUnit isn't loaded from the database yet
             {
-                Log.d("subscribeUi", "getCurrentWorkoutUnit observed: " + workoutUnit.getName());  // DEBUG: for sortExerciseInfo new exerciseInfo name not found
                 binding.setWorkoutUnit(workoutUnit);
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                 {
                     if (exerciseSetList == null) throw new AssertionError("object cannot be null");
-                    Log.d("subscribeUi", "current getExerciseSets: " + exerciseSetList.stream().map(ExerciseSetEntity::getExerciseInfoName).collect(Collectors.joining(", ")));  // DEBUG:
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
                         if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
-                        Log.d("subscribeUi", "current getExerciseInfo exercise info names: " + exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.joining(", ")));  // DEBUG:
                         adapter.setExercise(binding.getWorkoutUnit().getExerciseNames(), exerciseInfoList, exerciseSetList);
                         binding.setIsWorkoutLoading(false);
                         binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
@@ -289,7 +285,7 @@ public class MainActivity extends AppCompatActivity
             });
         });
         binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
-        binding.dateField.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
+        binding.workoutDateText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutDescriptionText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.editModeButton.setOnClickListener((View view) ->
         {

@@ -86,21 +86,6 @@
                     android:focusableInTouchMode="false"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toEndOf="@+id/nextStudioButton"
-                    app:layout_constraintEnd_toStartOf="@+id/dateField"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isWorkoutLoading}"
-                    />
-
-                <EditText
-                    android:id="@+id/dateField"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="@dimen/item_margin_large"
-                    android:autofillHints="date"
-                    android:ems="@dimen/date_ems_size"
-                    android:hint="@string/h_emptyHint"
-                    android:inputType="date"
-                    android:text="@={workoutUnit.date}"
                     app:layout_constraintEnd_toStartOf="@+id/editModeButton"
                     app:layout_constraintTop_toTopOf="parent"
                     app:visibleGone="@{!isWorkoutLoading}"
@@ -192,6 +177,45 @@
                 >
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/workoutDateRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/item_margin_small"
+                    android:layout_marginBottom="@dimen/item_margin_small"
+                    android:orientation="horizontal"
+                    >
+
+                    <TextView
+                        android:id="@+id/workoutDateLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/t_workoutDateLabel"
+                        android:textSize="@dimen/comment_text_size"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        />
+
+                    <EditText
+                        android:id="@+id/workoutDateText"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/item_margin_small"
+                        android:paddingTop="0dp"
+                        android:autofillHints="datetime"
+                        android:ems="@dimen/date_ems_size"
+                        android:hint="@string/h_emptyHint"
+                        android:inputType="datetime"
+                        android:text="@{workoutUnit.date}"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/workoutDateLabel"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:visibleGone="@{!isWorkoutLoading}"
+                        />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/workoutDescriptionRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -207,7 +231,8 @@
                         android:text="@string/t_workoutDescriptionLabel"
                         android:textSize="@dimen/comment_text_size"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        />
 
                     <EditText
                         android:id="@+id/workoutDescriptionText"
@@ -223,7 +248,8 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/workoutDescriptionLabel"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toTopOf="parent"
+                        />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

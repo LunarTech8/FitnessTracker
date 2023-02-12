@@ -66,12 +66,13 @@ public class DataRepository
                 {
                     newExercises.add(new ExerciseSetEntity(exercise, newWorkoutDate));
                 }
-                replaceCurrentWorkoutUnit(oldWorkoutUnit, newWorkoutUnit, newExercises);  // TODO: maybe instead of replacing the dates can be updated via database.<...>Dao().update
+                replaceCurrentWorkoutUnit(oldWorkoutUnit, newWorkoutUnit, newExercises);
                 observableWorkoutUnit.postValue(newWorkoutUnit);
             });
         });
     }
 
+    // TODO: maybe instead of replacing the entries can be updated via database.<...>Dao().update
     private void replaceCurrentWorkoutUnit(final WorkoutUnitEntity currentWorkoutUnit, final WorkoutUnitEntity newWorkoutUnit, final List<ExerciseSetEntity> newExercises)
     {
         // Safeguard against empty new entries:
@@ -87,7 +88,7 @@ public class DataRepository
             database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
             if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
             {
-                Log.d("finishWorkout", "cut off workout detected");  // DEBUG:
+                Log.d("finishWorkout", "Cut off workout detected!");  // DEBUG:
                 newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
             }
             database.workoutUnitDao().insert(newWorkoutUnit);
@@ -241,7 +242,7 @@ public class DataRepository
         {
             if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
             {
-                Log.d("finishWorkout", "cut off workout detected");  // DEBUG:
+                Log.d("finishWorkout", "Cut off workout detected!");  // DEBUG:
                 newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
             }
             database.workoutUnitDao().insert(newWorkoutUnit);

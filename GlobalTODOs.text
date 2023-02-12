@@ -21,7 +21,8 @@ Work status:
 // -------------
 
 !!>>- Rework database model
-    >>>- Debug and fix why sometimes date precision is lost (no hours, minutes, seconds)
+    >- Enabling datetime setting in the screen leads to exception and storage corruption on finish workout, investigate and fix
+    - Add datetime validation and revert to last value if invalid (See here for inspiration: https://stackoverflow.com/questions/17416595/date-validation-in-android)
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
         - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed

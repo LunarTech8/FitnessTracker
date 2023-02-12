@@ -19,7 +19,7 @@ public class BindingAdapters
     // Data code
     // --------------------
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+    private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.GERMANY);
 
 
     // --------------------
@@ -91,7 +91,7 @@ public class BindingAdapters
         {
             return;
         }
-        view.setText(DATE_FORMAT.format(value));
+        view.setText(DATETIME_FORMAT.format(value));
     }
 
     @InverseBindingAdapter(attribute = "android:text")
@@ -104,7 +104,7 @@ public class BindingAdapters
         }
         try
         {
-            return DATE_FORMAT.parse(dateString);
+            return DATETIME_FORMAT.parse(dateString);
         }
         catch (ParseException e)
         {

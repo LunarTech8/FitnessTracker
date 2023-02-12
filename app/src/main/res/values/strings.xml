@@ -7,6 +7,7 @@
     <string name="t_optionsButton">&#9881;</string>
     <string name="t_editButton">&#9998;</string>
     <string name="t_workoutNameLabel">Name:</string>
+    <string name="t_workoutDateLabel">Date:</string>
     <string name="t_workoutDescriptionLabel">Description:</string>
     <string name="t_totalWorkoutCountText">Total workout units (\u03A3): %1$s</string>
     <string name="t_averageIntervalText">Average interval (\u00D8): %1$s days</string>

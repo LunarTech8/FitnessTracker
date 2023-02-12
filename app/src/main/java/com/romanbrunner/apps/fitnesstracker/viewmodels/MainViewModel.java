@@ -206,9 +206,16 @@ public class MainViewModel extends AndroidViewModel
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
             });
         }
-        else if (MainActivity.debugLogMode == 3)  // Stored workout units
+        else if (MainActivity.debugLogMode == 3)  // Observed and stored workout units and exercise sets
         {
+            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
+            {
+                if (workoutUnit == null) throw new AssertionError("object cannot be null");
+                printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit));
+                DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
+            });
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
+            DataRepository.executeOnceForLiveData(repository.getAllExerciseSets(), exerciseSets -> printExerciseSetsData("Stored exercise sets:", null, exerciseSets));
         }
         else if (MainActivity.debugLogMode == 4)  // Current exercise info
         {
@@ -227,16 +234,18 @@ public class MainViewModel extends AndroidViewModel
                 });
             });
         }
-        else if (MainActivity.debugLogMode == 5)  // Observed and stored workout units and exercise sets
+        else if (MainActivity.debugLogMode == 5)  // Observed workout unit
         {
-            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
-            {
-                if (workoutUnit == null) throw new AssertionError("object cannot be null");
-                printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit));
-                DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
-            });
+            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
+        }
+        else if (MainActivity.debugLogMode == 6)  // Stored workout units
+        {
             DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
-            DataRepository.executeOnceForLiveData(repository.getAllExerciseSets(), exerciseSets -> printExerciseSetsData("Stored exercise sets:", null, exerciseSets));
+        }
+        else if (MainActivity.debugLogMode == 7)  // Observed and stored workout units
+        {
+            DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit -> printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit)));
+            DataRepository.executeOnceForLiveData(repository.getAllWorkoutUnits(), workoutUnits -> printWorkoutUnitsData("Stored workout units:", null, workoutUnits));
         }
     }
 
