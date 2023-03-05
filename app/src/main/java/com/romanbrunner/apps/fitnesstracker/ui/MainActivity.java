@@ -88,6 +88,19 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void updateToEditMode()
+    {
+        binding.setIsEditModeActive(isEditModeActive);
+        binding.studioText.setFocusable(isEditModeActive);
+        binding.studioText.setEnabled(isEditModeActive);
+        binding.studioText.setFocusableInTouchMode(isEditModeActive);
+        binding.workoutText.setFocusable(isEditModeActive);
+        binding.workoutText.setEnabled(isEditModeActive);
+        binding.workoutText.setFocusableInTouchMode(isEditModeActive);
+        adapter.notifyDataSetChanged();
+        binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+    }
+
     private void setEditTextFocusInTopBox(View view, boolean hasFocus)
     {
         if (!hasFocus)
@@ -199,8 +212,8 @@ public class MainActivity extends AppCompatActivity
 
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
-        binding.setIsEditModeActive(isEditModeActive);
         binding.setIsDebugModeActive(DEBUG_MODE_ACTIVE);
+        updateToEditMode();
         binding.nextStudioButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(), workoutUnits ->
         {
             if (workoutUnits == null) throw new AssertionError("object cannot be null");
@@ -285,18 +298,14 @@ public class MainActivity extends AppCompatActivity
             });
         });
         binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.studioText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
+        binding.workoutText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutDateText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutDescriptionText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
-            binding.setIsEditModeActive(isEditModeActive);
-            adapter.notifyDataSetChanged();
-            if (!isEditModeActive)
-            {
-                viewModel.storeExerciseInfo(adapter.getExerciseInfo());  // TEST: check if this is needed
-            }
-            binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+            updateToEditMode();
         });
         binding.themeButton.setOnClickListener((View view) ->
         {

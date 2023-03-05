@@ -86,11 +86,6 @@ public class DataRepository
         executor.execute(() ->
         {
             database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
-            if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
-            {
-                Log.d("finishWorkout", "Cut off workout detected!");  // DEBUG:
-                newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
-            }
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });
@@ -240,11 +235,6 @@ public class DataRepository
         // Insert new entries:
         executor.execute(() ->
         {
-            if (newWorkoutUnit.getDate().getHours() == 0 && newWorkoutUnit.getDate().getMinutes() == 0 && newWorkoutUnit.getDate().getSeconds() == 0)  // FIXME: temp workaround fix
-            {
-                Log.d("finishWorkout", "Cut off workout detected!");  // DEBUG:
-                newWorkoutUnit.setDate(newExercises.get(0).getWorkoutUnitDate());  // DEBUG: loss of precision of workout date causes errors when storing it because exercises then have different date
-            }
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });

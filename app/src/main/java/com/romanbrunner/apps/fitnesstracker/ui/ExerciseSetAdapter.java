@@ -33,9 +33,9 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
     // Functional code
     // --------------------
 
-    public interface CallbackAction
+    public interface CallbackExerciseSets
     {
-        void execute();
+        void remove(int position);
     }
 
     public interface CallbackStatus
@@ -48,7 +48,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
         void set(View view, boolean hasFocus);
     }
 
-    private final CallbackAction checkForEmptyExercisesCb;
+    private final CallbackExerciseSets exerciseSetsCb;
     private final CallbackStatus exerciseStatusCb;
     private final CallbackFocus editTextFocusCb;
     private List<? extends ExerciseSet> exerciseSets;
@@ -80,23 +80,14 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
             binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.exerciseStatusCb.change(binding.exerciseDoneCheckbox.isChecked()));
             binding.exerciseRepeatsField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
             binding.exerciseWeightField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
-            binding.removeExerciseSetButton.setOnClickListener((View view) ->
-            {
-                final int position = getAdapterPosition();
-                exerciseSetAdapter.exerciseSets.remove(position);
-                exerciseSetAdapter.notifyItemRemoved(position);
-                if (exerciseSetAdapter.exerciseSets.size() <= 0)
-                {
-                    exerciseSetAdapter.checkForEmptyExercisesCb.execute();
-                }
-            });
+            binding.removeExerciseSetButton.setOnClickListener((View view) -> exerciseSetAdapter.exerciseSetsCb.remove(getAdapterPosition()));
             this.binding = binding;
         }
     }
 
-    ExerciseSetAdapter(CallbackAction checkForEmptyExercisesCb, CallbackStatus exerciseStatusCb, CallbackFocus editTextFocusCb)
+    ExerciseSetAdapter(CallbackExerciseSets exerciseSetsCb, CallbackStatus exerciseStatusCb, CallbackFocus editTextFocusCb)
     {
-        this.checkForEmptyExercisesCb = checkForEmptyExercisesCb;
+        this.exerciseSetsCb = exerciseSetsCb;
         this.exerciseStatusCb = exerciseStatusCb;
         this.editTextFocusCb = editTextFocusCb;
         exerciseSets = null;

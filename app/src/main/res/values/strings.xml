@@ -16,7 +16,7 @@
     <string name="t_themeButton">Switch theme</string>
     <string name="t_debugPrintLogButton">Print debug log</string>
     <string name="t_debugNextLogModeButton">Next debug log mode</string>
-    <string name="t_debugRemoveWorkoutUnitsButton">Remove debug workout units</string>
+    <string name="t_debugRemoveWorkoutUnitsButton">Remove all workout units</string>
     <string name="t_addExerciseButton">Add new exercise</string>
     <string name="t_finishButton">Finish workout (%s)</string>
 

@@ -20,16 +20,17 @@ Work status:
 // Worklog:
 // -------------
 
+!!!>>- Editing workouts isn't working properly
+    - Workout counter (on finish button) isn't updated when workout was removed
+    - Exercise order changes get discarded when a workout is finished
+    - Exercise name changes get discarded when a workout is finished or the studio is changed
+    - Studio change does not always seem to work properly (seems only every second time)
 !!>>- Rework database model
-    >- Enabling datetime setting in the screen leads to exception and storage corruption on finish workout, investigate and fix
-    - Add datetime validation and revert to last value if invalid (See here for inspiration: https://stackoverflow.com/questions/17416595/date-validation-in-android)
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
         - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed
 !!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise
 !!- Implement a drop down menu for changing the workout and studio instead of the next buttons
-!!!>- When removing last set of an exercise it isn't removed properly
-    - When removing an exercise set and scroll away or add a new set the removal isn't stored
 
 
 // -------------
@@ -37,10 +38,12 @@ Work status:
 // -------------
 
 !!!- Description changes should be saved
-!!!- Having entries with their dates not ascending causes wrong info for average interval
 !!- Make dark colour theme work
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Find a solution to lose focus of an edit text when clicking on a disabled edit text
+!- Add datetime validation and re-enable datetime manipulation (revert to last value if invalid, See here for inspiration: https://stackoverflow.com/questions/17416595/date-validation-in-android)
+    - Enabling datetime manipulation (android:text="@={workoutUnit.date}") leads to exception and storage corruption on finish workout
+    - Having entries with their dates not ascending causes wrong info for average interval
 
 
 // -------------

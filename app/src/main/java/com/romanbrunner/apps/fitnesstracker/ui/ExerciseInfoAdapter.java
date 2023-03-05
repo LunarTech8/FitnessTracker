@@ -19,12 +19,10 @@ import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 
 class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.ExerciseInfoViewHolder>
@@ -71,12 +69,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
                 final String exerciseInfoName = binding.getExerciseInfo().getName();
                 final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
                 if (exerciseSets == null) throw new AssertionError("object cannot be null");
-                final int lastExerciseSetIndex = exerciseSets.size() - 1;
-                if (lastExerciseSetIndex < 0)
-                {
-                    Log.e("ExerciseInfoViewHolder", "No exercise sets for " + exerciseInfoName + " stored");
-                }
-                final ExerciseSetEntity lastExerciseSet = exerciseSets.get(lastExerciseSetIndex);
+                final ExerciseSetEntity lastExerciseSet = exerciseSets.get(exerciseSets.size() - 1);
                 exerciseSets.add(new ExerciseSetEntity(lastExerciseSet.getWorkoutUnitDate(), exerciseInfoName, lastExerciseSet.getRepeats(), lastExerciseSet.getWeight()));
                 exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
                 exerciseInfoAdapter.notifyItemChanged(getAdapterPosition());
@@ -128,25 +121,29 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = null;
     }
 
-    private void checkForEmptyExercises()
+    private void removeExerciseSet(int exerciseInfoPosition, int exerciseSetPosition)
     {
-        Set<Integer> removableExercisePositions = new HashSet<>();
-        for (int i = 0; i < exerciseInfo.size(); i++)
+        final String exerciseInfoName = exerciseInfo.get(exerciseInfoPosition).getName();
+        final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
+        if (exerciseSets == null) throw new AssertionError("object cannot be null");
+        if (exerciseSetPosition < 0 || exerciseSetPosition >= exerciseSets.size())
         {
-            Log.d("checkForEmptyExercises", "exerciseInfo name: " + exerciseInfo.get(i).getName());  // DEBUG:
-            Log.d("checkForEmptyExercises", "exerciseSets size: " + Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfo.get(i).getName())).size());  // FIXME: sizes aren't reduced
-            if (Objects.requireNonNull(exerciseInfo2SetsMap.get(exerciseInfo.get(i).getName())).size() <= 0)
-            {
-                removableExercisePositions.add(i);
-            }
+            Log.e("removeExerciseSet", "Invalid exercise set position (" + exerciseSetPosition + ")");
         }
-        for (int position : removableExercisePositions)
+        if (exerciseSets.size() <= 1)
         {
-            Log.d("checkForEmptyExercises", "removableExercisePositions: " + position);  // DEBUG:
-            exerciseInfo2SetsMap.remove(exerciseInfo.get(position).getName());
-            exerciseInfo.remove(position);
-            adapters.remove(position);
-            notifyItemRemoved(position);
+            Log.d("removeExerciseSet", "removed exercise info: " + exerciseInfoPosition);  // DEBUG:
+            exerciseInfo2SetsMap.remove(exerciseInfoName);
+            exerciseInfo.remove(exerciseInfoPosition);
+            adapters.remove(exerciseInfoPosition);
+            notifyItemRemoved(exerciseInfoPosition);
+        }
+        else
+        {
+            Log.d("removeExerciseSet", "removed exercise set: " + exerciseSetPosition);  // DEBUG:
+            exerciseSets.remove(exerciseSetPosition);
+            exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
+            notifyItemChanged(exerciseInfoPosition);
         }
     }
 
@@ -214,7 +211,8 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = new ArrayList<>(exerciseInfoCount);
         for (int i = 0; i < exerciseInfoCount; i++)
         {
-            adapters.add(new ExerciseSetAdapter(this::checkForEmptyExercises, exerciseStatusCb, editTextFocusCb));
+            int exerciseInfoPosition = i;
+            adapters.add(new ExerciseSetAdapter((int exerciseSetPosition) -> removeExerciseSet(exerciseInfoPosition, exerciseSetPosition), exerciseStatusCb, editTextFocusCb));
         }
         // Load/Reload all views:
         notifyDataSetChanged();
