@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void updateToEditMode()
+    private void updateEditMode()
     {
         binding.setIsEditModeActive(isEditModeActive);
         binding.studioText.setFocusable(isEditModeActive);
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
         binding.setIsDebugModeActive(DEBUG_MODE_ACTIVE);
-        updateToEditMode();
+        updateEditMode();
         binding.nextStudioButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(), workoutUnits ->
         {
             if (workoutUnits == null) throw new AssertionError("object cannot be null");
@@ -243,9 +243,10 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             // Change to new workout:
+            Log.d("nextStudioButton", "newWorkoutStudio = " + newWorkoutStudio);  // DEBUG:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
             {
-                if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");  // FIXME: baseWorkoutUnit = new when creating new studio
                 DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
                 {
                     if (newWorkoutUnit == null) throw new AssertionError("object cannot be null");
@@ -285,9 +286,11 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 // Change to new workout:
+                Log.d("nextWorkoutButton", "newWorkoutName = " + newWorkoutName);  // DEBUG:
+                Log.d("nextWorkoutButton", "currentWorkoutUnit.getStudio() = " + currentWorkoutUnit.getStudio());  // DEBUG:
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
                 {
-                    if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                    if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");  // FIXME: baseWorkoutUnit = new when creating new workout
                     DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
                     {
                         if (newWorkoutUnit == null) throw new AssertionError("object cannot be null");
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
-            updateToEditMode();
+            updateEditMode();
         });
         binding.themeButton.setOnClickListener((View view) ->
         {

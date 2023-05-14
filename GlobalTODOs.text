@@ -24,7 +24,14 @@ Work status:
     - Workout counter (on finish button) isn't updated when workout was removed
     - Exercise order changes get discarded when a workout is finished
     - Exercise name changes get discarded when a workout is finished or the studio is changed
-    - Studio change does not always seem to work properly (seems only every second time)
+    >- Studio change does not always seem to work properly (seems only every second time)
+        - Maybe because the two studios have a workout with the same name?
+            - Should this be allowed?
+            - How to handle/separate between them?
+    >- Studio and workout renaming lead to crash because of empty baseWorkoutUnit
+        - There is no place where new workouts or studios get added to the database, thus they have an empty baseWorkoutUnit
+        - Should the studio/workout be renamed or copied? -> Should be renamed
+        - There should be a plus button to add a new empty studio/workout (later an add new entry in the drop down menu)
 !!>>- Rework database model
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
