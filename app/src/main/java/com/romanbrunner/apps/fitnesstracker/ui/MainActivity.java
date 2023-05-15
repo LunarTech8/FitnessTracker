@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity
     // Functional code
     // --------------------
 
+    private String currentWorkoutName = "InitNonNullName";
+    private String currentWorkoutStudio = "InitNonNullName";
     private int exercisesDone = 0;
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
@@ -90,6 +92,22 @@ public class MainActivity extends AppCompatActivity
 
     private void updateEditMode()
     {
+        final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+        if (currentWorkoutUnit != null && !isEditModeActive)
+        {
+            Log.d("updateEditMode", "currentWorkoutUnitName = " + currentWorkoutUnit.getName());  // DEBUG:
+            Log.d("updateEditMode", "currentWorkoutUnitStudio = " + currentWorkoutUnit.getStudio());  // DEBUG:
+            if (!Objects.equals(currentWorkoutName, currentWorkoutUnit.getName()))
+            {
+                // TODO: rename database entry
+                currentWorkoutName = currentWorkoutUnit.getName();
+            }
+            if (!Objects.equals(currentWorkoutStudio, currentWorkoutUnit.getStudio()))
+            {
+                // TODO: rename database entry
+                currentWorkoutStudio = currentWorkoutUnit.getStudio();
+            }
+        }
         binding.setIsEditModeActive(isEditModeActive);
         binding.studioText.setFocusable(isEditModeActive);
         binding.studioText.setEnabled(isEditModeActive);
