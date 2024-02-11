@@ -28,7 +28,7 @@ Work status:
         - Maybe because the two studios have a workout with the same name?
             - Should this be allowed?
             - How to handle/separate between them?
-    >- Studio and workout renaming lead to crash because of empty baseWorkoutUnit
+    >- Studio and workout renaming leads to crash because of empty baseWorkoutUnit
         - There is no place where new workouts or studios get added to the database, thus they have an empty baseWorkoutUnit
         >>- Should the studio/workout be renamed or copied? -> Should be renamed
         - There should be a plus button to add a new empty studio/workout (later an add new entry in the drop down menu)
@@ -45,7 +45,6 @@ Work status:
 // -------------
 
 !!!- Description changes should be saved
-!!- Make dark colour theme work
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Find a solution to lose focus of an edit text when clicking on a disabled edit text
 !- Add datetime validation and re-enable datetime manipulation (revert to last value if invalid, See here for inspiration: https://stackoverflow.com/questions/17416595/date-validation-in-android)

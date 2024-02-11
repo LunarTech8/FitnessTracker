@@ -3,6 +3,7 @@ package com.romanbrunner.apps.fitnesstracker.ui;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -40,9 +42,9 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
-    private static final int[] THEMES = {R.style.LightTheme, R.style.DarkTheme};
     public static final boolean DEBUG_MODE_ACTIVE = true;
     public static final int DEBUG_LOG_MAX_MODES = 7;
+    private final static String PREFS_NAME = "GlobalPreferences";
 
 
     // --------------------
@@ -117,6 +119,24 @@ public class MainActivity extends AppCompatActivity
         binding.workoutText.setFocusableInTouchMode(isEditModeActive);
         adapter.notifyDataSetChanged();
         binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+    }
+
+    private void updateTheme()
+    {
+        switch (currentThemeId)
+        {
+            default:
+                currentThemeId = 0;
+            case 0:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case 1:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+            case 2:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+        }
     }
 
     private void setEditTextFocusInTopBox(View view, boolean hasFocus)
@@ -215,7 +235,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setTheme(THEMES[currentThemeId]);
+        currentThemeId = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt("currentThemeId", currentThemeId);
+        updateTheme();
         binding = DataBindingUtil.setContentView(this, R.layout.workout_screen);
 
         // Create a ViewModel the first time the system calls an activity's onCreate() method.
@@ -331,11 +352,10 @@ public class MainActivity extends AppCompatActivity
         binding.themeButton.setOnClickListener((View view) ->
         {
             currentThemeId += 1;
-            if (currentThemeId >= THEMES.length)
-            {
-                currentThemeId = 0;
-            }
-            recreate();
+            updateTheme();
+            final var editor = getApplicationContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit();
+            editor.putInt("currentThemeId", currentThemeId);
+            editor.apply();
         });
         binding.addExerciseButton.setOnClickListener((View view) ->
         {
