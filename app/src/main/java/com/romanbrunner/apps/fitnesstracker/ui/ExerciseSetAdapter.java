@@ -40,7 +40,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
 
     public interface CallbackStatus
     {
-        void change(boolean done);
+        void update();
     }
 
     public interface CallbackFocus
@@ -66,7 +66,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 if (!binding.exerciseDoneCheckbox.isChecked())
                 {
                     binding.exerciseDoneCheckbox.setChecked(true);
-                    exerciseSetAdapter.exerciseStatusCb.change(true);
+                    exerciseSetAdapter.exerciseStatusCb.update();
                 }
                 int repeats = Integer.parseInt(binding.exerciseRepeatsField.getText().toString()) + 1;
                 float weight = Float.parseFloat(binding.exerciseWeightField.getText().toString());
@@ -77,7 +77,7 @@ public class ExerciseSetAdapter extends RecyclerView.Adapter<ExerciseSetAdapter.
                 }
                 binding.exerciseRepeatsField.setText(String.valueOf(repeats));
             });
-            binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.exerciseStatusCb.change(binding.exerciseDoneCheckbox.isChecked()));
+            binding.exerciseDoneCheckbox.setOnClickListener((View view) -> exerciseSetAdapter.exerciseStatusCb.update());
             binding.exerciseRepeatsField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
             binding.exerciseWeightField.setOnFocusChangeListener(exerciseSetAdapter.editTextFocusCb::set);
             binding.removeExerciseSetButton.setOnClickListener((View view) -> exerciseSetAdapter.exerciseSetsCb.remove(getAdapterPosition()));

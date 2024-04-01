@@ -25,6 +25,7 @@ android {
         }
         debug {
             resValue "bool", "DEBUG", "true"
+            buildConfigField "boolean", "ENABLE_ASSERTIONS", "true"
         }
     }
     buildFeatures {
@@ -60,7 +61,7 @@ dependencies {
     testImplementation "androidx.room:room-testing:$room_version"
 
     def lifecycle_version = "2.3.1"
-    def arch_version = "2.1.0"
+    def arch_version = "2.2.0"
     // ViewModel
     //noinspection GradleDependency
     implementation "androidx.lifecycle:lifecycle-viewmodel:$lifecycle_version"

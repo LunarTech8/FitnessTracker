@@ -68,7 +68,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             {
                 final String exerciseInfoName = binding.getExerciseInfo().getName();
                 final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
-                if (exerciseSets == null) throw new AssertionError("object cannot be null");
+                assert exerciseSets != null : "object cannot be null";
                 final ExerciseSetEntity lastExerciseSet = exerciseSets.get(exerciseSets.size() - 1);
                 exerciseSets.add(new ExerciseSetEntity(lastExerciseSet.getWorkoutUnitDate(), exerciseInfoName, lastExerciseSet.getRepeats(), lastExerciseSet.getWeight()));
                 exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
@@ -125,7 +125,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     {
         final String exerciseInfoName = exerciseInfo.get(exerciseInfoPosition).getName();
         final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
-        if (exerciseSets == null) throw new AssertionError("object cannot be null");
+        assert exerciseSets != null : "object cannot be null";
         if (exerciseSetPosition < 0 || exerciseSetPosition >= exerciseSets.size())
         {
             Log.e("removeExerciseSet", "Invalid exercise set position (" + exerciseSetPosition + ")");

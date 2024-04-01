@@ -54,12 +54,12 @@ public class DataRepository
         // Load newest workout unit and post its value into its observable as soon as the database is ready:
         executeOnceForLiveData(getNewestWorkoutUnit(), oldWorkoutUnit -> database.getDatabaseCreated().getValue() != null, oldWorkoutUnit ->
         {
-            if (oldWorkoutUnit == null) throw new AssertionError("object cannot be null");
+            assert oldWorkoutUnit != null : "object cannot be null";
             // Create new entries by cloning last entries:
             final List<ExerciseSetEntity> newExercises = new ArrayList<>();
             DataRepository.executeOnceForLiveData(getExerciseSets(oldWorkoutUnit), oldExerciseSets ->
             {
-                if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
+                assert oldExerciseSets != null : "object cannot be null";
                 final Date newWorkoutDate = new Date();  // Set to current date
                 final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit, newWorkoutDate);
                 for (ExerciseSetEntity exercise : oldExerciseSets)
@@ -206,6 +206,15 @@ public class DataRepository
         });
     }
 
+    public void storeWorkout(@NonNull WorkoutUnitEntity workoutUnit, @NonNull List<ExerciseSetEntity> exerciseSets)
+    {
+        executor.execute(() ->
+        {
+            database.workoutUnitDao().update(workoutUnit);
+            database.exerciseSetDao().update(exerciseSets);
+        });
+    }
+
     public void setCurrentWorkout(WorkoutUnitEntity workoutUnitEntity)
     {
         observableWorkoutUnit.setValue(workoutUnitEntity);
@@ -248,14 +257,14 @@ public class DataRepository
         Log.d("changeWorkout", "base workout name: " + baseWorkoutUnit.getName());  // DEBUG:
         DataRepository.executeOnceForLiveData(observableWorkoutUnit, currentWorkoutUnit ->
         {
-            if (currentWorkoutUnit == null) throw new AssertionError("object cannot be null");
+            assert currentWorkoutUnit != null : "object cannot be null";
             final Date workoutDate = currentWorkoutUnit.getDate();
             final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(baseWorkoutUnit, workoutDate);
             // Create new entries by cloning last entries:
             final List<ExerciseSetEntity> newExercises = new ArrayList<>();
             DataRepository.executeOnceForLiveData(getExerciseSets(baseWorkoutUnit), oldExerciseSets ->
             {
-                if (oldExerciseSets == null) throw new AssertionError("object cannot be null");
+                assert oldExerciseSets != null : "object cannot be null";
                 for (ExerciseSetEntity exercise : oldExerciseSets)
                 {
                     newExercises.add(new ExerciseSetEntity(exercise, workoutDate));

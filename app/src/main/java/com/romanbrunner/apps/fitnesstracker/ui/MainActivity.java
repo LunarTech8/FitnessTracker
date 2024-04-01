@@ -51,9 +51,6 @@ public class MainActivity extends AppCompatActivity
     // Functional code
     // --------------------
 
-    private String currentWorkoutName = "InitNonNullName";
-    private String currentWorkoutStudio = "InitNonNullName";
-    private int exercisesDone = 0;
     private ExerciseInfoAdapter adapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
@@ -61,6 +58,26 @@ public class MainActivity extends AppCompatActivity
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
     public static int debugLogMode = 5;
+
+    private static int determineNamePostfixCounter(List<ExerciseInfoEntity> exerciseInfoList, String exerciseName)
+    {
+        int namePostfixCounter = 1;
+        boolean nameNotFound = true;
+        while (nameNotFound)
+        {
+            nameNotFound = false;
+            for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
+            {
+                if (Objects.equals(exerciseInfo.getName(), exerciseName + namePostfixCounter))
+                {
+                    nameNotFound = true;
+                    namePostfixCounter++;
+                    break;
+                }
+            }
+        }
+        return namePostfixCounter;
+    }
 
     private void finishWorkout()
     {
@@ -79,8 +96,9 @@ public class MainActivity extends AppCompatActivity
 
     private void updateFinishedExercises()
     {
-        final int exercisesTotal = WorkoutUnitEntity.exerciseNames2Amount(binding.getWorkoutUnit().getExerciseNames());
-        if (exercisesDone < 0 || exercisesDone > exercisesTotal)
+        final var exercisesDone = adapter.getExerciseSets().stream().filter(ExerciseSetEntity::isDone).count();
+        final var exercisesTotal = WorkoutUnitEntity.exerciseNames2Amount(binding.getWorkoutUnit().getExerciseNames());
+        if (exercisesDone > exercisesTotal)
         {
             Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");
         }
@@ -94,22 +112,6 @@ public class MainActivity extends AppCompatActivity
 
     private void updateEditMode()
     {
-        final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-        if (currentWorkoutUnit != null && !isEditModeActive)
-        {
-            Log.d("updateEditMode", "currentWorkoutUnitName = " + currentWorkoutUnit.getName());  // DEBUG:
-            Log.d("updateEditMode", "currentWorkoutUnitStudio = " + currentWorkoutUnit.getStudio());  // DEBUG:
-            if (!Objects.equals(currentWorkoutName, currentWorkoutUnit.getName()))
-            {
-                // TODO: rename database entry
-                currentWorkoutName = currentWorkoutUnit.getName();
-            }
-            if (!Objects.equals(currentWorkoutStudio, currentWorkoutUnit.getStudio()))
-            {
-                // TODO: rename database entry
-                currentWorkoutStudio = currentWorkoutUnit.getStudio();
-            }
-        }
         binding.setIsEditModeActive(isEditModeActive);
         binding.studioText.setFocusable(isEditModeActive);
         binding.studioText.setEnabled(isEditModeActive);
@@ -162,19 +164,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void changeExerciseStatus(boolean done)
-    {
-        if (done)
-        {
-            exercisesDone += 1;
-        }
-        else
-        {
-            exercisesDone -= 1;
-        }
-        updateFinishedExercises();
-    }
-
     // Update the layout binding when the data in the view model changes:
     private void subscribeUi(final MainViewModel viewModel)
     {
@@ -186,14 +175,13 @@ public class MainActivity extends AppCompatActivity
                 binding.setWorkoutUnit(workoutUnit);
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                 {
-                    if (exerciseSetList == null) throw new AssertionError("object cannot be null");
+                    assert exerciseSetList != null : "object cannot be null";
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
-                        if (exerciseInfoList == null) throw new AssertionError("object cannot be null");
+                        assert exerciseInfoList != null : "object cannot be null";
                         adapter.setExercise(binding.getWorkoutUnit().getExerciseNames(), exerciseInfoList, exerciseSetList);
                         binding.setIsWorkoutLoading(false);
                         binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-                        exercisesDone = 0;
                         updateFinishedExercises();
                     });
                 });
@@ -245,7 +233,7 @@ public class MainActivity extends AppCompatActivity
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup recycle view adapter:
-        adapter = new ExerciseInfoAdapter(this::changeExerciseStatus, this::setEditTextFocusInExercisesBoard);
+        adapter = new ExerciseInfoAdapter(this::updateFinishedExercises, this::setEditTextFocusInExercisesBoard);
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
@@ -255,7 +243,7 @@ public class MainActivity extends AppCompatActivity
         updateEditMode();
         binding.nextStudioButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(), workoutUnits ->
         {
-            if (workoutUnits == null) throw new AssertionError("object cannot be null");
+            assert workoutUnits != null : "object cannot be null";
             final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
             // Get all workout studios:
             Set<String> workoutStudios = new LinkedHashSet<>();
@@ -270,14 +258,8 @@ public class MainActivity extends AppCompatActivity
             {
                 if (Objects.equals(iterator.next(), currentWorkoutUnit.getStudio()))
                 {
-                    if (iterator.hasNext())
-                    {
-                        newWorkoutStudio = iterator.next();
-                    }
-                    else
-                    {
-                        newWorkoutStudio = workoutStudios.iterator().next();
-                    }
+                    // If available find the next workout studio after the current one, otherwise wrap around to the first studio in the list:
+                    newWorkoutStudio = iterator.hasNext() ? iterator.next() : workoutStudios.iterator().next();
                     break;
                 }
             }
@@ -285,10 +267,10 @@ public class MainActivity extends AppCompatActivity
             Log.d("nextStudioButton", "newWorkoutStudio = " + newWorkoutStudio);  // DEBUG:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
             {
-                if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");  // FIXME: baseWorkoutUnit = new when creating new studio
+                assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new studio
                 DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
                 {
-                    if (newWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                    assert newWorkoutUnit != null : "object cannot be null";
                     binding.setWorkoutUnit(newWorkoutUnit);
                     binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
                 });
@@ -299,7 +281,7 @@ public class MainActivity extends AppCompatActivity
             final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
             DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(currentWorkoutUnit.getStudio()), workoutUnits ->
             {
-                if (workoutUnits == null) throw new AssertionError("object cannot be null");
+                assert workoutUnits != null : "object cannot be null";
                 // Get all workout names of current studio:
                 Set<String> workoutNames = new LinkedHashSet<>();
                 for (WorkoutUnitEntity workoutUnit: workoutUnits)
@@ -313,14 +295,8 @@ public class MainActivity extends AppCompatActivity
                 {
                     if (Objects.equals(iterator.next(), currentWorkoutUnit.getName()))
                     {
-                        if (iterator.hasNext())
-                        {
-                            newWorkoutName = iterator.next();
-                        }
-                        else
-                        {
-                            newWorkoutName = workoutNames.iterator().next();
-                        }
+                        // If available find the next workout name after the current one, otherwise wrap around to the first name in the list:
+                        newWorkoutName = iterator.hasNext() ? iterator.next() : workoutNames.iterator().next();
                         break;
                     }
                 }
@@ -329,10 +305,10 @@ public class MainActivity extends AppCompatActivity
                 Log.d("nextWorkoutButton", "currentWorkoutUnit.getStudio() = " + currentWorkoutUnit.getStudio());  // DEBUG:
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
                 {
-                    if (baseWorkoutUnit == null) throw new AssertionError("object cannot be null");  // FIXME: baseWorkoutUnit = new when creating new workout
+                    assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new workout
                     DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
                     {
-                        if (newWorkoutUnit == null) throw new AssertionError("object cannot be null");
+                        assert newWorkoutUnit != null : "object cannot be null";
                         binding.setWorkoutUnit(newWorkoutUnit);
                         binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
                     });
@@ -347,6 +323,18 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
+            if (!isEditModeActive)
+            {
+                final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                final var currentExerciseSets = adapter.getExerciseSets();
+                currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
+                viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
+                updateFinishedExercises();
+                Log.d("updateEditMode", "getExerciseNames = " + currentWorkoutUnit.getExerciseNames());  // DEBUG:
+                // FIXME: changes done to amount of exercises (>0) are not persistent through workout changes
+                // FIXME: -> maybe because current workout is not stored in database as long as it is not finished
+                // FIXME: -> maybe it's because the exercise adapter is not updated on workout changes
+            }
             updateEditMode();
         });
         binding.themeButton.setOnClickListener((View view) ->
@@ -362,23 +350,8 @@ public class MainActivity extends AppCompatActivity
             // Create new exercise:
             String newExerciseName = "NewExerciseName";
             final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
-            int namePostfixCounter = 1;
-            boolean nameNotFound = true;
-            while (nameNotFound)
-            {
-                nameNotFound = false;
-                for (ExerciseInfoEntity exerciseInfo: newExerciseInfoList)
-                {
-                    if (Objects.equals(exerciseInfo.getName(), newExerciseName + namePostfixCounter))
-                    {
-                        nameNotFound = true;
-                        namePostfixCounter++;
-                        break;
-                    }
-                }
-            }
-            newExerciseName += namePostfixCounter;
-            newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));
+            newExerciseName += determineNamePostfixCounter(newExerciseInfoList, newExerciseName);
+            newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));  // FIXME: new exercise info is not stored in database
             final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
             newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout unit and exercise adapter:
@@ -389,7 +362,7 @@ public class MainActivity extends AppCompatActivity
         });
         binding.finishButton.setOnClickListener((View view) ->
         {
-            if (exercisesDone < WorkoutUnitEntity.exerciseNames2Amount(binding.getWorkoutUnit().getExerciseNames()))
+            if (adapter.getExerciseSets().stream().filter(ExerciseSetEntity::isDone).count() < WorkoutUnitEntity.exerciseNames2Amount(binding.getWorkoutUnit().getExerciseNames()))
             {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Incomplete workout!");

@@ -162,6 +162,11 @@ public class MainViewModel extends AndroidViewModel
         repository.storeExerciseInfo(exerciseInfo);
     }
 
+    public void storeWorkout(@NonNull WorkoutUnitEntity workoutUnit, @NonNull List<ExerciseSetEntity> exerciseSets)
+    {
+        repository.storeWorkout(workoutUnit, exerciseSets);
+    }
+
     public void finishWorkout(@NonNull WorkoutUnitEntity oldWorkoutUnit, @NonNull List<ExerciseSetEntity> oldExerciseSets)
     {
         repository.finishWorkout(oldWorkoutUnit, oldExerciseSets);
@@ -187,7 +192,7 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
-                if (workoutUnit == null) throw new AssertionError("object cannot be null");
+                assert workoutUnit != null : "object cannot be null";
                 printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit));
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
             });
@@ -201,7 +206,7 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(repository.getLastWorkoutUnit(), workoutUnit ->
             {
-                if (workoutUnit == null) throw new AssertionError("object cannot be null");
+                assert workoutUnit != null : "object cannot be null";
                 printWorkoutUnitsData("Last stored workout unit:", null, Collections.singletonList(workoutUnit));
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Last stored exercise sets:", null, exerciseSets));
             });
@@ -210,7 +215,7 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
-                if (workoutUnit == null) throw new AssertionError("object cannot be null");
+                assert workoutUnit != null : "object cannot be null";
                 printWorkoutUnitsData("Observed workout unit:", "No workout unit observed", Collections.singletonList(workoutUnit));
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSets -> printExerciseSetsData("Observed exercise sets:", "No exercise sets observed", exerciseSets));
             });
@@ -221,10 +226,10 @@ public class MainViewModel extends AndroidViewModel
         {
             DataRepository.executeOnceForLiveData(observableWorkoutUnit, workoutUnit ->
             {
-                if (workoutUnit == null) throw new AssertionError("object cannot be null");
+                assert workoutUnit != null : "object cannot be null";
                 DataRepository.executeOnceForLiveData(repository.getExerciseSets(workoutUnit), exerciseSetList ->
                 {
-                    if (exerciseSetList == null) throw new AssertionError("object cannot be null");
+                    assert exerciseSetList != null : "object cannot be null";
                     Set<String> exerciseInfoNames = new HashSet<>();
                     for (ExerciseSetEntity exerciseSet: exerciseSetList)
                     {
