@@ -21,18 +21,20 @@ Work status:
 // -------------
 
 !!!>>- Editing workouts isn't working properly
+    >>- When changing a workout the newest entry with that name and studio should be loaded (inside changeWorkout)
+        - To reproduce: Modify exercise, finish workout, switch to other workout, switch back to modified workout, modified exercise is wrong/old
+        - For baseWorkoutUnit the correct new one is loaded but for exerciseSet the old unmodified is loaded leading to deviations
     >- New exercise info is not stored in database when adding a new exercise
     >- Changes done to amount of exercises (>0) lead to wrong displayed sets when changing workouts that have the same exercise type
     - If first exercise is removed, further removals don't work properly anymore (wrong sets or none are removed)
-    - Exercise order changes get discarded when a workout is finished -> Check if still valid
-    - Exercise name changes get discarded when a workout is finished or the studio is changed -> Check if still valid
-!!- There should be a plus button to add a new empty studio/workout (later an add new entry in the drop down menu)
 !!>>- Rework database model
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
         - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed
-!!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise
 !!- Implement a drop down menu for changing the workout and studio instead of the next buttons
+!!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise -> Replace button with drop down that has the option to "add new exercise"
+!!- Count different exercise set types not each set in updateFinishedExercises
+!- Maybe instead of replacing the entries can be updated via database.<...>Dao().update in replaceCurrentWorkoutUnit
 
 
 // -------------
@@ -55,3 +57,4 @@ Work status:
 !!- Have a button to change between lbs and kg
 !- Maybe have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
 !- Maybe add different exercise types (one for cardio, etc.)
+!- Maybe add an option to rename existing workout names and studios

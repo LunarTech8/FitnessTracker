@@ -186,8 +186,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             }
             if (targetNotFound)
             {
-                Log.e("setExercise", "Could not find " + exerciseName + " in exerciseInfo");  // FIXME: this is called for 'Body+Souls Test' with 'CROSS WALKER' and 'PUSHDOWN AM KABELZUG'
-                // FIXME: maybe because the two studios have a workout with the same name
+                Log.e("setExercise", "Could not find " + exerciseName + " in exerciseInfo");
             }
         }
         // Set exerciseInfo2SetsMap:

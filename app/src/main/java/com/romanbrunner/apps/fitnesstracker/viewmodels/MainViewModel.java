@@ -162,19 +162,14 @@ public class MainViewModel extends AndroidViewModel
         repository.storeExerciseInfo(exerciseInfo);
     }
 
-    public void storeWorkout(@NonNull WorkoutUnitEntity workoutUnit, @NonNull List<ExerciseSetEntity> exerciseSets)
-    {
-        repository.storeWorkout(workoutUnit, exerciseSets);
-    }
-
     public void finishWorkout(@NonNull WorkoutUnitEntity oldWorkoutUnit, @NonNull List<ExerciseSetEntity> oldExerciseSets)
     {
         repository.finishWorkout(oldWorkoutUnit, oldExerciseSets);
     }
 
-    public LiveData<WorkoutUnitEntity> changeWorkout(@NonNull WorkoutUnitEntity baseWorkoutUnit)
+    public void changeWorkout(@NonNull WorkoutUnitEntity baseWorkoutUnit)
     {
-        return repository.changeWorkout(baseWorkoutUnit);
+        repository.changeWorkout(baseWorkoutUnit);
     }
 
     public void updateExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo, final List<ExerciseSetEntity> orderedExerciseSets)

@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class MainActivity extends AppCompatActivity
@@ -42,8 +43,8 @@ public class MainActivity extends AppCompatActivity
     // Data code
     // --------------------
 
-    public static final boolean DEBUG_MODE_ACTIVE = true;
-    public static final int DEBUG_LOG_MAX_MODES = 7;
+    public final static boolean DEBUG_MODE_ACTIVE = true;
+    public final static int DEBUG_LOG_MAX_MODES = 7;
     private final static String PREFS_NAME = "GlobalPreferences";
 
 
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
-    public static int debugLogMode = 5;
+    public static int debugLogMode = 0;
 
     private static int determineNamePostfixCounter(List<ExerciseInfoEntity> exerciseInfoList, String exerciseName)
     {
@@ -120,7 +121,7 @@ public class MainActivity extends AppCompatActivity
         binding.workoutText.setEnabled(isEditModeActive);
         binding.workoutText.setFocusableInTouchMode(isEditModeActive);
         adapter.notifyDataSetChanged();
-        binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+        binding.executePendingBindings();
     }
 
     private void updateTheme()
@@ -165,23 +166,28 @@ public class MainActivity extends AppCompatActivity
     }
 
     // Update the layout binding when the data in the view model changes:
-    private void subscribeUi(final MainViewModel viewModel)
+    private void subscribeUi()
     {
         // Current workout entry:
-        viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) ->
-        {
+        viewModel.getCurrentWorkoutUnit().observe(this, (@Nullable WorkoutUnitEntity workoutUnit) -> {
             if (workoutUnit != null)  // workoutUnit will be null at first as long as observableWorkoutUnit isn't loaded from the database yet
             {
-                binding.setWorkoutUnit(workoutUnit);
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                 {
                     assert exerciseSetList != null : "object cannot be null";
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
                         assert exerciseInfoList != null : "object cannot be null";
-                        adapter.setExercise(binding.getWorkoutUnit().getExerciseNames(), exerciseInfoList, exerciseSetList);
+                        // FIXME: exerciseInfoNames and exerciseInfo/exerciseSets seem not to match when changing workout -> the later stays like the old
+//                        Log.d("subscribeUi", "workoutUnit.getName() = " + workoutUnit.getName());  // DEBUG:
+                        Log.d("subscribeUi", "workoutUnit.getExerciseNames() = " + workoutUnit.getExerciseNames());  // DEBUG:
+                        Log.d("subscribeUi", "workoutUnit.getDate() = " + workoutUnit.getDate().toString());  // DEBUG:
+                        Log.d("subscribeUi", "exerciseInfoList = " + exerciseInfoList.stream().map(element -> element.getName() + " " + element.getDefaultValues()).collect(Collectors.joining(", ")));  // DEBUG:
+                        Log.d("subscribeUi", "exerciseSetList = " + exerciseSetList.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
+                        binding.setWorkoutUnit(workoutUnit);
+                        adapter.setExercise(workoutUnit.getExerciseNames(), exerciseInfoList, exerciseSetList);
                         binding.setIsWorkoutLoading(false);
-                        binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                        binding.executePendingBindings();
                         updateFinishedExercises();
                     });
                 });
@@ -189,7 +195,7 @@ public class MainActivity extends AppCompatActivity
             else
             {
                 binding.setIsWorkoutLoading(true);
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                binding.executePendingBindings();
             }
         });
         // Entries for statistics:
@@ -198,7 +204,7 @@ public class MainActivity extends AppCompatActivity
             if (workoutUnit != null)
             {
                 binding.setLastWorkoutDate(SimpleDateFormat.getDateInstance().format(workoutUnit.getDate()));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                binding.executePendingBindings();
             }
         });
         viewModel.getAllWorkoutUnits().observe(this, (@Nullable List<WorkoutUnitEntity> workoutUnits) ->
@@ -212,7 +218,7 @@ public class MainActivity extends AppCompatActivity
                     averageInterval += TimeUnit.DAYS.convert(workoutUnits.get(i).getDate().getTime() - workoutUnits.get(i - 1).getDate().getTime(), TimeUnit.MILLISECONDS);
                 }
                 binding.setAverageInterval(String.format(Locale.getDefault(), "%.2f", averageInterval / (workoutUnits.size() - 2)));
-                binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
+                binding.executePendingBindings();
             }
         });
     }
@@ -268,12 +274,7 @@ public class MainActivity extends AppCompatActivity
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
             {
                 assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new studio
-                DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
-                {
-                    assert newWorkoutUnit != null : "object cannot be null";
-                    binding.setWorkoutUnit(newWorkoutUnit);
-                    binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-                });
+                viewModel.changeWorkout(baseWorkoutUnit);
             });
         }));
         binding.nextWorkoutButton.setOnClickListener((View view) ->
@@ -302,16 +303,15 @@ public class MainActivity extends AppCompatActivity
                 }
                 // Change to new workout:
                 Log.d("nextWorkoutButton", "newWorkoutName = " + newWorkoutName);  // DEBUG:
-                Log.d("nextWorkoutButton", "currentWorkoutUnit.getStudio() = " + currentWorkoutUnit.getStudio());  // DEBUG:
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
                 {
                     assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new workout
-                    DataRepository.executeOnceForLiveData(viewModel.changeWorkout(baseWorkoutUnit), newWorkoutUnit ->
-                    {
-                        assert newWorkoutUnit != null : "object cannot be null";
-                        binding.setWorkoutUnit(newWorkoutUnit);
-                        binding.executePendingBindings();  // Espresso does not know how to wait for data binding's loop so we execute changes sync
-                    });
+//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getName() = " + baseWorkoutUnit.getName());  // DEBUG:
+//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getExerciseNames() = " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
+//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getDate() = " + baseWorkoutUnit.getDate().toString());  // DEBUG:
+                    viewModel.changeWorkout(baseWorkoutUnit);
+                    // (FIXME: current entry is also stored in database (despite not being finished) -> but should be ok)
+                    // FIXME: baseWorkoutUnit and loaded workout unit are correct but loaded exercise set and info are wrong
                 });
             });
         });
@@ -325,16 +325,14 @@ public class MainActivity extends AppCompatActivity
             isEditModeActive = !isEditModeActive;
             if (!isEditModeActive)
             {
-                final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-                final var currentExerciseSets = adapter.getExerciseSets();
-                currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
-                viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
-                updateFinishedExercises();
-                Log.d("updateEditMode", "getExerciseNames = " + currentWorkoutUnit.getExerciseNames());  // DEBUG:
-                // FIXME: changes done to amount of exercises (>0) are not persistent through workout changes
-                // FIXME: -> maybe because current workout is not stored in database as long as it is not finished
-                // FIXME: -> maybe it's because the exercise adapter is not updated on workout changes
+                final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();  // DEBUG:
+                final var currentExerciseSets = adapter.getExerciseSets();  // DEBUG:
+                currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));  // DEBUG:
+                Log.d("updateEditMode", "currentWorkoutUnit.getExerciseNames() = " + currentWorkoutUnit.getExerciseNames());  // DEBUG:
+                Log.d("updateEditMode", "currentWorkoutUnit.getDate() = " + currentWorkoutUnit.getDate().toString());  // DEBUG:
+                Log.d("updateEditMode", "currentExerciseSets = " + currentExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
             }
+            updateFinishedExercises();
             updateEditMode();
         });
         binding.themeButton.setOnClickListener((View view) ->
@@ -378,7 +376,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        subscribeUi(viewModel);
+        subscribeUi();
 
         // Add debugging button listeners:
         // (Buttons only visible in debugging build)
