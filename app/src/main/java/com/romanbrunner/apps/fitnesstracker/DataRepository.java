@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -73,7 +74,6 @@ public class DataRepository
         });
     }
 
-    // TODO: maybe instead of replacing the entries can be updated via database.<...>Dao().update
     private void replaceCurrentWorkoutUnit(final WorkoutUnitEntity currentWorkoutUnit, final WorkoutUnitEntity newWorkoutUnit, final List<ExerciseSetEntity> newExercises)
     {
         // Safeguard against empty new entries:
@@ -86,7 +86,8 @@ public class DataRepository
         // Delete current entries and insert new entries:
         executor.execute(() ->
         {
-            database.workoutUnitDao().delete(currentWorkoutUnit);  // Associated exercise sets are automatically deleted
+            /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
+            database.workoutUnitDao().delete(currentWorkoutUnit);
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
         });
@@ -219,15 +220,27 @@ public class DataRepository
 
     public void finishWorkout(@NonNull WorkoutUnitEntity oldWorkoutUnit, @NonNull List<ExerciseSetEntity> oldExerciseSets)
     {
+        CountDownLatch latch = new CountDownLatch(1);  // DEBUG:
         // Update current entries:
         executor.execute(() ->
         {
             Log.d("finishWorkout", "oldWorkoutUnit.getExerciseNames() = " + oldWorkoutUnit.getExerciseNames());  // DEBUG:
             Log.d("finishWorkout", "oldWorkoutUnit.getDate() = " + oldWorkoutUnit.getDate().toString());  // DEBUG:
-            Log.d("finishWorkout", "oldExerciseSets = " + oldExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
-            database.workoutUnitDao().update(oldWorkoutUnit);
-            database.exerciseSetDao().update(oldExerciseSets);
+            Log.d("finishWorkout", "oldExerciseSets = " + oldExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getId() + " " + element.isDone()).collect(Collectors.joining(", ")));  // DEBUG:
+            /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
+            database.workoutUnitDao().delete(oldWorkoutUnit);
+            database.workoutUnitDao().insert(oldWorkoutUnit);
+            database.exerciseSetDao().insert(oldExerciseSets);
+            latch.countDown();  // DEBUG:
         });
+        try {
+            latch.await();  // DEBUG:
+            DataRepository.executeOnceForLiveData(database.exerciseSetDao().loadByWorkoutUnitDate(oldWorkoutUnit.getDate()), exerciseSets -> {
+                Log.d("finishWorkout", "Stored exercise sets = " + exerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getId() + " " + element.isDone()).collect(Collectors.joining(", ")));  // DEBUG:
+            });
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         // Clone new entries:
         final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
         final List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
@@ -278,7 +291,12 @@ public class DataRepository
                 // (-> DESIGN MISUNDERSTANDING: only when workout is finished workoutUnit and exerciseSets are stored for good, else they get removed on change)
                 // -> Problem still there on second switch if modified workout was finished, diversion now in workoutUnit and exerciseSets
                 // exerciseSets seems to never be stored correctly (at least if only sets were modified)
-                // TODO: check if database.exerciseSetDao().update(oldExerciseSets) does what it's supposed to do in finishWorkout
+                // (TODO: check if database.exerciseSetDao().update(oldExerciseSets) does what it's supposed to do in finishWorkout)
+                // -> exerciseSets storage should no be solved with delete/insert
+                // TODO: changing between workouts sometimes does not update the exercise sets
+                // studio change button does then update it
+                // maybe something to do with asynchronous calls
+                // sometimes just parts of the changes are not updated
                 for (ExerciseSetEntity exercise : oldExerciseSets)
                 {
                     newExercises.add(new ExerciseSetEntity(exercise, workoutDate));

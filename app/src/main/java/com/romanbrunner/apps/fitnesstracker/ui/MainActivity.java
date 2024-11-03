@@ -323,7 +323,7 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
-            if (!isEditModeActive)
+            if (!isEditModeActive)  // DEBUG:
             {
                 final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();  // DEBUG:
                 final var currentExerciseSets = adapter.getExerciseSets();  // DEBUG:
