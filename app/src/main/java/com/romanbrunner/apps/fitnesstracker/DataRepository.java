@@ -88,8 +88,10 @@ public class DataRepository
         {
             /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
             database.workoutUnitDao().delete(currentWorkoutUnit);
+            Log.d("replaceCurrentWorkoutUnit", "Old entries deleted");  // DEBUG:
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
+            Log.d("replaceCurrentWorkoutUnit", "New entries inserted");  // DEBUG:
         });
         // Adjust current workout unit:
         observableWorkoutUnit.setValue(newWorkoutUnit);
@@ -292,11 +294,12 @@ public class DataRepository
                 // -> Problem still there on second switch if modified workout was finished, diversion now in workoutUnit and exerciseSets
                 // exerciseSets seems to never be stored correctly (at least if only sets were modified)
                 // (TODO: check if database.exerciseSetDao().update(oldExerciseSets) does what it's supposed to do in finishWorkout)
-                // -> exerciseSets storage should no be solved with delete/insert
+                // -> exerciseSets storage should now be solved with delete/insert
                 // TODO: changing between workouts sometimes does not update the exercise sets
                 // studio change button does then update it
                 // maybe something to do with asynchronous calls
                 // sometimes just parts of the changes are not updated
+                // then error in setExercise is thrown because exerciseName can not be found in exerciseInfo
                 for (ExerciseSetEntity exercise : oldExerciseSets)
                 {
                     newExercises.add(new ExerciseSetEntity(exercise, workoutDate));

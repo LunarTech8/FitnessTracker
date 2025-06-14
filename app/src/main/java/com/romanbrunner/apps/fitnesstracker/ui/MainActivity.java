@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
-    public static int debugLogMode = 0;
+    public static int debugLogMode = 1;
 
     private static int determineNamePostfixCounter(List<ExerciseInfoEntity> exerciseInfoList, String exerciseName)
     {
@@ -174,12 +174,26 @@ public class MainActivity extends AppCompatActivity
             {
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                 {
+                    Log.d("subscribeUi", "exerciseSetList loaded");  // DEBUG:
                     assert exerciseSetList != null : "object cannot be null";
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
                         assert exerciseInfoList != null : "object cannot be null";
                         // FIXME: exerciseInfoNames and exerciseInfo/exerciseSets seem not to match when changing workout -> the later stays like the old
-//                        Log.d("subscribeUi", "workoutUnit.getName() = " + workoutUnit.getName());  // DEBUG:
+                        // (at start this is called twice with the same content -> might be because if start up load and thus ok)
+                        // when changing to HIT full-body it throws an exerciseInfo error while for HIT full-body 2 it is fine
+                        // for changeWorkout everything seems to be fine
+                        // (getDate always stays the same -> should be fine)
+                        // workoutUnit.getName always changes correctly
+                        // workoutUnit.getExerciseNames always changes correctly
+                        // exerciseInfoList and exerciseSetList sometimes change, sometimes not
+                        // exerciseInfoList is retrieved by the exerciseSetList -> no error there
+                        // exerciseSetList is retrieved by the workoutUnit via it's date
+                        // during print debug exerciseSetList with current date shows the correct content -> maybe a timing problem because exercises of exerciseSetList get recreated after exerciseSetList is loaded
+                        // FIXME: sometimes exerciseSetList is loaded before replaceCurrentWorkoutUnit is executed -> then exercises are not changed
+                        // TODO: supposed order changeWorkout - replaceCurrentWorkoutUnit - subscribeUi -> Stop subscribeUi being triggered before replaceCurrentWorkoutUnit finishes
+                        Log.d("subscribeUi", "--------");  // DEBUG:
+                        Log.d("subscribeUi", "workoutUnit.getName() = " + workoutUnit.getName());  // DEBUG:
                         Log.d("subscribeUi", "workoutUnit.getExerciseNames() = " + workoutUnit.getExerciseNames());  // DEBUG:
                         Log.d("subscribeUi", "workoutUnit.getDate() = " + workoutUnit.getDate().toString());  // DEBUG:
                         Log.d("subscribeUi", "exerciseInfoList = " + exerciseInfoList.stream().map(element -> element.getName() + " " + element.getDefaultValues()).collect(Collectors.joining(", ")));  // DEBUG:
@@ -384,6 +398,7 @@ public class MainActivity extends AppCompatActivity
         binding.debugNextLogModeButton.setOnClickListener((View view) ->
         {
             if (++debugLogMode > DEBUG_LOG_MAX_MODES) { debugLogMode = 0; }
+            Log.i("debugNextLogModeButton", "Changed debug mode to " + debugLogMode);
         });
         binding.debugRemoveWorkoutUnitsButton.setOnClickListener((View view) -> viewModel.removeAllWorkoutUnits());
     }
