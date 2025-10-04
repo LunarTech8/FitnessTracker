@@ -69,7 +69,6 @@ public class DataRepository
                     newExercises.add(new ExerciseSetEntity(exercise, newWorkoutDate));
                 }
                 replaceCurrentWorkoutUnit(oldWorkoutUnit, newWorkoutUnit, newExercises);
-                observableWorkoutUnit.postValue(newWorkoutUnit);
             });
         });
     }
@@ -92,9 +91,10 @@ public class DataRepository
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
             Log.d("replaceCurrentWorkoutUnit", "New entries inserted");  // DEBUG:
+            /* Update the observable after database operations complete to prevent race conditions where UI tries to load exercise sets before they're properly stored. */
+            observableWorkoutUnit.postValue(newWorkoutUnit);
+            Log.d("replaceCurrentWorkoutUnit", "Observable workout unit updated");  // DEBUG:
         });
-        // Adjust current workout unit:
-        observableWorkoutUnit.setValue(newWorkoutUnit);
     }
 
     static DataRepository getInstance(final AppDatabase database)
@@ -222,7 +222,6 @@ public class DataRepository
 
     public void finishWorkout(@NonNull WorkoutUnitEntity oldWorkoutUnit, @NonNull List<ExerciseSetEntity> oldExerciseSets)
     {
-        CountDownLatch latch = new CountDownLatch(1);  // DEBUG:
         // Update current entries:
         executor.execute(() ->
         {
@@ -233,16 +232,7 @@ public class DataRepository
             database.workoutUnitDao().delete(oldWorkoutUnit);
             database.workoutUnitDao().insert(oldWorkoutUnit);
             database.exerciseSetDao().insert(oldExerciseSets);
-            latch.countDown();  // DEBUG:
         });
-        try {
-            latch.await();  // DEBUG:
-            DataRepository.executeOnceForLiveData(database.exerciseSetDao().loadByWorkoutUnitDate(oldWorkoutUnit.getDate()), exerciseSets -> {
-                Log.d("finishWorkout", "Stored exercise sets = " + exerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getId() + " " + element.isDone()).collect(Collectors.joining(", ")));  // DEBUG:
-            });
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         // Clone new entries:
         final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
         final List<ExerciseSetEntity> newExercises = new ArrayList<>(oldExerciseSets.size());
@@ -256,61 +246,33 @@ public class DataRepository
         {
             database.workoutUnitDao().insert(newWorkoutUnit);
             database.exerciseSetDao().insert(newExercises);
+            observableWorkoutUnit.postValue(newWorkoutUnit);
         });
-        // Adjust current workout unit:
-        observableWorkoutUnit.setValue(newWorkoutUnit);
     }
 
     public void changeWorkout(@NonNull WorkoutUnitEntity baseWorkoutUnit)
     {
-//        Log.d("changeWorkout", "base workout studio = " + baseWorkoutUnit.getStudio());  // DEBUG:
-//        Log.d("changeWorkout", "base workout name = " + baseWorkoutUnit.getName());  // DEBUG:
         DataRepository.executeOnceForLiveData(observableWorkoutUnit, currentWorkoutUnit ->
         {
             assert currentWorkoutUnit != null : "object cannot be null";
             final Date workoutDate = currentWorkoutUnit.getDate();
             final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(baseWorkoutUnit, workoutDate);
-            // Create new entries by cloning last entries:
-            final List<ExerciseSetEntity> newExercises = new ArrayList<>();
+
+            /* Ensure we're getting exercise sets from the newest workout unit. */
+            /* The baseWorkoutUnit should already be the newest, but we explicitly get its exercise sets using its original date to ensure we get the most recent saved state. */
             DataRepository.executeOnceForLiveData(getExerciseSets(baseWorkoutUnit), oldExerciseSets ->
             {
                 assert oldExerciseSets != null : "object cannot be null";
-                Log.d("changeWorkout", "baseWorkoutUnit.getExerciseNames() = " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
-                Log.d("changeWorkout", "baseWorkoutUnit.getDate() = " + baseWorkoutUnit.getDate().toString());  // DEBUG:
-                Log.d("changeWorkout", "oldExerciseSets = " + oldExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
-                // FIXME: problem when creating second entry with different name and then changing to first entry
-                // correct after creating second entry (finish)
-                // baseWorkoutUnit and oldExerciseSets is correct on first change with two entries
-                // subscribeUi has correct workoutUnit BUT wrong exerciseSetList and exerciseInfoList (but with correct date)
-                // -> wrong loaded or overwritten during workout change?
-                // (problem with same date for exercises? -> then more should be displayed as everything with the date is loaded)
-                // (BUT debug log 7 shows correct entries -> why difference between subscribeUi and printDebugLog? -> printDebugLog for log 7 doesn't load exercises but shows workout string -> use log 0)
-                // (-> maybe exerciseSet isn't stored away properly after edit (without accomplished workout unit))
-                // (printDebugLog log 0 verifies that: after the edit the date is current one but the exercises are still the old ones (with old values))
-                // (updateEditMode shows the correct displayed inside adapter.getExerciseSets() but they don't seem to be stored away / updated anywhere)
-                // (TODO: check where/when exerciseSets are stored (compare to storage of workoutUnit), should be updated when exiting edit mode)
-                // (only updated for exercises and workouts when finishing workout and when replaceCurrentWorkoutUnit is called here (but only the new ones))
-                // (-> DESIGN MISUNDERSTANDING: only when workout is finished workoutUnit and exerciseSets are stored for good, else they get removed on change)
-                // -> Problem still there on second switch if modified workout was finished, diversion now in workoutUnit and exerciseSets
-                // exerciseSets seems to never be stored correctly (at least if only sets were modified)
-                // (TODO: check if database.exerciseSetDao().update(oldExerciseSets) does what it's supposed to do in finishWorkout)
-                // -> exerciseSets storage should now be solved with delete/insert
-                // TODO: changing between workouts sometimes does not update the exercise sets
-                // studio change button does then update it
-                // maybe something to do with asynchronous calls
-                // sometimes just parts of the changes are not updated
-                // then error in setExercise is thrown because exerciseName can not be found in exerciseInfo
+                Log.d("changeWorkout", "Loaded " + oldExerciseSets.size() + " exercise sets from base workout");  // DEBUG:
+                Log.d("changeWorkout", "Base workout exercise names: " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
+                // Create new exercises for the current session by cloning from the base workout:
+                final List<ExerciseSetEntity> newExercises = new ArrayList<>();
                 for (ExerciseSetEntity exercise : oldExerciseSets)
                 {
                     newExercises.add(new ExerciseSetEntity(exercise, workoutDate));
                 }
+                // Replace the current workout data with the new workout configuration
                 replaceCurrentWorkoutUnit(currentWorkoutUnit, newWorkoutUnit, newExercises);
-                // FIXME: with adding these debugs the problem is only there at second workout change! -> then already inconsistency between oldExerciseSets and baseWorkoutUnit -> maybe because date then doesn't change
-                // -> not reproducible during same simulation! -> it seems then to happen every second time!
-                // FIXME: but always if you change more it will finally stay at the first entry exercises
-                Log.d("changeWorkout", "newWorkoutUnit.getExerciseNames() = " + newWorkoutUnit.getExerciseNames());  // DEBUG:
-                Log.d("changeWorkout", "newWorkoutUnit.getDate() = " + newWorkoutUnit.getDate().toString());  // DEBUG:
-                Log.d("changeWorkout", "newExercises = " + newExercises.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
             });
         });
     }

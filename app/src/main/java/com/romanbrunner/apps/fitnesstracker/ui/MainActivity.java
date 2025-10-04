@@ -179,19 +179,6 @@ public class MainActivity extends AppCompatActivity
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
                         assert exerciseInfoList != null : "object cannot be null";
-                        // FIXME: exerciseInfoNames and exerciseInfo/exerciseSets seem not to match when changing workout -> the later stays like the old
-                        // (at start this is called twice with the same content -> might be because if start up load and thus ok)
-                        // when changing to HIT full-body it throws an exerciseInfo error while for HIT full-body 2 it is fine
-                        // for changeWorkout everything seems to be fine
-                        // (getDate always stays the same -> should be fine)
-                        // workoutUnit.getName always changes correctly
-                        // workoutUnit.getExerciseNames always changes correctly
-                        // exerciseInfoList and exerciseSetList sometimes change, sometimes not
-                        // exerciseInfoList is retrieved by the exerciseSetList -> no error there
-                        // exerciseSetList is retrieved by the workoutUnit via it's date
-                        // during print debug exerciseSetList with current date shows the correct content -> maybe a timing problem because exercises of exerciseSetList get recreated after exerciseSetList is loaded
-                        // FIXME: sometimes exerciseSetList is loaded before replaceCurrentWorkoutUnit is executed -> then exercises are not changed
-                        // TODO: supposed order changeWorkout - replaceCurrentWorkoutUnit - subscribeUi -> Stop subscribeUi being triggered before replaceCurrentWorkoutUnit finishes
                         Log.d("subscribeUi", "--------");  // DEBUG:
                         Log.d("subscribeUi", "workoutUnit.getName() = " + workoutUnit.getName());  // DEBUG:
                         Log.d("subscribeUi", "workoutUnit.getExerciseNames() = " + workoutUnit.getExerciseNames());  // DEBUG:
@@ -288,6 +275,7 @@ public class MainActivity extends AppCompatActivity
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
             {
                 assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new studio
+                // FIXME: crash when creating new studio and pressing next studio button without finishing the workout first
                 viewModel.changeWorkout(baseWorkoutUnit);
             });
         }));
@@ -320,12 +308,11 @@ public class MainActivity extends AppCompatActivity
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
                 {
                     assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new workout
-//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getName() = " + baseWorkoutUnit.getName());  // DEBUG:
-//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getExerciseNames() = " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
-//                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getDate() = " + baseWorkoutUnit.getDate().toString());  // DEBUG:
+                    // FIXME: crash when creating new workout and pressing next workout button without finishing the workout first
+                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getName() = " + baseWorkoutUnit.getName());  // DEBUG:
+                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getExerciseNames() = " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
+                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getDate() = " + baseWorkoutUnit.getDate().toString());  // DEBUG:
                     viewModel.changeWorkout(baseWorkoutUnit);
-                    // (FIXME: current entry is also stored in database (despite not being finished) -> but should be ok)
-                    // FIXME: baseWorkoutUnit and loaded workout unit are correct but loaded exercise set and info are wrong
                 });
             });
         });
