@@ -24,6 +24,7 @@
         android:padding="@dimen/comment_padding"
         android:clickable="true"
         android:focusableInTouchMode="true"
+        android:fitsSystemWindows="true"
         tools:context=".ui.MainActivity"
         >
 
