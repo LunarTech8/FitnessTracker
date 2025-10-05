@@ -21,10 +21,10 @@ Work status:
 // -------------
 
 !!!>>- Editing workouts isn't working properly
-    >- After adding a new studio or workout without finishing the workout and then changing the workout the app crashes
+    - If first exercise is removed, further removals don't work properly anymore (wrong sets or none are removed) -> check if still an issue
     >- New exercise info is not stored in database when adding a new exercise
     >- Changes done to amount of exercises (>0) lead to wrong displayed sets when changing workouts that have the same exercise type
-    - If first exercise is removed, further removals don't work properly anymore (wrong sets or none are removed)
+    >- After adding a new studio or workout without finishing the workout and then changing the workout it will be lost
 !!>>- Rework database model
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo

@@ -71,6 +71,7 @@ Key architectural decisions:
 - **Exercise Order Persistence**: `exerciseNames` field stores comma-separated exercise names with counts
 - **Automatic Cloning**: New workouts are created by copying previous workout structure with new date
 - **Race Condition Fix**: When switching or finishing workouts, database operations (delete/insert) must complete before updating the observable LiveData. The observable is now updated only after DB operations finish (using `postValue` inside the executor), preventing UI from loading stale or incomplete data. See `replaceCurrentWorkoutUnit` and `finishWorkout` in `DataRepository.java` for the correct pattern.
+- **Immediate Workout Storage**: When users edit studio or workout names in the UI, the current workout unit is immediately stored in the database (via `storeCurrentWorkoutUnit`) making new studios/workouts available for switching before finishing. This prevents crashes when switching to newly created but unfinished workouts.
 
 ### Known Issues (from GlobalTODOs.text)
 - New exercise info may not persist properly when adding exercises

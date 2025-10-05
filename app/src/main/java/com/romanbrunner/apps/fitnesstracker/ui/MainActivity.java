@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
-    public static int debugLogMode = 1;
+    public static int debugLogMode = 7;
 
     private static int determineNamePostfixCounter(List<ExerciseInfoEntity> exerciseInfoList, String exerciseName)
     {
@@ -271,11 +271,9 @@ public class MainActivity extends AppCompatActivity
                 }
             }
             // Change to new workout:
-            Log.d("nextStudioButton", "newWorkoutStudio = " + newWorkoutStudio);  // DEBUG:
             DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
             {
-                assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new studio
-                // FIXME: crash when creating new studio and pressing next studio button without finishing the workout first
+                assert baseWorkoutUnit != null : "object cannot be null";
                 viewModel.changeWorkout(baseWorkoutUnit);
             });
         }));
@@ -304,14 +302,9 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
                 // Change to new workout:
-                Log.d("nextWorkoutButton", "newWorkoutName = " + newWorkoutName);  // DEBUG:
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
                 {
-                    assert baseWorkoutUnit != null : "object cannot be null";  // FIXME: baseWorkoutUnit = new when creating new workout
-                    // FIXME: crash when creating new workout and pressing next workout button without finishing the workout first
-                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getName() = " + baseWorkoutUnit.getName());  // DEBUG:
-                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getExerciseNames() = " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
-                    Log.d("nextWorkoutButton", "baseWorkoutUnit.getDate() = " + baseWorkoutUnit.getDate().toString());  // DEBUG:
+                    assert baseWorkoutUnit != null : "object cannot be null";
                     viewModel.changeWorkout(baseWorkoutUnit);
                 });
             });
@@ -324,14 +317,13 @@ public class MainActivity extends AppCompatActivity
         binding.editModeButton.setOnClickListener((View view) ->
         {
             isEditModeActive = !isEditModeActive;
-            if (!isEditModeActive)  // DEBUG:
+            if (!isEditModeActive)
             {
-                final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();  // DEBUG:
-                final var currentExerciseSets = adapter.getExerciseSets();  // DEBUG:
-                currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));  // DEBUG:
-                Log.d("updateEditMode", "currentWorkoutUnit.getExerciseNames() = " + currentWorkoutUnit.getExerciseNames());  // DEBUG:
-                Log.d("updateEditMode", "currentWorkoutUnit.getDate() = " + currentWorkoutUnit.getDate().toString());  // DEBUG:
-                Log.d("updateEditMode", "currentExerciseSets = " + currentExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
+                final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                final var currentExerciseSets = adapter.getExerciseSets();
+                currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
+                viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
+                // FIXME: new workout is stored now and thus now crash, but it will be overwritten when changing the workout without finishing it first
             }
             updateFinishedExercises();
             updateEditMode();

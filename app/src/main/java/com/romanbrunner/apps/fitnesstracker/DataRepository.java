@@ -210,9 +210,20 @@ public class DataRepository
         });
     }
 
-    public void setCurrentWorkout(WorkoutUnitEntity workoutUnitEntity)
+    public void setCurrentWorkout(WorkoutUnitEntity workoutUnit)
     {
-        observableWorkoutUnit.setValue(workoutUnitEntity);
+        observableWorkoutUnit.setValue(workoutUnit);
+    }
+
+    public void storeWorkout(@NonNull WorkoutUnitEntity workoutUnit, @NonNull List<ExerciseSetEntity> exerciseSets)
+    {
+        executor.execute(() ->
+        {
+            /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
+            database.workoutUnitDao().delete(workoutUnit);
+            database.workoutUnitDao().insert(workoutUnit);
+            database.exerciseSetDao().insert(exerciseSets);
+        });
     }
 
     public void deleteWorkoutUnits(List<WorkoutUnitEntity> workoutUnits)
