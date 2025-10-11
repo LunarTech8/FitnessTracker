@@ -323,7 +323,6 @@ public class MainActivity extends AppCompatActivity
                 final var currentExerciseSets = adapter.getExerciseSets();
                 currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
                 viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
-                // FIXME: new workout is stored now and thus now crash, but it will be overwritten when changing the workout without finishing it first
             }
             updateFinishedExercises();
             updateEditMode();

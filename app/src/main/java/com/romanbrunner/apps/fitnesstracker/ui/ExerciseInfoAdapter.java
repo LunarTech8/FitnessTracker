@@ -121,15 +121,23 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         adapters = null;
     }
 
-    private void removeExerciseSet(int exerciseInfoPosition, int exerciseSetPosition)
+    private void removeExerciseSet(@NonNull final ExerciseInfoEntity targetExerciseInfo, final int exerciseSetPosition)
     {
-        final String exerciseInfoName = exerciseInfo.get(exerciseInfoPosition).getName();
+        final String exerciseInfoName = targetExerciseInfo.getName();
         final List<ExerciseSetEntity> exerciseSets = exerciseInfo2SetsMap.get(exerciseInfoName);
+		final int exerciseInfoPosition = exerciseInfo.indexOf(targetExerciseInfo);
         assert exerciseSets != null : "object cannot be null";
+        if (exerciseInfoPosition == -1)
+        {
+            Log.e("removeExerciseSet", "Exercise info not found (" + exerciseInfoName + ")");
+            return;
+        }
         if (exerciseSetPosition < 0 || exerciseSetPosition >= exerciseSets.size())
         {
             Log.e("removeExerciseSet", "Invalid exercise set position (" + exerciseSetPosition + ")");
+            return;
         }
+
         if (exerciseSets.size() <= 1)
         {
             Log.d("removeExerciseSet", "removed exercise info: " + exerciseInfoPosition);  // DEBUG:
@@ -137,6 +145,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
             exerciseInfo.remove(exerciseInfoPosition);
             adapters.remove(exerciseInfoPosition);
             notifyItemRemoved(exerciseInfoPosition);
+            notifyItemRangeChanged(exerciseInfoPosition, getItemCount());
         }
         else
         {
@@ -150,6 +159,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     private void swapExercisePositions(int oldPosition, int newPosition)
     {
         Collections.swap(exerciseInfo, oldPosition, newPosition);
+        Collections.swap(adapters, oldPosition, newPosition);
         notifyItemMoved(oldPosition, newPosition);
     }
 
@@ -207,12 +217,10 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         // Set exerciseInfo:
         this.exerciseInfo = orderedExerciseInfo;
         // Create exercise set adapters:
-        final int exerciseInfoCount = orderedExerciseInfo.size();
-        adapters = new ArrayList<>(exerciseInfoCount);
-        for (int i = 0; i < exerciseInfoCount; i++)
+        adapters = new ArrayList<>(orderedExerciseInfo.size());
+        for (ExerciseInfoEntity targetExerciseInfo : orderedExerciseInfo)
         {
-            int exerciseInfoPosition = i;
-            adapters.add(new ExerciseSetAdapter((int exerciseSetPosition) -> removeExerciseSet(exerciseInfoPosition, exerciseSetPosition), exerciseStatusCb, editTextFocusCb));
+            adapters.add(new ExerciseSetAdapter((int exerciseSetPosition) -> removeExerciseSet(targetExerciseInfo, exerciseSetPosition), exerciseStatusCb, editTextFocusCb));
         }
         // Load/Reload all views:
         notifyDataSetChanged();
