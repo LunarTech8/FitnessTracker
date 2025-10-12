@@ -97,8 +97,8 @@ public class MainActivity extends AppCompatActivity
 
     private void updateFinishedExercises()
     {
-        final var exercisesDone = adapter.getExerciseSets().stream().filter(ExerciseSetEntity::isDone).count();
-        final var exercisesTotal = WorkoutUnitEntity.exerciseNames2Amount(binding.getWorkoutUnit().getExerciseNames());
+        final var exercisesDone = adapter.getExerciseSets().stream().filter(ExerciseSetEntity::isDone).map(ExerciseSetEntity::getExerciseInfoName).distinct().count();
+        final var exercisesTotal = adapter.getExerciseSets().stream().map(ExerciseSetEntity::getExerciseInfoName).distinct().count();
         if (exercisesDone > exercisesTotal)
         {
             Log.e("updateFinishedExercises", "Counter for finished exercises is invalid (" + exercisesDone + "/" + exercisesTotal + ")");

@@ -26,7 +26,6 @@ Work status:
         - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed
 !!- Implement a drop down menu for changing the workout and studio instead of the next buttons
 !!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise -> Replace button with drop down that has the option to "add new exercise"
-!!- Count different exercise set types not each set in updateFinishedExercises
 !- Maybe instead of replacing the entries can be updated via database.<...>Dao().update in replaceCurrentWorkoutUnit
 
 
