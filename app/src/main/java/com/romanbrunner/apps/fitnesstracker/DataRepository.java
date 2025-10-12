@@ -86,14 +86,13 @@ public class DataRepository
         executor.execute(() ->
         {
             /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
-            database.workoutUnitDao().delete(currentWorkoutUnit);
-            Log.d("replaceCurrentWorkoutUnit", "Old entries deleted");  // DEBUG:
-            database.workoutUnitDao().insert(newWorkoutUnit);
-            database.exerciseSetDao().insert(newExercises);
-            Log.d("replaceCurrentWorkoutUnit", "New entries inserted");  // DEBUG:
+            database.runInTransaction(() -> {
+                database.workoutUnitDao().delete(currentWorkoutUnit);
+                database.workoutUnitDao().insert(newWorkoutUnit);
+                database.exerciseSetDao().insert(newExercises);
+            });
             /* Update the observable after database operations complete to prevent race conditions where UI tries to load exercise sets before they're properly stored. */
             observableWorkoutUnit.postValue(newWorkoutUnit);
-            Log.d("replaceCurrentWorkoutUnit", "Observable workout unit updated");  // DEBUG:
         });
     }
 
@@ -220,9 +219,11 @@ public class DataRepository
         executor.execute(() ->
         {
             /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
-            database.workoutUnitDao().delete(workoutUnit);
-            database.workoutUnitDao().insert(workoutUnit);
-            database.exerciseSetDao().insert(exerciseSets);
+            database.runInTransaction(() -> {
+                database.workoutUnitDao().delete(workoutUnit);
+                database.workoutUnitDao().insert(workoutUnit);
+                database.exerciseSetDao().insert(exerciseSets);
+            });
         });
     }
 
@@ -240,9 +241,11 @@ public class DataRepository
             Log.d("finishWorkout", "oldWorkoutUnit.getDate() = " + oldWorkoutUnit.getDate().toString());  // DEBUG:
             Log.d("finishWorkout", "oldExerciseSets = " + oldExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getId() + " " + element.isDone()).collect(Collectors.joining(", ")));  // DEBUG:
             /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
-            database.workoutUnitDao().delete(oldWorkoutUnit);
-            database.workoutUnitDao().insert(oldWorkoutUnit);
-            database.exerciseSetDao().insert(oldExerciseSets);
+            database.runInTransaction(() -> {
+                database.workoutUnitDao().delete(oldWorkoutUnit);
+                database.workoutUnitDao().insert(oldWorkoutUnit);
+                database.exerciseSetDao().insert(oldExerciseSets);
+            });
         });
         // Clone new entries:
         final WorkoutUnitEntity newWorkoutUnit = new WorkoutUnitEntity(oldWorkoutUnit);
@@ -255,8 +258,10 @@ public class DataRepository
         // Insert new entries:
         executor.execute(() ->
         {
-            database.workoutUnitDao().insert(newWorkoutUnit);
-            database.exerciseSetDao().insert(newExercises);
+            database.runInTransaction(() -> {
+                database.workoutUnitDao().insert(newWorkoutUnit);
+                database.exerciseSetDao().insert(newExercises);
+            });
             observableWorkoutUnit.postValue(newWorkoutUnit);
         });
     }
@@ -274,8 +279,6 @@ public class DataRepository
             DataRepository.executeOnceForLiveData(getExerciseSets(baseWorkoutUnit), oldExerciseSets ->
             {
                 assert oldExerciseSets != null : "object cannot be null";
-                Log.d("changeWorkout", "Loaded " + oldExerciseSets.size() + " exercise sets from base workout");  // DEBUG:
-                Log.d("changeWorkout", "Base workout exercise names: " + baseWorkoutUnit.getExerciseNames());  // DEBUG:
                 // Create new exercises for the current session by cloning from the base workout:
                 final List<ExerciseSetEntity> newExercises = new ArrayList<>();
                 for (ExerciseSetEntity exercise : oldExerciseSets)

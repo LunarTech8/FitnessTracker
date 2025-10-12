@@ -20,10 +20,6 @@ Work status:
 // Worklog:
 // -------------
 
-!!!>>- Editing workouts isn't working properly
-    >- New exercise info is not stored in database when adding a new exercise -> might cause crashes
-    >- Changes done to amount of exercises (>0) lead to wrong displayed sets when changing workouts that have the same exercise type
-    (- After adding a new studio or workout without finishing the workout and then changing the workout it will be lost
 !!>>- Rework database model
     - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
         - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo

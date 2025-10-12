@@ -27,6 +27,7 @@ import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -34,7 +35,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 public class MainActivity extends AppCompatActivity
@@ -174,17 +174,10 @@ public class MainActivity extends AppCompatActivity
             {
                 DataRepository.executeOnceForLiveData(viewModel.getExerciseSets(workoutUnit), exerciseSetList -> exerciseSetList != null && !exerciseSetList.isEmpty(), exerciseSetList ->
                 {
-                    Log.d("subscribeUi", "exerciseSetList loaded");  // DEBUG:
                     assert exerciseSetList != null : "object cannot be null";
                     DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(exerciseSetList), exerciseInfoList ->
                     {
                         assert exerciseInfoList != null : "object cannot be null";
-                        Log.d("subscribeUi", "--------");  // DEBUG:
-                        Log.d("subscribeUi", "workoutUnit.getName() = " + workoutUnit.getName());  // DEBUG:
-                        Log.d("subscribeUi", "workoutUnit.getExerciseNames() = " + workoutUnit.getExerciseNames());  // DEBUG:
-                        Log.d("subscribeUi", "workoutUnit.getDate() = " + workoutUnit.getDate().toString());  // DEBUG:
-                        Log.d("subscribeUi", "exerciseInfoList = " + exerciseInfoList.stream().map(element -> element.getName() + " " + element.getDefaultValues()).collect(Collectors.joining(", ")));  // DEBUG:
-                        Log.d("subscribeUi", "exerciseSetList = " + exerciseSetList.stream().map(element -> element.getExerciseInfoName() + " " + element.getWorkoutUnitDate().toString()).collect(Collectors.joining(", ")));  // DEBUG:
                         binding.setWorkoutUnit(workoutUnit);
                         adapter.setExercise(workoutUnit.getExerciseNames(), exerciseInfoList, exerciseSetList);
                         binding.setIsWorkoutLoading(false);
@@ -322,6 +315,7 @@ public class MainActivity extends AppCompatActivity
                 final var currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
                 final var currentExerciseSets = adapter.getExerciseSets();
                 currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
+                viewModel.storeExerciseInfo(adapter.getExerciseInfo());
                 viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
             }
             updateFinishedExercises();
@@ -341,7 +335,9 @@ public class MainActivity extends AppCompatActivity
             String newExerciseName = "NewExerciseName";
             final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
             newExerciseName += determineNamePostfixCounter(newExerciseInfoList, newExerciseName);
-            newExerciseInfoList.add(new ExerciseInfoEntity(newExerciseName));  // FIXME: new exercise info is not stored in database
+            ExerciseInfoEntity newExerciseInfo = new ExerciseInfoEntity(newExerciseName);
+            newExerciseInfoList.add(newExerciseInfo);
+            viewModel.storeExerciseInfo(Collections.singletonList(newExerciseInfo));
             final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
             newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
             // Add new exercise to workout unit and exercise adapter:

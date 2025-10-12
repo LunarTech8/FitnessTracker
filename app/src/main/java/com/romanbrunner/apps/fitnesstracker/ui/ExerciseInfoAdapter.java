@@ -140,7 +140,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
 
         if (exerciseSets.size() <= 1)
         {
-            Log.d("removeExerciseSet", "removed exercise info: " + exerciseInfoPosition);  // DEBUG:
             exerciseInfo2SetsMap.remove(exerciseInfoName);
             exerciseInfo.remove(exerciseInfoPosition);
             adapters.remove(exerciseInfoPosition);
@@ -149,7 +148,6 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         }
         else
         {
-            Log.d("removeExerciseSet", "removed exercise set: " + exerciseSetPosition);  // DEBUG:
             exerciseSets.remove(exerciseSetPosition);
             exerciseInfo2SetsMap.put(exerciseInfoName, exerciseSets);
             notifyItemChanged(exerciseInfoPosition);
