@@ -35,6 +35,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 public class MainActivity extends AppCompatActivity
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity
 
     private void updateFinishedExercises()
     {
-        final var exercisesDone = adapter.getExerciseSets().stream().filter(ExerciseSetEntity::isDone).map(ExerciseSetEntity::getExerciseInfoName).distinct().count();
+        final var exercisesDone = adapter.getExerciseSets().stream().collect(Collectors.groupingBy(ExerciseSetEntity::getExerciseInfoName)).values().stream().filter(sets -> sets.stream().allMatch(ExerciseSetEntity::isDone)).count();
         final var exercisesTotal = adapter.getExerciseSets().stream().map(ExerciseSetEntity::getExerciseInfoName).distinct().count();
         if (exercisesDone > exercisesTotal)
         {
