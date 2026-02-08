@@ -55,21 +55,19 @@
                     app:visibleGone="@{isWorkoutLoading}"
                     />
 
-                <Button
-                    android:id="@+id/nextStudioButton"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
-                    android:layout_width="@dimen/button_size"
-                    android:layout_height="@dimen/button_size"
-                    android:text="@string/t_nextButton"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorButtonDarkText"
+                <Spinner
+                    android:id="@+id/studioSpinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/item_margin_medium"
+                    android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/editModeButton"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
+                    android:spinnerMode="dropdown"
                     app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
-                    tools:ignore="DuplicateSpeakableTextCheck"
                     />
-
                 <EditText
                     android:id="@+id/studioText"
                     android:layout_width="0dp"
@@ -84,11 +82,9 @@
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/editModeButton"
-                    app:layout_constraintHorizontal_bias="0.0"
-                    app:layout_constraintStart_toEndOf="@+id/nextStudioButton"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintVertical_bias="1.0"
-                    app:visibleGone="@{!isWorkoutLoading}"
+                    app:visibleGone="@{!isWorkoutLoading ? isEditModeActive : false}"
                     tools:ignore="DuplicateSpeakableTextCheck" />
 
                 <Button
@@ -115,21 +111,19 @@
                 android:orientation="horizontal"
                 >
 
-                <Button
-                    android:id="@+id/nextWorkoutButton"
-                    style="@android:style/Widget.Material.Light.Button.Inset"
-                    android:layout_width="@dimen/button_size"
-                    android:layout_height="@dimen/button_size"
-                    android:layout_marginEnd="@dimen/item_margin_large"
-                    android:text="@string/t_nextButton"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorButtonDarkText"
+                <Spinner
+                    android:id="@+id/workoutSpinner"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/item_margin_medium"
+                    android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/optionsButton"
                     app:layout_constraintTop_toTopOf="parent"
+                    android:spinnerMode="dropdown"
                     app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
-                    />
-
+                        />
                 <EditText
                     android:id="@+id/workoutText"
                     android:layout_width="0dp"
@@ -143,10 +137,10 @@
                     android:textAllCaps="false"
                     android:textSize="@dimen/comment_text_size"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toEndOf="@+id/nextWorkoutButton"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/optionsButton"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:visibleGone="@{!isWorkoutLoading}"
+                    app:visibleGone="@{!isWorkoutLoading ? isEditModeActive : false}"
                     />
 
                 <Button

@@ -19,7 +19,7 @@ import java.util.Date;
 import java.util.List;
 
 
-@Database(entities = {WorkoutUnitEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 5)
+@Database(entities = {WorkoutUnitEntity.class, ExerciseSetEntity.class, ExerciseInfoEntity.class}, version = 6)
 @TypeConverters(DateConverter.class)
 public abstract class AppDatabase extends RoomDatabase
 {
@@ -113,6 +113,25 @@ public abstract class AppDatabase extends RoomDatabase
             database.execSQL("DROP TABLE `exerciseSets_old`");
         }
     };
+    private static final Migration MIGRATION_5_6 = new Migration(5, 6)
+    {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database)
+        {
+            // Remove obsolete defaultValues column from exerciseInfo (SQLite doesn't support DROP COLUMN before 3.35.0):
+            database.execSQL("CREATE TABLE `exerciseInfo_new` (`name` TEXT NOT NULL, `token` TEXT, `remarks` TEXT, PRIMARY KEY(`name`))");
+            database.execSQL("INSERT INTO `exerciseInfo_new` (`name`, `token`, `remarks`) SELECT `name`, `token`, `remarks` FROM `exerciseInfo`");
+            database.execSQL("DROP TABLE `exerciseInfo`");
+            database.execSQL("ALTER TABLE `exerciseInfo_new` RENAME TO `exerciseInfo`");
+            // Recreate foreign key index on exerciseSets that references exerciseInfo:
+            database.execSQL("CREATE TABLE `exerciseSets_new` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `workoutUnitDate` INTEGER, `exerciseInfoName` TEXT, `repeats` INTEGER NOT NULL, `weight` REAL NOT NULL, `done` INTEGER NOT NULL, FOREIGN KEY(`workoutUnitDate`) REFERENCES `workoutUnits`(`date`) ON DELETE CASCADE, FOREIGN KEY(`exerciseInfoName`) REFERENCES `exerciseInfo`(`name`) ON DELETE RESTRICT)");
+            database.execSQL("INSERT INTO `exerciseSets_new` (`id`, `workoutUnitDate`, `exerciseInfoName`, `repeats`, `weight`, `done`) SELECT `id`, `workoutUnitDate`, `exerciseInfoName`, `repeats`, `weight`, `done` FROM `exerciseSets`");
+            database.execSQL("DROP TABLE `exerciseSets`");
+            database.execSQL("ALTER TABLE `exerciseSets_new` RENAME TO `exerciseSets`");
+            database.execSQL("CREATE INDEX `index_exerciseSets_workoutUnitDate` ON `exerciseSets` (`workoutUnitDate`)");
+            database.execSQL("CREATE INDEX `index_exerciseSets_exerciseInfoName` ON `exerciseSets` (`exerciseInfoName`)");
+        }
+    };
 
 
     private static void insertDefaultWorkoutInfo(@NonNull SupportSQLiteDatabase database)
@@ -161,77 +180,37 @@ public abstract class AppDatabase extends RoomDatabase
 
     private static void insertDefaultExerciseInfo(@NonNull SupportSQLiteDatabase database)
     {
-        final String delimiter = ExerciseInfoEntity.DEFAULT_VALUES_DELIMITER;
-        final String separator = ExerciseInfoEntity.DEFAULT_VALUES_SEPARATOR;
-        String defaultValues;
-        defaultValues = 8 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Cross-Walker', '', 'Laufwiderstand: 10; Repeats in Minuten', '" + defaultValues + "')");
-        defaultValues = 20 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Negativ-Crunch', '', '', '" + defaultValues + "')");
-        defaultValues = 8 + separator + 0.F + delimiter;
-        defaultValues += 6 + separator + 0.F + delimiter;
-        defaultValues += 4 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Klimmzug breit zur Brust', '', '', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 40.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Beinstrecker', 'E04', 'Fuß: 3; Beine: 11; Sitz: 1,5', '" + defaultValues + "')");
-        defaultValues = 16 + separator + 40.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Beinbeuger', 'E05', 'Fuß: 6; Beine: 12', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 35.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Butterfly', 'A02', '', '" + defaultValues + "')");
-        defaultValues = 19 + separator + 110.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Wadenheben an der Beinpresse', 'E01', 'Rücken: 2; Sitz: 5', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 30.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Duale Schrägband-Drückmaschine', 'C02', 'Sitz: 1', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 35.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Bizepsmaschine', 'D01', '', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 20.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Pushdown am Kabelzug', 'B06', '', '" + defaultValues + "')");
-        defaultValues = 21 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Rückenstrecker', 'B03', 'Beine: 4', '" + defaultValues + "')");
-        defaultValues = 19 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3', '" + defaultValues + "')");
-        defaultValues = 5 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('CROSS WALKER', '', 'Resistance: 10; >12km/h; Repeats in minutes', '" + defaultValues + "')");
-        defaultValues = 1000 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('RUDERN', '', 'Resistance: 10; Repeats in meters', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('FAHRRAD', '', 'Seat: 16; Resistance: 10; >22km/h; Repeats in minutes', '" + defaultValues + "')");
-        defaultValues = 9 + separator + 0.F + delimiter;
-        defaultValues += 7 + separator + 0.F + delimiter;
-        defaultValues += 6 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('KLIMMZUG VORNE', '', '', '" + defaultValues + "')");
-        defaultValues = 19 + separator + 25.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('PUSHDOWN AM KABELZUG', '', '', '" + defaultValues + "')");
-        defaultValues = 16 + separator + 20.3F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINBEUGER', '152', 'Seat: 5; Feet: 4; Legs: 3; Thighs: 2', '" + defaultValues + "')");
-        defaultValues = 10 + separator + 20.3F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINSTRECKER', '151', 'Feet: 1; Back: 4', '" + defaultValues + "')");
-        defaultValues = 12 + separator + 0.F + delimiter;
-        defaultValues += 10 + separator + 0.F + delimiter;
-        defaultValues += 8 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINHEBEN AN DER STANGE', '', '', '" + defaultValues + "')");
-        defaultValues = 18 + separator + 34.3F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BUTTERFLY', '141', 'Seat: 5; Arms: 1', '" + defaultValues + "')");
-        defaultValues = 17 + separator + 32.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('LATZUG', '142', 'Seat: 5; Legs: 3', '" + defaultValues + "')");
-        defaultValues = 16 + separator + 23.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('SCHULTERPRESSE', '142', 'Seat: 5; Handhold: Inner', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 23.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('ADDUKTOR', '154', 'Seat: 3; Legs: 4', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 23.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('ABDUKTOR', '155', 'Seat: 3; Legs: 1', '" + defaultValues + "')");
-        defaultValues = 16 + separator + 39.4F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BIZEPSMASCHINE', '145', 'Seat: 5', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 14.0F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINBEUGER LIEGEND', '153', 'Feet: 1; Legs: 5', '" + defaultValues + "')");
-        defaultValues = 15 + separator + 23.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('BEINPRESSE', '150', 'Seat: 6; With toes', '" + defaultValues + "')");
-        defaultValues = 20 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('RUECKENSTRECKER', '34', 'Legs: 4', '" + defaultValues + "')");
-        defaultValues = 35 + separator + 0.F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('CRUNCH BAUCHBANK', '58', 'Legs: 4', '" + defaultValues + "')");
-        defaultValues = 19 + separator + 31.5F + delimiter;
-        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`, `defaultValues`) VALUES('OVERHEAD PRESS', '40', 'Seat: 3', '" + defaultValues + "')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Cross-Walker', '', 'Laufwiderstand: 10; Repeats in Minuten')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Negativ-Crunch', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Klimmzug breit zur Brust', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinstrecker', 'E04', 'Fuß: 3; Beine: 11; Sitz: 1,5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Beinbeuger', 'E05', 'Fuß: 6; Beine: 12')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Butterfly', 'A02', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Wadenheben an der Beinpresse', 'E01', 'Rücken: 2; Sitz: 5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Duale Schrägband-Drückmaschine', 'C02', 'Sitz: 1')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Bizepsmaschine', 'D01', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Pushdown am Kabelzug', 'B06', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Rückenstrecker', 'B03', 'Beine: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('Crunch Bauchbank', 'F01', 'Beine: 3')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('CROSS WALKER', '', 'Resistance: 10; >12km/h; Repeats in minutes')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('RUDERN', '', 'Resistance: 10; Repeats in meters')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('FAHRRAD', '', 'Seat: 16; Resistance: 10; >22km/h; Repeats in minutes')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('KLIMMZUG VORNE', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('PUSHDOWN AM KABELZUG', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BEINBEUGER', '152', 'Seat: 5; Feet: 4; Legs: 3; Thighs: 2')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BEINSTRECKER', '151', 'Feet: 1; Back: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BEINHEBEN AN DER STANGE', '', '')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BUTTERFLY', '141', 'Seat: 5; Arms: 1')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('LATZUG', '142', 'Seat: 5; Legs: 3')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('SCHULTERPRESSE', '142', 'Seat: 5; Handhold: Inner')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('ADDUKTOR', '154', 'Seat: 3; Legs: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('ABDUKTOR', '155', 'Seat: 3; Legs: 1')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BIZEPSMASCHINE', '145', 'Seat: 5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BEINBEUGER LIEGEND', '153', 'Feet: 1; Legs: 5')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('BEINPRESSE', '150', 'Seat: 6; With toes')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('RUECKENSTRECKER', '34', 'Legs: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('CRUNCH BAUCHBANK', '58', 'Legs: 4')");
+        database.execSQL("INSERT INTO `exerciseInfo` (`name`, `token`, `remarks`) VALUES('OVERHEAD PRESS', '40', 'Seat: 3')");
     }
 
     private static void insertInitWorkoutUnit(final AppDatabase database, final Date workoutUnitDate)
@@ -304,7 +283,7 @@ public abstract class AppDatabase extends RoomDatabase
                 });
             }
         };
-        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5).build();
+        return Room.databaseBuilder(context, AppDatabase.class, DATABASE_NAME).addCallback(callback).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build();
     }
 
     public static AppDatabase getInstance(final Context context, final AppExecutors executors)

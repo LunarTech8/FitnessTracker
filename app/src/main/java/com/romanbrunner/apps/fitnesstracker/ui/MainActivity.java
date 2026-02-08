@@ -6,9 +6,14 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,13 +32,13 @@ import com.romanbrunner.apps.fitnesstracker.databinding.WorkoutScreenBinding;
 import com.romanbrunner.apps.fitnesstracker.viewmodels.MainViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -47,6 +52,8 @@ public class MainActivity extends AppCompatActivity
     public final static boolean DEBUG_MODE_ACTIVE = true;
     public final static int DEBUG_LOG_MAX_MODES = 7;
     private final static String PREFS_NAME = "GlobalPreferences";
+    public final static String NEW_EXERCISE_NAME_PREFIX = "NewExerciseName";
+    private final static long LONG_PRESS_DURATION_MS = 5000;
 
 
     // --------------------
@@ -54,6 +61,8 @@ public class MainActivity extends AppCompatActivity
     // --------------------
 
     private ExerciseInfoAdapter adapter;
+    private ArrayAdapter<String> studioSpinnerAdapter;
+    private ArrayAdapter<String> workoutSpinnerAdapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
 
@@ -63,20 +72,11 @@ public class MainActivity extends AppCompatActivity
 
     private static int determineNamePostfixCounter(List<ExerciseInfoEntity> exerciseInfoList, String exerciseName)
     {
+        final var existingNames = exerciseInfoList.stream().map(ExerciseInfoEntity::getName).collect(Collectors.toSet());
         int namePostfixCounter = 1;
-        boolean nameNotFound = true;
-        while (nameNotFound)
+        while (existingNames.contains(exerciseName + namePostfixCounter))
         {
-            nameNotFound = false;
-            for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
-            {
-                if (Objects.equals(exerciseInfo.getName(), exerciseName + namePostfixCounter))
-                {
-                    nameNotFound = true;
-                    namePostfixCounter++;
-                    break;
-                }
-            }
+            namePostfixCounter++;
         }
         return namePostfixCounter;
     }
@@ -85,9 +85,19 @@ public class MainActivity extends AppCompatActivity
     {
         final List<ExerciseInfoEntity> exerciseInfo = adapter.getExerciseInfo();
         final List<ExerciseSetEntity> orderedExerciseSets = adapter.getExerciseSets();
-        viewModel.updateExerciseInfo(exerciseInfo, orderedExerciseSets);
         viewModel.storeExerciseInfo(exerciseInfo);
         viewModel.finishWorkout((WorkoutUnitEntity)binding.getWorkoutUnit(), orderedExerciseSets);
+    }
+
+    private void showRemoveExerciseDialog(String exerciseInfoName)
+    {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Remove exercise");
+        builder.setMessage("Do you really want to remove \"" + exerciseInfoName + "\" from all workouts and the database?");
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton(android.R.string.yes, (dialog, whichButton) -> viewModel.removeExerciseCompletely(exerciseInfoName));
+        builder.setNegativeButton(android.R.string.no, null);
+        builder.show();
     }
 
     private void hideKeyboard(View view)
@@ -123,6 +133,58 @@ public class MainActivity extends AppCompatActivity
         binding.workoutText.setFocusableInTouchMode(isEditModeActive);
         adapter.notifyDataSetChanged();
         binding.executePendingBindings();
+    }
+
+    private void addNewExercise()
+    {
+        String newExerciseName = NEW_EXERCISE_NAME_PREFIX;
+        final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
+        newExerciseName += determineNamePostfixCounter(newExerciseInfoList, newExerciseName);
+        ExerciseInfoEntity newExerciseInfo = new ExerciseInfoEntity(newExerciseName);
+        newExerciseInfoList.add(newExerciseInfo);
+        viewModel.storeExerciseInfo(Collections.singletonList(newExerciseInfo));
+        final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
+        newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
+        // Add new exercise to workout unit and exercise adapter:
+        final WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+        workoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(newExerciseSetsList));
+        adapter.setExercise(workoutUnit.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
+        binding.exercisesBoard.smoothScrollToPosition(adapter.getItemCount());
+    }
+
+    private void addExistingExercise(String exerciseInfoName)
+    {
+        // Query newest exercise sets for this exercise to use as template:
+        DataRepository.executeOnceForLiveData(viewModel.getNewestExerciseSets(exerciseInfoName), newestSets ->
+        {
+            assert newestSets != null : "object cannot be null";
+            final Date currentDate = Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate();
+            final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
+            final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
+            // Fetch the exercise info entity from the database:
+            DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(newestSets), exerciseInfoList ->
+            {
+                assert exerciseInfoList != null : "object cannot be null";
+                for (ExerciseInfoEntity info : exerciseInfoList)
+                {
+                    if (Objects.equals(info.getName(), exerciseInfoName))
+                    {
+                        newExerciseInfoList.add(info);
+                        break;
+                    }
+                }
+                // Clone exercise sets from the newest workout that had this exercise:
+                for (ExerciseSetEntity set : newestSets)
+                {
+                    newExerciseSetsList.add(new ExerciseSetEntity(currentDate, exerciseInfoName, set.getRepeats(), set.getWeight()));
+                }
+                // Add exercise to workout unit and exercise adapter:
+                final WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                workoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(newExerciseSetsList));
+                adapter.setExercise(workoutUnit.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
+                binding.exercisesBoard.smoothScrollToPosition(adapter.getItemCount());
+            });
+        });
     }
 
     private void updateTheme()
@@ -186,6 +248,33 @@ public class MainActivity extends AppCompatActivity
                         updateFinishedExercises();
                     });
                 });
+                DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(), workoutUnits -> workoutUnits != null && !workoutUnits.isEmpty(), workoutUnits ->
+                {
+                    assert workoutUnits != null : "object cannot be null";
+                    // Get all workout studios and workout names of current studio:
+                    var workoutStudios = new LinkedHashSet<String>();
+                    var workoutNames = new LinkedHashSet<String>();
+                    for (WorkoutUnitEntity workout: workoutUnits)
+                    {
+                        workoutStudios.add(workout.getStudio());  // Duplicate names will automatically be ignored in a Set
+                        if (Objects.equals(workout.getStudio(), workoutUnit.getStudio()))
+                        {
+                            workoutNames.add(workout.getName());  // Duplicate names will automatically be ignored in a Set
+                        }
+                    }
+                    // Update spinner adapter entries:
+                    studioSpinnerAdapter.clear();
+                    studioSpinnerAdapter.addAll(new ArrayList<>(workoutStudios));
+                    studioSpinnerAdapter.notifyDataSetChanged();
+                    workoutSpinnerAdapter.clear();
+                    workoutSpinnerAdapter.addAll(new ArrayList<>(workoutNames));
+                    workoutSpinnerAdapter.notifyDataSetChanged();
+                    // Set correct spinner selections to match current workout:
+                    final int studioIndex = studioSpinnerAdapter.getPosition(workoutUnit.getStudio());
+                    if (studioIndex >= 0) { binding.studioSpinner.setSelection(studioIndex); }
+                    final int workoutIndex = workoutSpinnerAdapter.getPosition(workoutUnit.getName());
+                    if (workoutIndex >= 0) { binding.workoutSpinner.setSelection(workoutIndex); }
+                });
             }
             else
             {
@@ -238,70 +327,59 @@ public class MainActivity extends AppCompatActivity
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
 
+        // Setup spinner adapters:
+        studioSpinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
+        studioSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.studioSpinner.setAdapter(studioSpinnerAdapter);
+        workoutSpinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
+        workoutSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.workoutSpinner.setAdapter(workoutSpinnerAdapter);
+
         // Setup layout data binding and add listeners and observers:
         binding.setIsTopBoxMinimized(true);
         binding.setIsDebugModeActive(DEBUG_MODE_ACTIVE);
         updateEditMode();
-        binding.nextStudioButton.setOnClickListener((View view) -> DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(), workoutUnits ->
+        binding.studioSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
-            assert workoutUnits != null : "object cannot be null";
-            final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-            // Get all workout studios:
-            Set<String> workoutStudios = new LinkedHashSet<>();
-            for (WorkoutUnitEntity workoutUnit: workoutUnits)
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
             {
-                workoutStudios.add(workoutUnit.getStudio());  // Duplicate names will automatically be ignored in a Set
-            }
-            // Get new workout studio:
-            String newWorkoutStudio = currentWorkoutUnit.getStudio();
-            Iterator<String> iterator = workoutStudios.iterator();
-            while(iterator.hasNext())
-            {
-                if (Objects.equals(iterator.next(), currentWorkoutUnit.getStudio()))
+                final String selectedStudio = (String)parent.getItemAtPosition(position);
+                final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                if (currentWorkoutUnit != null && Objects.equals(selectedStudio, currentWorkoutUnit.getStudio()))
                 {
-                    // If available find the next workout studio after the current one, otherwise wrap around to the first studio in the list:
-                    newWorkoutStudio = iterator.hasNext() ? iterator.next() : workoutStudios.iterator().next();
-                    break;
-                }
-            }
-            // Change to new workout:
-            DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(newWorkoutStudio), baseWorkoutUnit ->
-            {
-                assert baseWorkoutUnit != null : "object cannot be null";
-                viewModel.changeWorkout(baseWorkoutUnit);
-            });
-        }));
-        binding.nextWorkoutButton.setOnClickListener((View view) ->
-        {
-            final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-            DataRepository.executeOnceForLiveData(viewModel.getAllWorkoutUnits(currentWorkoutUnit.getStudio()), workoutUnits ->
-            {
-                assert workoutUnits != null : "object cannot be null";
-                // Get all workout names of current studio:
-                Set<String> workoutNames = new LinkedHashSet<>();
-                for (WorkoutUnitEntity workoutUnit: workoutUnits)
-                {
-                    workoutNames.add(workoutUnit.getName());  // Duplicate names will automatically be ignored in a Set
-                }
-                // Get new workout name:
-                String newWorkoutName = currentWorkoutUnit.getName();
-                Iterator<String> iterator = workoutNames.iterator();
-                while(iterator.hasNext())
-                {
-                    if (Objects.equals(iterator.next(), currentWorkoutUnit.getName()))
-                    {
-                        // If available find the next workout name after the current one, otherwise wrap around to the first name in the list:
-                        newWorkoutName = iterator.hasNext() ? iterator.next() : workoutNames.iterator().next();
-                        break;
-                    }
+                    return;
                 }
                 // Change to new workout:
-                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), newWorkoutName), baseWorkoutUnit ->
+                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(selectedStudio), baseWorkoutUnit ->
                 {
                     assert baseWorkoutUnit != null : "object cannot be null";
                     viewModel.changeWorkout(baseWorkoutUnit);
                 });
-            });
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        binding.workoutSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+            {
+                final String selectedWorkout = (String)parent.getItemAtPosition(position);
+                final WorkoutUnitEntity currentWorkoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
+                if (currentWorkoutUnit != null && Objects.equals(selectedWorkout, currentWorkoutUnit.getName()))
+                {
+                    return;
+                }
+                // Change to new workout:
+                DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), selectedWorkout), baseWorkoutUnit ->
+                {
+                    assert baseWorkoutUnit != null : "object cannot be null";
+                    viewModel.changeWorkout(baseWorkoutUnit);
+                });
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
         binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
         binding.studioText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
@@ -318,6 +396,21 @@ public class MainActivity extends AppCompatActivity
                 currentWorkoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(currentExerciseSets));
                 viewModel.storeExerciseInfo(adapter.getExerciseInfo());
                 viewModel.storeWorkout(currentWorkoutUnit, currentExerciseSets);
+                // Update spinner entries in case studio or workout name was changed in edit mode:
+                final String newStudio = currentWorkoutUnit.getStudio();
+                final String newName = currentWorkoutUnit.getName();
+                if (studioSpinnerAdapter.getPosition(newStudio) < 0)
+                {
+                    studioSpinnerAdapter.add(newStudio);
+                    studioSpinnerAdapter.notifyDataSetChanged();
+                }
+                binding.studioSpinner.setSelection(studioSpinnerAdapter.getPosition(newStudio));
+                if (workoutSpinnerAdapter.getPosition(newName) < 0)
+                {
+                    workoutSpinnerAdapter.add(newName);
+                    workoutSpinnerAdapter.notifyDataSetChanged();
+                }
+                binding.workoutSpinner.setSelection(workoutSpinnerAdapter.getPosition(newName));
             }
             updateFinishedExercises();
             updateEditMode();
@@ -332,20 +425,75 @@ public class MainActivity extends AppCompatActivity
         });
         binding.addExerciseButton.setOnClickListener((View view) ->
         {
-            // Create new exercise:
-            String newExerciseName = "NewExerciseName";
-            final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
-            newExerciseName += determineNamePostfixCounter(newExerciseInfoList, newExerciseName);
-            ExerciseInfoEntity newExerciseInfo = new ExerciseInfoEntity(newExerciseName);
-            newExerciseInfoList.add(newExerciseInfo);
-            viewModel.storeExerciseInfo(Collections.singletonList(newExerciseInfo));
-            final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
-            newExerciseSetsList.add(new ExerciseSetEntity(Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate(), newExerciseName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
-            // Add new exercise to workout unit and exercise adapter:
-            final WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
-            workoutUnit.setExerciseNames(WorkoutUnitEntity.exerciseSets2exerciseNames(newExerciseSetsList));
-            adapter.setExercise(workoutUnit.getExerciseNames(), newExerciseInfoList, newExerciseSetsList);
-            binding.exercisesBoard.smoothScrollToPosition(adapter.getItemCount());
+            // Build list of existing exercises not in current workout:
+            final List<String> currentExerciseNames = adapter.getExerciseInfo().stream().map(ExerciseInfoEntity::getName).collect(Collectors.toList());
+            DataRepository.executeOnceForLiveData(viewModel.getAllExerciseInfo(), allExerciseInfo ->
+            {
+                assert allExerciseInfo != null : "object cannot be null";
+                final List<String> menuItems = new ArrayList<>();
+                menuItems.add("Add new exercise");
+                for (ExerciseInfoEntity exerciseInfo : allExerciseInfo)
+                {
+                    if (!currentExerciseNames.contains(exerciseInfo.getName()))
+                    {
+                        menuItems.add(exerciseInfo.getName());
+                    }
+                }
+                // Show dialog with exercise list:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                final ArrayAdapter<String> menuAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menuItems);
+                final boolean[] longPressTriggered = {false};
+                final int[] longPressItemPosition = {-1};
+                final Handler longPressHandler = new Handler(Looper.getMainLooper());
+                builder.setAdapter(menuAdapter, (dialogInterface, selectedIndex) ->
+                {
+                    if (!longPressTriggered[0])
+                    {
+                        if (selectedIndex == 0)
+                        {
+                            addNewExercise();
+                        }
+                        else
+                        {
+                            addExistingExercise(menuItems.get(selectedIndex));
+                        }
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                // Set up long press detection for exercise removal:
+                dialog.getListView().setOnTouchListener((v, event) ->
+                {
+                    switch (event.getAction())
+                    {
+                        case MotionEvent.ACTION_DOWN:
+                            longPressTriggered[0] = false;
+                            longPressItemPosition[0] = dialog.getListView().pointToPosition((int) event.getX(), (int) event.getY());
+                            if (longPressItemPosition[0] > 0)
+                            {
+                                longPressHandler.postDelayed(() ->
+                                {
+                                    longPressTriggered[0] = true;
+                                    dialog.dismiss();
+                                    showRemoveExerciseDialog(menuItems.get(longPressItemPosition[0]));
+                                }, LONG_PRESS_DURATION_MS);
+                            }
+                            break;
+                        case MotionEvent.ACTION_UP:
+                        case MotionEvent.ACTION_CANCEL:
+                            longPressHandler.removeCallbacksAndMessages(null);
+                            break;
+                        case MotionEvent.ACTION_MOVE:
+                            if (dialog.getListView().pointToPosition((int) event.getX(), (int) event.getY()) != longPressItemPosition[0])
+                            {
+                                longPressHandler.removeCallbacksAndMessages(null);
+                                longPressItemPosition[0] = -1;
+                            }
+                            break;
+                    }
+                    return false;
+                });
+            });
         });
         binding.finishButton.setOnClickListener((View view) ->
         {

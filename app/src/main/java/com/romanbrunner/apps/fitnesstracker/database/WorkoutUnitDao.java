@@ -45,6 +45,9 @@ public interface WorkoutUnitDao
     @Query("SELECT * FROM WorkoutUnits")
     LiveData<List<WorkoutUnitEntity>> loadAll();
 
+    @Query("SELECT * FROM WorkoutUnits")
+    List<WorkoutUnitEntity> loadAllSync();
+
     @Insert
     void insert(WorkoutUnitEntity... workoutUnits);
 

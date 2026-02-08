@@ -25,8 +25,14 @@ public interface ExerciseInfoDao
     // Functional code
     // --------------------
 
+    @Query("SELECT * FROM exerciseInfo")
+    LiveData<List<ExerciseInfoEntity>> loadAll();
+
     @Query("SELECT * FROM exerciseInfo WHERE name IN (:searchNames)")
     LiveData<List<ExerciseInfoEntity>> loadByNames(Set<String> searchNames);
+
+    @Query("DELETE FROM exerciseInfo WHERE name = :name")
+    void deleteByName(String name);
 
     @Insert
     void insert(List<ExerciseInfoEntity> exerciseInfoList);

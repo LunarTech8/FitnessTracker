@@ -20,12 +20,8 @@ Work status:
 // Worklog:
 // -------------
 
-!!>>- Rework database model
-    - Default values in ExerciseInfo might be obsolete because the newest ExerciseSet values should be used instead
-        - Repeats and weight has to be added to exerciseNames in WorkoutUnit before removing that data from ExerciseInfo
-        - This might still be needed when re-adding an exercise because multiple ExerciseSets might be needed
-!!- Implement a drop down menu for changing the workout and studio instead of the next buttons
-!!- Add a drop down menu next to the "add new exercise" button to add in an existing exercise -> Replace button with drop down that has the option to "add new exercise"
+!!!- Description changes should be saved
+!!- Have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
 !- Maybe instead of replacing the entries can be updated via database.<...>Dao().update in replaceCurrentWorkoutUnit
 
 
@@ -33,7 +29,6 @@ Work status:
 // Backlog:
 // -------------
 
-!!!- Description changes should be saved
 !- Adjust design to fit to all screen sizes (e.g. smaller width)
 !- Find a solution to lose focus of an edit text when clicking on a disabled edit text
 !- Add datetime validation and re-enable datetime manipulation (revert to last value if invalid, See here for inspiration: https://stackoverflow.com/questions/17416595/date-validation-in-android)
@@ -47,6 +42,5 @@ Work status:
 
 !!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
 !!- Have a button to change between lbs and kg
-!- Maybe have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
 !- Maybe add different exercise types (one for cardio, etc.)
 !- Maybe add an option to rename existing workout names and studios

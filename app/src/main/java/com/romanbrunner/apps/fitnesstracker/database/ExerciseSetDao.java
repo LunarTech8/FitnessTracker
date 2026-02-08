@@ -30,6 +30,12 @@ public interface ExerciseSetDao
     @Query("SELECT * FROM exerciseSets WHERE workoutUnitDate = :searchWorkoutUnitDate")
     LiveData<List<ExerciseSetEntity>> loadByWorkoutUnitDate(Date searchWorkoutUnitDate);
 
+    @Query("SELECT * FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName AND workoutUnitDate = (SELECT MAX(es2.workoutUnitDate) FROM exerciseSets es2 WHERE es2.exerciseInfoName = :exerciseInfoName)")
+    LiveData<List<ExerciseSetEntity>> loadNewestByExerciseInfoName(String exerciseInfoName);
+
+    @Query("DELETE FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName")
+    void deleteByExerciseInfoName(String exerciseInfoName);
+
     @Insert
     void insert(List<ExerciseSetEntity> exercises);
 

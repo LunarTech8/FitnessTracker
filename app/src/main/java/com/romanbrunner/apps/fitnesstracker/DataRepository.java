@@ -146,6 +146,16 @@ public class DataRepository
         return database.exerciseInfoDao().loadByNames(names);
     }
 
+    public LiveData<List<ExerciseInfoEntity>> getAllExerciseInfo()
+    {
+        return database.exerciseInfoDao().loadAll();
+    }
+
+    public LiveData<List<ExerciseSetEntity>> getNewestExerciseSets(String exerciseInfoName)
+    {
+        return database.exerciseSetDao().loadNewestByExerciseInfoName(exerciseInfoName);
+    }
+
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
     {
         return observableWorkoutUnit;
@@ -209,6 +219,36 @@ public class DataRepository
         });
     }
 
+    public void removeExerciseCompletely(String exerciseInfoName)
+    {
+        executor.execute(() -> database.runInTransaction(() ->
+        {
+            // Delete all exercise sets referencing this exercise:
+            database.exerciseSetDao().deleteByExerciseInfoName(exerciseInfoName);
+            // Update all workout units to remove this exercise from their exerciseNames:
+            List<WorkoutUnitEntity> allWorkoutUnits = database.workoutUnitDao().loadAllSync();
+            for (WorkoutUnitEntity workoutUnit : allWorkoutUnits)
+            {
+                String names = workoutUnit.getExerciseNames();
+                if (names != null && WorkoutUnitEntity.exerciseNames2NameSet(names).contains(exerciseInfoName))
+                {
+                    String updatedNames = WorkoutUnitEntity.removeExerciseFromNames(names, exerciseInfoName);
+                    if (updatedNames.isEmpty())
+                    {
+                        database.workoutUnitDao().delete(workoutUnit);
+                    }
+                    else
+                    {
+                        workoutUnit.setExerciseNames(updatedNames);
+                        database.workoutUnitDao().update(workoutUnit);
+                    }
+                }
+            }
+            // Delete the exercise info entry:
+            database.exerciseInfoDao().deleteByName(exerciseInfoName);
+        }));
+    }
+
     public void setCurrentWorkout(WorkoutUnitEntity workoutUnit)
     {
         observableWorkoutUnit.setValue(workoutUnit);
@@ -237,9 +277,6 @@ public class DataRepository
         // Update current entries:
         executor.execute(() ->
         {
-            Log.d("finishWorkout", "oldWorkoutUnit.getExerciseNames() = " + oldWorkoutUnit.getExerciseNames());  // DEBUG:
-            Log.d("finishWorkout", "oldWorkoutUnit.getDate() = " + oldWorkoutUnit.getDate().toString());  // DEBUG:
-            Log.d("finishWorkout", "oldExerciseSets = " + oldExerciseSets.stream().map(element -> element.getExerciseInfoName() + " " + element.getId() + " " + element.isDone()).collect(Collectors.joining(", ")));  // DEBUG:
             /* Delete and insert is used instead of update to make sure that all associated old exercises are removed and new exercises are added correctly. */
             database.runInTransaction(() -> {
                 database.workoutUnitDao().delete(oldWorkoutUnit);

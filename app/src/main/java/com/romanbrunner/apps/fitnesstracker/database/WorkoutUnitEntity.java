@@ -175,6 +175,20 @@ public class WorkoutUnitEntity implements WorkoutUnit
         return String.valueOf(exerciseNames);
     }
 
+    public static String removeExerciseFromNames(final String exerciseNames, final String exerciseNameToRemove)
+    {
+        final String[] dataStringEntries = exerciseNames.split(EXERCISE_NAMES_DELIMITER);
+        final StringBuilder result = new StringBuilder();
+        for (String dataString : dataStringEntries)
+        {
+            if (!dataString.isEmpty() && !dataString.split(EXERCISE_NAMES_SEPARATOR)[0].equals(exerciseNameToRemove))
+            {
+                result.append(dataString).append(EXERCISE_NAMES_DELIMITER);
+            }
+        }
+        return result.toString();
+    }
+
     public static boolean isContentTheSame(WorkoutUnit workoutUnitA, WorkoutUnit workoutUnitB)
     {
         return workoutUnitA.getDate().compareTo(workoutUnitB.getDate()) == 0

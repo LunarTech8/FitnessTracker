@@ -116,6 +116,21 @@ public class MainViewModel extends AndroidViewModel
         return repository.getExerciseInfo(exerciseInfoNames);
     }
 
+    public LiveData<List<ExerciseInfoEntity>> getAllExerciseInfo()
+    {
+        return repository.getAllExerciseInfo();
+    }
+
+    public LiveData<List<ExerciseSetEntity>> getNewestExerciseSets(String exerciseInfoName)
+    {
+        return repository.getNewestExerciseSets(exerciseInfoName);
+    }
+
+    public void removeExerciseCompletely(String exerciseInfoName)
+    {
+        repository.removeExerciseCompletely(exerciseInfoName);
+    }
+
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
     {
         return observableWorkoutUnit;
@@ -175,14 +190,6 @@ public class MainViewModel extends AndroidViewModel
     public void storeWorkout(@NonNull WorkoutUnitEntity workoutUnit, @NonNull List<ExerciseSetEntity> exerciseSets)
     {
         repository.storeWorkout(workoutUnit, exerciseSets);
-    }
-
-    public void updateExerciseInfo(final List<ExerciseInfoEntity> exerciseInfo, final List<ExerciseSetEntity> orderedExerciseSets)
-    {
-        for (ExerciseInfoEntity exerciseInfoEntity : exerciseInfo)
-        {
-            exerciseInfoEntity.setDefaultValues(ExerciseInfoEntity.exerciseSets2defaultValues(exerciseInfoEntity.getName(), orderedExerciseSets));
-        }
     }
 
     public void printDebugLog()
