@@ -121,9 +121,14 @@ public class MainViewModel extends AndroidViewModel
         return repository.getAllExerciseInfo();
     }
 
-    public LiveData<List<ExerciseSetEntity>> getNewestExerciseSets(String exerciseInfoName)
+    public LiveData<List<ExerciseSetEntity>> getTemplateExerciseSets(String exerciseInfoName)
     {
-        return repository.getNewestExerciseSets(exerciseInfoName);
+        return repository.getTemplateExerciseSets(exerciseInfoName);
+    }
+
+    public LiveData<List<ExerciseInfoEntity>> getExerciseInfoByNames(Set<String> names)
+    {
+        return repository.getExerciseInfo(names);
     }
 
     public void removeExerciseCompletely(String exerciseInfoName)

@@ -22,7 +22,7 @@ More in-depth data, settings and edit options can be accessed via an expandable 
 - **Studio & workout switching** — dropdown spinners to change between studios and workout routines
 - **Automatic workout cloning** — finishing a workout creates a new session pre-filled with the previous structure
 - **Edit mode** — toggle to rename exercises, reorder them, add/remove sets, and edit studio/workout names
-- **Exercise management** — add new or existing exercises via dropdown menu; long-press (5 seconds) on existing exercises to remove them from all workouts
+- **Exercise management** — add new or existing exercises via dropdown menu; long-press (5 seconds) on existing exercises to remove them from all workouts; template-based defaults automatically save the last workout's structure for quick re-addition
 - **Workout statistics** — total workout count, average interval between sessions, last workout date
 - **Light/dark theme support** — three-way toggle (system/light/dark) with persistent preference
 - **Debug tools** — log inspection and data management buttons (debug builds only)
@@ -47,8 +47,8 @@ MainActivity → MainViewModel → DataRepository → AppDatabase (Room)
 ### Data Model
 
 - **WorkoutUnitEntity** — a workout session (primary key: `Date`), stores studio, name, description, and exercise order as a delimited string
-- **ExerciseSetEntity** — a single set within a workout (auto-generated ID), linked via foreign keys to `WorkoutUnitEntity` (CASCADE) and `ExerciseInfoEntity` (RESTRICT)
-- **ExerciseInfoEntity** — exercise metadata (primary key: `name`), stores token, remarks, and default values
+- **ExerciseSetEntity** — a single set within a workout (auto-generated ID), linked via foreign keys to `WorkoutUnitEntity` (CASCADE) and `ExerciseInfoEntity` (RESTRICT); template sets (with `workoutUnitDate = NULL`) store default values for quick exercise re-addition
+- **ExerciseInfoEntity** — exercise metadata (primary key: `name`), stores token and remarks
 
 ### Key Patterns
 

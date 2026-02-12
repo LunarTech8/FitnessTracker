@@ -11,6 +11,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Transaction;
 import androidx.room.Update;
 
 import java.util.Date;
@@ -30,14 +31,27 @@ public interface ExerciseSetDao
     @Query("SELECT * FROM exerciseSets WHERE workoutUnitDate = :searchWorkoutUnitDate")
     LiveData<List<ExerciseSetEntity>> loadByWorkoutUnitDate(Date searchWorkoutUnitDate);
 
-    @Query("SELECT * FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName AND workoutUnitDate = (SELECT MAX(es2.workoutUnitDate) FROM exerciseSets es2 WHERE es2.exerciseInfoName = :exerciseInfoName)")
-    LiveData<List<ExerciseSetEntity>> loadNewestByExerciseInfoName(String exerciseInfoName);
+    @Query("SELECT * FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName AND workoutUnitDate IS NULL")
+    LiveData<List<ExerciseSetEntity>> loadTemplateByExerciseInfoName(String exerciseInfoName);
+
+    @Query("DELETE FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName AND workoutUnitDate IS NULL")
+    void deleteTemplateByExerciseInfoName(String exerciseInfoName);
 
     @Query("DELETE FROM exerciseSets WHERE exerciseInfoName = :exerciseInfoName")
     void deleteByExerciseInfoName(String exerciseInfoName);
 
+    @Transaction
+    default void replaceTemplateByExerciseInfoName(String exerciseInfoName, List<ExerciseSetEntity> newTemplates)
+    {
+        deleteTemplateByExerciseInfoName(exerciseInfoName);
+        insert(newTemplates);
+    }
+
     @Insert
     void insert(List<ExerciseSetEntity> exercises);
+
+    @Insert
+    void insert(ExerciseSetEntity... exercises);
 
     @Update
     void update(List<ExerciseSetEntity> exercises);

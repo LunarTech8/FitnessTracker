@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity
     public final static boolean DEBUG_MODE_ACTIVE = true;
     public final static int DEBUG_LOG_MAX_MODES = 7;
     private final static String PREFS_NAME = "GlobalPreferences";
-    public final static String NEW_EXERCISE_NAME_PREFIX = "NewExerciseName";
     private final static long LONG_PRESS_DURATION_MS = 5000;
 
 
@@ -137,7 +136,7 @@ public class MainActivity extends AppCompatActivity
 
     private void addNewExercise()
     {
-        String newExerciseName = NEW_EXERCISE_NAME_PREFIX;
+        String newExerciseName = ExerciseInfoEntity.NEW_EXERCISE_NAME_PREFIX;
         final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
         newExerciseName += determineNamePostfixCounter(newExerciseInfoList, newExerciseName);
         ExerciseInfoEntity newExerciseInfo = new ExerciseInfoEntity(newExerciseName);
@@ -154,17 +153,17 @@ public class MainActivity extends AppCompatActivity
 
     private void addExistingExercise(String exerciseInfoName)
     {
-        // Query newest exercise sets for this exercise to use as template:
-        DataRepository.executeOnceForLiveData(viewModel.getNewestExerciseSets(exerciseInfoName), newestSets ->
+        // Load exercise info by name:
+        DataRepository.executeOnceForLiveData(viewModel.getExerciseInfoByNames(Collections.singleton(exerciseInfoName)), exerciseInfoList ->
         {
-            assert newestSets != null : "object cannot be null";
-            final Date currentDate = Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate();
-            final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
-            final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
-            // Fetch the exercise info entity from the database:
-            DataRepository.executeOnceForLiveData(viewModel.getExerciseInfo(newestSets), exerciseInfoList ->
+            assert exerciseInfoList != null : "object cannot be null";
+            // Load template exercise sets:
+            DataRepository.executeOnceForLiveData(viewModel.getTemplateExerciseSets(exerciseInfoName), templateSets ->
             {
-                assert exerciseInfoList != null : "object cannot be null";
+                assert templateSets != null : "object cannot be null";
+                final Date currentDate = Objects.requireNonNull(viewModel.getCurrentWorkoutUnit().getValue()).getDate();
+                final List<ExerciseInfoEntity> newExerciseInfoList = adapter.getExerciseInfo();
+                final List<ExerciseSetEntity> newExerciseSetsList = adapter.getExerciseSets();
                 for (ExerciseInfoEntity info : exerciseInfoList)
                 {
                     if (Objects.equals(info.getName(), exerciseInfoName))
@@ -173,10 +172,17 @@ public class MainActivity extends AppCompatActivity
                         break;
                     }
                 }
-                // Clone exercise sets from the newest workout that had this exercise:
-                for (ExerciseSetEntity set : newestSets)
+                // Clone template sets with current workout date (or create default if no templates exist):
+                if (templateSets.isEmpty())
                 {
-                    newExerciseSetsList.add(new ExerciseSetEntity(currentDate, exerciseInfoName, set.getRepeats(), set.getWeight()));
+                    newExerciseSetsList.add(new ExerciseSetEntity(currentDate, exerciseInfoName, ExerciseSetAdapter.WEIGHTED_EXERCISE_REPEATS_MIN, 0F));
+                }
+                else
+                {
+                    for (ExerciseSetEntity set : templateSets)
+                    {
+                        newExerciseSetsList.add(new ExerciseSetEntity(currentDate, exerciseInfoName, set.getRepeats(), set.getWeight()));
+                    }
                 }
                 // Add exercise to workout unit and exercise adapter:
                 final WorkoutUnitEntity workoutUnit = (WorkoutUnitEntity)binding.getWorkoutUnit();
@@ -434,11 +440,12 @@ public class MainActivity extends AppCompatActivity
                 menuItems.add("Add new exercise");
                 for (ExerciseInfoEntity exerciseInfo : allExerciseInfo)
                 {
-                    if (!currentExerciseNames.contains(exerciseInfo.getName()))
+                    if (!currentExerciseNames.contains(exerciseInfo.getName()) && !exerciseInfo.getName().startsWith(ExerciseInfoEntity.NEW_EXERCISE_NAME_PREFIX))
                     {
-                        menuItems.add(exerciseInfo.getName());
+                        menuItems.add("Add \"" + exerciseInfo.getName() + "\"");
                     }
                 }
+                menuItems.add("Cancel");
                 // Show dialog with exercise list:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 final ArrayAdapter<String> menuAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, menuItems);
@@ -453,9 +460,9 @@ public class MainActivity extends AppCompatActivity
                         {
                             addNewExercise();
                         }
-                        else
+                        else if (selectedIndex < menuItems.size() - 1)
                         {
-                            addExistingExercise(menuItems.get(selectedIndex));
+                            addExistingExercise(menuItems.get(selectedIndex).replaceFirst("^Add \"", "").replaceFirst("\"$", ""));
                         }
                     }
                 });
@@ -469,13 +476,13 @@ public class MainActivity extends AppCompatActivity
                         case MotionEvent.ACTION_DOWN:
                             longPressTriggered[0] = false;
                             longPressItemPosition[0] = dialog.getListView().pointToPosition((int) event.getX(), (int) event.getY());
-                            if (longPressItemPosition[0] > 0)
+                            if (longPressItemPosition[0] > 0 && longPressItemPosition[0] < menuItems.size() - 1)
                             {
                                 longPressHandler.postDelayed(() ->
                                 {
                                     longPressTriggered[0] = true;
                                     dialog.dismiss();
-                                    showRemoveExerciseDialog(menuItems.get(longPressItemPosition[0]));
+                                    showRemoveExerciseDialog(menuItems.get(longPressItemPosition[0]).replaceFirst("^Add \"", "").replaceFirst("\"$", ""));
                                 }, LONG_PRESS_DURATION_MS);
                             }
                             break;

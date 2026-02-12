@@ -14,6 +14,13 @@ import java.util.Objects;
 public class ExerciseInfoEntity implements ExerciseInfo
 {
     // --------------------
+    // Data code
+    // --------------------
+
+    public static final String NEW_EXERCISE_NAME_PREFIX = "NewExerciseName";
+
+
+    // --------------------
     // Functional code
     // --------------------
 

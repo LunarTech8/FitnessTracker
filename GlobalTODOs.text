@@ -20,7 +20,6 @@ Work status:
 // Worklog:
 // -------------
 
-!!!- Description changes should be saved
 !!- Have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
 !- Maybe instead of replacing the entries can be updated via database.<...>Dao().update in replaceCurrentWorkoutUnit
 

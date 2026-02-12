@@ -34,6 +34,11 @@ Key architectural decisions:
 - Main binding: `WorkoutScreenBinding` in `MainActivity`
 - Card-based UI: `exercise_card.xml`, `exercise_set_card.xml`
 
+### Code Section Organization
+- Classes use "Data code" and "Functional code" section markers
+- Constants (`static final` fields) always go in the "Data code" section
+- Instance fields, methods, and constructors go in the "Functional code" section
+
 ### Repository Pattern Implementation
 - Singleton pattern: `DataRepository.getInstance(AppDatabase)`
 - Callback-based async operations: `CallbackAction<T>` and `CallbackCondition<T>` interfaces
@@ -111,7 +116,6 @@ When asked to generate a git commit message (e.g., "generate git message", "git 
 - Only use sub-points if absolutely necessary to distinguish between unrelated changes under same category
 - Order by significance: architectural changes first, then features, then fixes, then documentation
 - Omit obvious implications and redundant details
-- Documentation updates go last
 
 **Format:**
 ```

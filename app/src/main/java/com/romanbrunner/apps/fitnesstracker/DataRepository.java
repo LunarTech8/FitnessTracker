@@ -151,9 +151,9 @@ public class DataRepository
         return database.exerciseInfoDao().loadAll();
     }
 
-    public LiveData<List<ExerciseSetEntity>> getNewestExerciseSets(String exerciseInfoName)
+    public LiveData<List<ExerciseSetEntity>> getTemplateExerciseSets(String exerciseInfoName)
     {
-        return database.exerciseSetDao().loadNewestByExerciseInfoName(exerciseInfoName);
+        return database.exerciseSetDao().loadTemplateByExerciseInfoName(exerciseInfoName);
     }
 
     public LiveData<WorkoutUnitEntity> getCurrentWorkoutUnit()
@@ -204,18 +204,21 @@ public class DataRepository
 
     public void storeExerciseInfo(final List<ExerciseInfoEntity> exerciseInfoList)
     {
-        // Insert or update given entries:
+        // Insert or update given entries (skip unchanged default exercises):
         executor.execute(() ->
         {
             ExerciseInfoDao exerciseInfoDao = database.exerciseInfoDao();
             for (ExerciseInfoEntity exerciseInfo: exerciseInfoList)
             {
+                if (exerciseInfo.getName().startsWith(ExerciseInfoEntity.NEW_EXERCISE_NAME_PREFIX))
+                {
+                    continue;
+                }
                 if (exerciseInfoDao.insertIgnore(exerciseInfo) == -1L)
                 {
                     exerciseInfoDao.update(exerciseInfo);
                 }
             }
-
         });
     }
 
@@ -282,6 +285,19 @@ public class DataRepository
                 database.workoutUnitDao().delete(oldWorkoutUnit);
                 database.workoutUnitDao().insert(oldWorkoutUnit);
                 database.exerciseSetDao().insert(oldExerciseSets);
+                // Replace template exercise sets for each non-default exercise:
+                var groupedSets = oldExerciseSets.stream()
+                    .filter(set -> !set.getExerciseInfoName().startsWith(ExerciseInfoEntity.NEW_EXERCISE_NAME_PREFIX))
+                    .collect(Collectors.groupingBy(ExerciseSetEntity::getExerciseInfoName));
+                for (var entry : groupedSets.entrySet())
+                {
+                    List<ExerciseSetEntity> templates = new ArrayList<>();
+                    for (ExerciseSetEntity set : entry.getValue())
+                    {
+                        templates.add(new ExerciseSetEntity(null, entry.getKey(), set.getRepeats(), set.getWeight()));
+                    }
+                    database.exerciseSetDao().replaceTemplateByExerciseInfoName(entry.getKey(), templates);
+                }
             });
         });
         // Clone new entries:

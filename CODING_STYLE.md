@@ -33,13 +33,14 @@ private void finishWorkout() {
 }
 ```
 
-✅ **Section markers for code regions** — Use decorated comment blocks to separate data/functional sections within classes
+✅ **Section markers for code regions** — Use decorated comment blocks to separate data/functional sections within classes. Constants and static final fields go in the "Data code" section, while instance fields, methods, and constructors go in the "Functional code" section
 ```java
 // --------------------
 // Data code
 // --------------------
 
 public final static boolean DEBUG_MODE_ACTIVE = true;
+public static final String NEW_EXERCISE_NAME_PREFIX = "NewExerciseName";
 
 // --------------------
 // Functional code
