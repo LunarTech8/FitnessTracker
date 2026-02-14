@@ -19,6 +19,7 @@ More in-depth data, settings and edit options can be accessed via an expandable 
 
 - **Single-screen workout tracking** — all exercises visible in one scrollable list
 - **One-tap set completion** — checkbox + auto-increment button for reps/weight progression
+- **Unfinished exercise indicators** — arrow buttons left/right of finish button show count of incomplete exercises above/below viewport; click to scroll to next unfinished exercise; turn green when none remain in that direction
 - **Studio & workout switching** — dropdown spinners to change between studios and workout routines
 - **Automatic workout cloning** — finishing a workout creates a new session pre-filled with the previous structure
 - **Edit mode** — toggle to rename exercises, reorder them, add/remove sets, and edit studio/workout names

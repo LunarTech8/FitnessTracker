@@ -360,14 +360,55 @@
                 />
 
             <Button
+                android:id="@+id/unfinishedAboveIndicator"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/indicator_vertical_inset"
+                android:layout_marginBottom="@dimen/indicator_vertical_inset"
+                android:gravity="center"
+                android:padding="0dp"
+                android:paddingTop="@dimen/indicator_text_offset_from_arrow"
+                android:text="0"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="bold"
+                android:textSize="@dimen/indicator_text_size"
+                android:background="@drawable/indicator_arrow_up"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/finishButton"
+                app:layout_constraintBottom_toBottomOf="@+id/finishButton"
+                app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
+                />
+
+            <Button
                 android:id="@+id/finishButton"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{@string/t_finishButton(finishedExercises)}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/unfinishedAboveIndicator"
+                app:layout_constraintEnd_toStartOf="@+id/unfinishedBelowIndicator"
                 app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
                 tools:ignore="SpeakableTextPresentCheck"
+                />
+
+            <Button
+                android:id="@+id/unfinishedBelowIndicator"
+                android:layout_width="@dimen/button_size"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/indicator_vertical_inset"
+                android:layout_marginBottom="@dimen/indicator_vertical_inset"
+                android:gravity="center"
+                android:padding="0dp"
+                android:paddingBottom="@dimen/indicator_text_offset_from_arrow"
+                android:text="0"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textStyle="bold"
+                android:textSize="@dimen/indicator_text_size"
+                android:background="@drawable/indicator_arrow_down"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/finishButton"
+                app:layout_constraintBottom_toBottomOf="@+id/finishButton"
+                app:visibleGone="@{!isWorkoutLoading ? !isEditModeActive : false}"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

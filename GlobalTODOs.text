@@ -20,7 +20,8 @@ Work status:
 // Worklog:
 // -------------
 
-!!- Have an indicator how many unfinished exercises are above and below currently displayed entries (has to adjust while scrolling through the list)
+!!- Have a button to change between lbs and kg
+!!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
 !- Maybe instead of replacing the entries can be updated via database.<...>Dao().update in replaceCurrentWorkoutUnit
 
 
@@ -39,7 +40,5 @@ Work status:
 // Ideas/Concepts:
 // -------------
 
-!!- Refactor the name labels for current studio and workout to better distinguish from the exercise name labels (maybe bold font)
-!!- Have a button to change between lbs and kg
 !- Maybe add different exercise types (one for cardio, etc.)
 !- Maybe add an option to rename existing workout names and studios

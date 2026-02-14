@@ -176,6 +176,13 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         return orderedExerciseSets;
     }
 
+    boolean isExerciseFinishedAtPosition(int position)
+    {
+        if (exerciseInfo == null || exerciseInfo2SetsMap == null || position < 0 || position >= exerciseInfo.size()) { return true; }
+        final var sets = exerciseInfo2SetsMap.get(exerciseInfo.get(position).getName());
+        return sets == null || sets.stream().allMatch(ExerciseSetEntity::isDone);
+    }
+
     void setExercise(@NonNull final String exerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
         // Get ordered list:

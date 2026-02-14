@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -22,6 +23,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.romanbrunner.apps.fitnesstracker.DataRepository;
 import com.romanbrunner.apps.fitnesstracker.R;
@@ -118,6 +120,80 @@ public class MainActivity extends AppCompatActivity
         if (exercisesDone == exercisesTotal)
         {
             binding.finishButton.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+        }
+        binding.exercisesBoard.post(this::updateUnfinishedIndicators);
+    }
+
+    private void updateUnfinishedIndicators()
+    {
+        final var layoutManager = (LinearLayoutManager)binding.exercisesBoard.getLayoutManager();
+        if (layoutManager == null || adapter.getItemCount() == 0)
+        {
+            binding.unfinishedAboveIndicator.setText(String.valueOf(0));
+            binding.unfinishedBelowIndicator.setText(String.valueOf(0));
+            binding.unfinishedAboveIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+            binding.unfinishedBelowIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+            return;
+        }
+        int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+        int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+        if (firstVisiblePosition == RecyclerView.NO_POSITION)
+        {
+            firstVisiblePosition = 0;
+            lastVisiblePosition = adapter.getItemCount() - 1;
+        }
+        int unfinishedAbove = 0;
+        for (int i = 0; i < firstVisiblePosition; i++)
+        {
+            if (!adapter.isExerciseFinishedAtPosition(i)) { unfinishedAbove++; }
+        }
+        int unfinishedBelow = 0;
+        for (int i = lastVisiblePosition + 1; i < adapter.getItemCount(); i++)
+        {
+            if (!adapter.isExerciseFinishedAtPosition(i)) { unfinishedBelow++; }
+        }
+        binding.unfinishedAboveIndicator.setText(String.valueOf(unfinishedAbove));
+        binding.unfinishedBelowIndicator.setText(String.valueOf(unfinishedBelow));
+        binding.unfinishedAboveIndicator.getBackground().clearColorFilter();
+        binding.unfinishedBelowIndicator.getBackground().clearColorFilter();
+        if (unfinishedAbove == 0)
+        {
+            binding.unfinishedAboveIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+        }
+        if (unfinishedBelow == 0)
+        {
+            binding.unfinishedBelowIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+        }
+    }
+
+    private void scrollToNextUnfinishedExercise(boolean scrollUp)
+    {
+        final var layoutManager = (LinearLayoutManager)binding.exercisesBoard.getLayoutManager();
+        if (layoutManager == null || adapter.getItemCount() == 0) { return; }
+        int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+        int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
+        if (firstVisiblePosition == RecyclerView.NO_POSITION) { return; }
+        if (scrollUp)
+        {
+            for (int i = firstVisiblePosition - 1; i >= 0; i--)
+            {
+                if (!adapter.isExerciseFinishedAtPosition(i))
+                {
+                    binding.exercisesBoard.smoothScrollToPosition(i);
+                    return;
+                }
+            }
+        }
+        else
+        {
+            for (int i = lastVisiblePosition + 1; i < adapter.getItemCount(); i++)
+            {
+                if (!adapter.isExerciseFinishedAtPosition(i))
+                {
+                    binding.exercisesBoard.smoothScrollToPosition(i);
+                    return;
+                }
+            }
         }
     }
 
@@ -332,6 +408,15 @@ public class MainActivity extends AppCompatActivity
         adapter = new ExerciseInfoAdapter(this::updateFinishedExercises, this::setEditTextFocusInExercisesBoard);
         binding.exercisesBoard.setAdapter(adapter);
         binding.exercisesBoard.setLayoutManager(new LinearLayoutManager(this));
+        binding.exercisesBoard.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+            {
+                super.onScrolled(recyclerView, dx, dy);
+                updateUnfinishedIndicators();
+            }
+        });
 
         // Setup spinner adapters:
         studioSpinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
@@ -377,6 +462,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     return;
                 }
+                if (currentWorkoutUnit == null) { return; }
                 // Change to new workout:
                 DataRepository.executeOnceForLiveData(viewModel.getNewestWorkoutUnit(currentWorkoutUnit.getStudio(), selectedWorkout), baseWorkoutUnit ->
                 {
@@ -388,6 +474,8 @@ public class MainActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {}
         });
         binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
+        binding.unfinishedAboveIndicator.setOnClickListener((View view) -> scrollToNextUnfinishedExercise(true));
+        binding.unfinishedBelowIndicator.setOnClickListener((View view) -> scrollToNextUnfinishedExercise(false));
         binding.studioText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutDateText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
