@@ -1,6 +1,6 @@
 # Fitness Tracker
 
-Compact fitness tracker app for Android smartphones. All exercises for a workout are displayed in one scrollable list on a single screen, where every exercise set can be completed with one button press. Supports multiple studios and workout routines, switchable via dropdown spinners.
+Compact single screen fitness tracker app for Android smartphones. All exercises for a workout are displayed in one scrollable list on a single screen, where every exercise set can be completed with one button press. Supports multiple studios and workout routines, switchable via dropdown spinners.
 
 More in-depth data, settings and edit options can be accessed via an expandable top box menu.
 
@@ -8,10 +8,14 @@ More in-depth data, settings and edit options can be accessed via an expandable 
   <tr>
     <td>Regular view</td>
     <td>Expanded top box</td>
+    <td>Edit mode</td>
+    <td>Light mode</td>
   </tr>
   <tr>
     <td><img src="app/doc/readme/Showcase01.jpg" width=384></td>
     <td><img src="app/doc/readme/Showcase02.jpg" width=384></td>
+    <td><img src="app/doc/readme/Showcase03.jpg" width=384></td>
+    <td><img src="app/doc/readme/Showcase04.jpg" width=384></td>
   </tr>
 </table>
 
@@ -23,10 +27,9 @@ More in-depth data, settings and edit options can be accessed via an expandable 
 - **Studio & workout switching** — dropdown spinners to change between studios and workout routines
 - **Automatic workout cloning** — finishing a workout creates a new session pre-filled with the previous structure
 - **Edit mode** — toggle to rename exercises, reorder them, add/remove sets, and edit studio/workout names
-- **Exercise management** — add new or existing exercises via dropdown menu; long-press (5 seconds) on existing exercises to remove them from all workouts; template-based defaults automatically save the last workout's structure for quick re-addition
+- **Exercise management** — add new or existing exercises via dropdown menu; long-press (5 seconds) on existing exercises to remove them from all workouts
 - **Workout statistics** — total workout count, average interval between sessions, last workout date
 - **Light/dark theme support** — three-way toggle (system/light/dark) with persistent preference
-- **Debug tools** — log inspection and data management buttons (debug builds only)
 
 ## Architecture
 

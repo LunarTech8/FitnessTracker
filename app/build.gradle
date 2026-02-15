@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('C:\\Users\\Roman Brunner\\Dropbox\\Privat\\UploadKeystore.jks')
+            storePassword 'ixck4fVHUrafOgps91yH'
+            keyPassword 'ixck4fVHUrafOgps91yH'
+            keyAlias 'ft-appkey'
+        }
+    }
     compileSdk 36
 
     defaultConfig {
@@ -9,6 +17,7 @@ android {
         targetSdk 36
         versionCode 1
         versionName "1.0.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -19,13 +28,15 @@ android {
 
     buildTypes {
         release {
-            resValue "bool", "DEBUG", "false"
             minifyEnabled false
+            resValue "bool", "DEBUG", "false"
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
         debug {
             resValue "bool", "DEBUG", "true"
             buildConfigField "boolean", "ENABLE_ASSERTIONS", "true"
+            signingConfig signingConfigs.debug
         }
     }
     buildFeatures {
