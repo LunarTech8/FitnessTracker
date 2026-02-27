@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity
     private ArrayAdapter<String> workoutSpinnerAdapter;
     private WorkoutScreenBinding binding;
     private MainViewModel viewModel;
+    private int nextUnfinishedAbovePosition = -1;
+    private int nextUnfinishedBelowPosition = -1;
 
     private static int currentThemeId = 0;
     public static boolean isEditModeActive = false;
@@ -121,6 +123,7 @@ public class MainActivity extends AppCompatActivity
         {
             binding.finishButton.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
         }
+        adapter.refreshDoneStates();
         binding.exercisesBoard.post(this::updateUnfinishedIndicators);
     }
 
@@ -133,6 +136,8 @@ public class MainActivity extends AppCompatActivity
             binding.unfinishedBelowIndicator.setText(String.valueOf(0));
             binding.unfinishedAboveIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
             binding.unfinishedBelowIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
+            binding.nextUnfinishedAbovePreview.getRoot().setVisibility(View.GONE);
+            binding.nextUnfinishedBelowPreview.getRoot().setVisibility(View.GONE);
             return;
         }
         int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
@@ -164,18 +169,85 @@ public class MainActivity extends AppCompatActivity
         {
             binding.unfinishedBelowIndicator.getBackground().setColorFilter(ResourcesCompat.getColor(getResources(), R.color.colorAccent, null), PorterDuff.Mode.MULTIPLY);
         }
+        updateExercisePreviews(firstVisiblePosition, lastVisiblePosition);
     }
 
-    private void scrollToNextUnfinishedExercise(boolean scrollUp)
+    private void updateExercisePreviews(int firstVisiblePosition, int lastVisiblePosition)
     {
-        final var layoutManager = (LinearLayoutManager)binding.exercisesBoard.getLayoutManager();
-        if (layoutManager == null || adapter.getItemCount() == 0) { return; }
-        int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
-        int lastVisiblePosition = layoutManager.findLastVisibleItemPosition();
-        if (firstVisiblePosition == RecyclerView.NO_POSITION) { return; }
+        // Find next unfinished exercise above visible area:
+        nextUnfinishedAbovePosition = -1;
+        for (int i = firstVisiblePosition - 1; i >= 0; i--)
+        {
+            if (!adapter.isExerciseFinishedAtPosition(i))
+            {
+                nextUnfinishedAbovePosition = i;
+                break;
+            }
+        }
+        // Find next unfinished exercise below visible area:
+        nextUnfinishedBelowPosition = -1;
+        for (int i = lastVisiblePosition + 1; i < adapter.getItemCount(); i++)
+        {
+            if (!adapter.isExerciseFinishedAtPosition(i))
+            {
+                nextUnfinishedBelowPosition = i;
+                break;
+            }
+        }
+        // Update above preview:
+        if (nextUnfinishedAbovePosition >= 0)
+        {
+            final var info = adapter.getExerciseInfoAtPosition(nextUnfinishedAbovePosition);
+            binding.nextUnfinishedAbovePreview.setExerciseInfo(info);
+            binding.nextUnfinishedAbovePreview.setIsHidden(true);
+            binding.nextUnfinishedAbovePreview.setIsDone(false);
+            binding.nextUnfinishedAbovePreview.setIsEditModeActive(false);
+            binding.nextUnfinishedAbovePreview.exerciseNameField.setFocusable(false);
+            binding.nextUnfinishedAbovePreview.exerciseNameField.setFocusableInTouchMode(false);
+            binding.nextUnfinishedAbovePreview.exerciseNameField.setCursorVisible(false);
+            binding.nextUnfinishedAbovePreview.exerciseNameField.setLongClickable(false);
+            binding.nextUnfinishedAbovePreview.exerciseTokenField.setFocusable(false);
+            binding.nextUnfinishedAbovePreview.exerciseTokenField.setFocusableInTouchMode(false);
+            binding.nextUnfinishedAbovePreview.exerciseTokenField.setCursorVisible(false);
+            binding.nextUnfinishedAbovePreview.exerciseTokenField.setLongClickable(false);
+            binding.nextUnfinishedAbovePreview.executePendingBindings();
+            binding.nextUnfinishedAbovePreview.getRoot().setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            binding.nextUnfinishedAbovePreview.getRoot().setVisibility(View.GONE);
+        }
+        // Update below preview:
+        if (nextUnfinishedBelowPosition >= 0)
+        {
+            final var info = adapter.getExerciseInfoAtPosition(nextUnfinishedBelowPosition);
+            binding.nextUnfinishedBelowPreview.setExerciseInfo(info);
+            binding.nextUnfinishedBelowPreview.setIsHidden(true);
+            binding.nextUnfinishedBelowPreview.setIsDone(false);
+            binding.nextUnfinishedBelowPreview.setIsEditModeActive(false);
+            binding.nextUnfinishedBelowPreview.exerciseNameField.setFocusable(false);
+            binding.nextUnfinishedBelowPreview.exerciseNameField.setFocusableInTouchMode(false);
+            binding.nextUnfinishedBelowPreview.exerciseNameField.setCursorVisible(false);
+            binding.nextUnfinishedBelowPreview.exerciseNameField.setLongClickable(false);
+            binding.nextUnfinishedBelowPreview.exerciseTokenField.setFocusable(false);
+            binding.nextUnfinishedBelowPreview.exerciseTokenField.setFocusableInTouchMode(false);
+            binding.nextUnfinishedBelowPreview.exerciseTokenField.setCursorVisible(false);
+            binding.nextUnfinishedBelowPreview.exerciseTokenField.setLongClickable(false);
+            binding.nextUnfinishedBelowPreview.executePendingBindings();
+            binding.nextUnfinishedBelowPreview.getRoot().setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            binding.nextUnfinishedBelowPreview.getRoot().setVisibility(View.GONE);
+        }
+    }
+
+    private void scrollToOutermostUnfinishedExercise(boolean scrollUp)
+    {
+        if (adapter.getItemCount() == 0) { return; }
         if (scrollUp)
         {
-            for (int i = firstVisiblePosition - 1; i >= 0; i--)
+            for (int i = 0; i < adapter.getItemCount(); i++)
             {
                 if (!adapter.isExerciseFinishedAtPosition(i))
                 {
@@ -186,7 +258,7 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            for (int i = lastVisiblePosition + 1; i < adapter.getItemCount(); i++)
+            for (int i = adapter.getItemCount() - 1; i >= 0; i--)
             {
                 if (!adapter.isExerciseFinishedAtPosition(i))
                 {
@@ -474,8 +546,32 @@ public class MainActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent) {}
         });
         binding.optionsButton.setOnClickListener((View view) -> binding.setIsTopBoxMinimized(!binding.getIsTopBoxMinimized()));
-        binding.unfinishedAboveIndicator.setOnClickListener((View view) -> scrollToNextUnfinishedExercise(true));
-        binding.unfinishedBelowIndicator.setOnClickListener((View view) -> scrollToNextUnfinishedExercise(false));
+        binding.unfinishedAboveIndicator.setOnClickListener((View view) -> scrollToOutermostUnfinishedExercise(true));
+        binding.unfinishedBelowIndicator.setOnClickListener((View view) -> scrollToOutermostUnfinishedExercise(false));
+        binding.nextUnfinishedAbovePreview.cardContent.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedAbovePosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedAbovePosition); }
+        });
+        binding.nextUnfinishedAbovePreview.exerciseNameField.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedAbovePosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedAbovePosition); }
+        });
+        binding.nextUnfinishedAbovePreview.exerciseTokenField.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedAbovePosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedAbovePosition); }
+        });
+        binding.nextUnfinishedBelowPreview.cardContent.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedBelowPosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedBelowPosition); }
+        });
+        binding.nextUnfinishedBelowPreview.exerciseNameField.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedBelowPosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedBelowPosition); }
+        });
+        binding.nextUnfinishedBelowPreview.exerciseTokenField.setOnClickListener((View view) ->
+        {
+            if (nextUnfinishedBelowPosition >= 0) { binding.exercisesBoard.smoothScrollToPosition(nextUnfinishedBelowPosition); }
+        });
         binding.studioText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);
         binding.workoutDateText.setOnFocusChangeListener(this::setEditTextFocusInTopBox);

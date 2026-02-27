@@ -8,6 +8,7 @@
     <dimen name="border_width_medium">4dp</dimen>
     <dimen name="border_width_small">2dp</dimen>
     <dimen name="button_size">40dp</dimen>
+    <dimen name="indicator_button_size">80dp</dimen>
     <dimen name="indicator_text_size">14sp</dimen>
     <dimen name="indicator_text_offset_from_arrow">10dp</dimen>
     <dimen name="indicator_vertical_inset">6dp</dimen>

@@ -6,6 +6,8 @@
 
     <data>
         <variable name="isEditModeActive" type="boolean" />
+        <variable name="isDone" type="boolean" />
+        <variable name="isHidden" type="boolean" />
         <variable name="exerciseInfo" type="com.romanbrunner.apps.fitnesstracker.model.ExerciseInfo" />
     </data>
 
@@ -15,6 +17,7 @@
         >
 
         <LinearLayout
+            android:id="@+id/cardContent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -40,6 +43,7 @@
                     android:hint="@string/h_exerciseName"
                     android:inputType="textCapWords|textNoSuggestions"
                     android:text="@={exerciseInfo.name}"
+                    android:textColor="@{!isEditModeActive &amp;&amp; isDone ? @color/colorAccent : @android:color/primary_text_light}"
                     app:layout_constraintEnd_toStartOf="@+id/exerciseTokenField"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -64,6 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                app:visibleGone="@{isEditModeActive || !isHidden}"
                 >
 
                 <TextView
@@ -92,6 +97,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="LinearLayoutManager"
+                app:visibleGone="@{isEditModeActive || !isHidden}"
                 />
 
             <androidx.constraintlayout.widget.ConstraintLayout

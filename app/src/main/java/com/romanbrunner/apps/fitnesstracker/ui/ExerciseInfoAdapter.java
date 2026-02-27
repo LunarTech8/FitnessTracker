@@ -19,10 +19,12 @@ import com.romanbrunner.apps.fitnesstracker.databinding.ExerciseCardBinding;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 
 class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.ExerciseInfoViewHolder>
@@ -36,6 +38,7 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     private final ExerciseSetAdapter.CallbackFocus editTextFocusCb;
     private List<ExerciseInfoEntity> exerciseInfo;
     private List<ExerciseSetAdapter> adapters;
+    private final Set<String> manuallyExpandedExercises = new HashSet<>();
 
     static class ExerciseInfoViewHolder extends RecyclerView.ViewHolder
     {
@@ -183,6 +186,32 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
         return sets == null || sets.stream().allMatch(ExerciseSetEntity::isDone);
     }
 
+    ExerciseInfoEntity getExerciseInfoAtPosition(int position)
+    {
+        if (exerciseInfo == null || position < 0 || position >= exerciseInfo.size()) { return null; }
+        return exerciseInfo.get(position);
+    }
+
+    void refreshDoneStates()
+    {
+        if (exerciseInfo != null)
+        {
+            // Remove manually expanded entries for exercises that are no longer finished:
+            manuallyExpandedExercises.removeIf(name ->
+            {
+                for (int i = 0; i < exerciseInfo.size(); i++)
+                {
+                    if (Objects.equals(exerciseInfo.get(i).getName(), name))
+                    {
+                        return !isExerciseFinishedAtPosition(i);
+                    }
+                }
+                return true;
+            });
+        }
+        notifyDataSetChanged();
+    }
+
     void setExercise(@NonNull final String exerciseInfoNames, @NonNull final List<ExerciseInfoEntity> exerciseInfo, @NonNull final List<ExerciseSetEntity> exerciseSets)
     {
         // Get ordered list:
@@ -256,11 +285,30 @@ class ExerciseInfoAdapter extends RecyclerView.Adapter<ExerciseInfoAdapter.Exerc
     {
         // Adjust changeable values of the view fields of targeted exercise info:
         ExerciseInfoEntity exerciseInfoEntity = this.exerciseInfo.get(position);
+        final boolean isFinished = isExerciseFinishedAtPosition(position);
+        final boolean isCollapsed = isFinished && !manuallyExpandedExercises.contains(exerciseInfoEntity.getName());
         exerciseInfoViewHolder.binding.setExerciseInfo(exerciseInfoEntity);
         exerciseInfoViewHolder.binding.setIsEditModeActive(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.setIsDone(isFinished);
+        exerciseInfoViewHolder.binding.setIsHidden(isCollapsed);
         exerciseInfoViewHolder.binding.exerciseNameField.setFocusable(MainActivity.isEditModeActive);
-        exerciseInfoViewHolder.binding.exerciseNameField.setEnabled(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.exerciseNameField.setEnabled(MainActivity.isEditModeActive || isFinished);
         exerciseInfoViewHolder.binding.exerciseNameField.setFocusableInTouchMode(MainActivity.isEditModeActive);
+        exerciseInfoViewHolder.binding.exerciseNameField.setOnClickListener((View view) ->
+        {
+            if (MainActivity.isEditModeActive) { return; }
+            if (!isExerciseFinishedAtPosition(exerciseInfoViewHolder.getAdapterPosition())) { return; }
+            final String name = exerciseInfoViewHolder.binding.getExerciseInfo().getName();
+            if (manuallyExpandedExercises.contains(name))
+            {
+                manuallyExpandedExercises.remove(name);
+            }
+            else
+            {
+                manuallyExpandedExercises.add(name);
+            }
+            notifyItemChanged(exerciseInfoViewHolder.getAdapterPosition());
+        });
         exerciseInfoViewHolder.binding.executePendingBindings();
 
         // Adjust adapter for exercise sets of targeted exercise info:
