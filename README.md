@@ -52,7 +52,7 @@ MainActivity → MainViewModel → DataRepository → AppDatabase (Room)
 
 ### Data Model
 
-- **WorkoutUnitEntity** — a workout session (primary key: `Date`), stores studio, name, description, and exercise order as a delimited string
+- **WorkoutUnitEntity** — a workout session (primary key: `Date`), stores studio, name, description, and exercise order as a delimited string (`EXERCISE_NAMES_SEPARATOR = ","` separates name and set count per entry, `EXERCISE_NAMES_DELIMITER = ";"` separates entries)
 - **ExerciseSetEntity** — a single set within a workout (auto-generated ID), linked via foreign keys to `WorkoutUnitEntity` (CASCADE) and `ExerciseInfoEntity` (RESTRICT); template sets (with `workoutUnitDate = NULL`) store default values for quick exercise re-addition
 - **ExerciseInfoEntity** — exercise metadata (primary key: `name`), stores token and remarks
 
@@ -60,9 +60,12 @@ MainActivity → MainViewModel → DataRepository → AppDatabase (Room)
 
 - All layouts use Android Data Binding with `<layout>` root tags
 - Card-based UI: `exercise_card.xml` and `exercise_set_card.xml`
-- Repository uses callback-based async with `CallbackAction<T>` / `CallbackCondition<T>` and `executeOnceForLiveData()` utility
-- Room database version 5 with full migration chain from version 1
+- Repository uses callback-based async with `CallbackAction<T>` / `CallbackCondition<T>` and `executeOnceForLiveData()` utility, backed by a single-thread executor
+- Room database version 6 with full migration chain from version 1; schema files exported to `app/schemas/` — check the latest version there before entity changes and add migration logic when modifying entities
 - Entities implement model interfaces; copy constructors enable workout cloning
+- When switching or finishing workouts, database operations must complete before updating observable LiveData (`postValue` inside the executor) to prevent the UI from loading stale data — see `replaceCurrentWorkoutUnit` and `finishWorkout` in `DataRepository`
+- Edits to studio or workout names immediately store the current workout unit (`storeCurrentWorkoutUnit`), making new studios/workouts switchable before finishing
+- Java classes are organized with "Data code" (constants) and "Functional code" (fields, constructors, methods) section markers
 
 ## Build & Development
 
@@ -88,9 +91,17 @@ MainActivity → MainViewModel → DataRepository → AppDatabase (Room)
 ./gradlew connectedAndroidTest
 ```
 
+### Debug Configuration
+
+- `MainActivity.DEBUG_MODE_ACTIVE = true` enables debug logging and debug-only UI elements
+- Debug builds set `buildConfigField "boolean", "ENABLE_ASSERTIONS", "true"`
+- Room schema export is configured via `room.schemaLocation = "$projectDir/schemas"`
+
 ### Project Structure
 
 ```
+app/
+├── schemas/                       # Room schema exports (versions 1–6)
 app/src/main/
 ├── java/.../fitnesstracker/
 │   ├── BasicApp.java              # Application class
@@ -123,7 +134,6 @@ app/src/main/
 │   │   └── exercise_set_card.xml  # Exercise set card layout
 │   ├── drawable/                  # Borders, icons
 │   └── values/                    # Colors, dimens, strings, styles
-└── schemas/                       # Room schema exports
 ```
 
 ## License
